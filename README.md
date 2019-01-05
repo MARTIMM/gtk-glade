@@ -1,14 +1,14 @@
-# Library - Meta data library
+# GTK::Glade - Accessing Gtk UI using Glade IDE
 
 <!--
-[![Build Status](https://travis-ci.org/MARTIMM/Library.svg?branch=master)](https://travis-ci.org/MARTIMM/Library)
+[![Build Status](https://travis-ci.org/MARTIMM/gtk-glade.svg?branch=master)](https://travis-ci.org/MARTIMM/gtk-glade) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/6yaqqq9lgbq6nqot?svg=true&branch=master&passingText=Windows%20-%20OK&failingText=Windows%20-%20FAIL&pendingText=Windows%20-%20pending)](https://ci.appveyor.com/project/MARTIMM/gtk-glade/branch/master)
 [![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
 -->
 
 # Description
-With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description which is saved by an external designer program. The program used is glade which saves an XML description of the made design. This program however also uses parts of GTK::Simple so one should be able to use methods from there too.
+With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description which is saved by an external designer program. The program used is glade which saves an XML description of the made design. This program however also uses parts of GTK::Simple to tap into the rich set of native declarations.
 
-The user must provide a module which holds the methods needed to receive signals defined in the ui-design.
+The user must provide a class which holds the methods needed to receive signals defined in the ui-design. This might be extended later on.
 
 Then only two lines of code (besides the loading of modules) to let the ui appear and enter the main loop.
 
@@ -39,7 +39,10 @@ The first thing to do is designing a ui. The result saved by glade is shown belo
 Then write code to handle all signals which are defined by the user interface. Don't have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it. Only the method to handle a click event from the quit button is shown. The file is saved in **lib/MyEngine.pm6**.
 
 ```
-class MyEngine is GladePerl6Api::Engine {
+use v6;
+use GTK::Glade;
+
+class MyEngine is GTK::Glade::Engine {
 
   #-----------------------------------------------------------------------------
   method quit-program ( Hash $o, :$widget, :$data, :$object ) {
@@ -55,7 +58,7 @@ class MyEngine is GladePerl6Api::Engine {
 }
 
 ```
-Above are a few examples of gtk subroutines which are mostly defined in ` GTK::Simple::Raw` of the GTK::Simple package. A few missing were added in `GladePerl6Api`. Examples used above are `gtk_button_get_label()`, `gtk_widget_get_name()` and `gtk_main_quit()`.
+Above are a few examples of gtk subroutines which are mostly defined in ` GTK::Simple::Raw` of the GTK::Simple package. A few missing subs were added in `GTK::Glade`. Examples used above are `gtk_button_get_label()`, `gtk_widget_get_name()` and `gtk_main_quit()`.
 
 
 #### The main program
@@ -63,20 +66,20 @@ The rest is a piece of cake.
 ```
 use v6;
 use MyEngine;
-use GladePerl6Api;
+use GTK::Glade;
 
 # Instantiate your engine class with whatever your class needs
 my MyEngine $engine .= new();
 
 # Instantiate the api class, display the designed interface
 # and enter the main loop
-my GladePerl6Api $a .= new( :ui-file("example.ui"), :$engine);
+my GTK::Glade $a .= new( :ui-file("example.ui"), :$engine);
 ```
 
 # TODO
 
-* What can we do with the GladePerl6Api object after it exits the main loop.
-* Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends what is added later.
+* What can we do with the GTK::Glade object after it exits the main loop.
+* Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends on what is added later.
 * Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
 * Need to test more things like adding or modifying content of widgets.
 * Modifying the interface by using GTK::Simple.
@@ -88,9 +91,9 @@ my GladePerl6Api $a .= new( :ui-file("example.ui"), :$engine);
 * Generated user interface file is for **Gtk >= 3.10**
 
 
-# Installation of GladePerl6Api
+# Installation of GTK::Glade
 
-`zef install git://github:MARTIMM/GladePerl6Api.git`
+`zef install git://github:MARTIMM/GTK::Glade.git`
 
 
 # Author

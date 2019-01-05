@@ -10,13 +10,12 @@ skinparam state {
 
 state "xyz.ui" as gladeFile <<file>>
 state "xyz.pm6" as perlModule <<file>>
-state "GladePerl6Api.pm6" as perlLibModule <<file>>
+state "GTK::Glade.pm6" as perlLibModule <<file>>
 
 
-[*] --> Prepare
+'[*] --> Prepare
 state "Preparation of\ncode and data" as Prepare {
 
-  [*] -> Design: user\naction
   Design: Design user interface\nusing glade and\nsave ui description
   Design --> gladeFile: save
 
@@ -24,22 +23,24 @@ state "Preparation of\ncode and data" as Prepare {
   P6Code --> perlModule: save
   P6Code: Perl6 Engine class\nwith methods for all\ndefined signals
 
-  P6Code -> [*]
+  'P6Code -> [*]
 }
+
+[*] --> Design: user\naction
 
 
 state "Perl6 program" as P6CodeFlow {
-  state "GladePerl6Api::Engine" as Engine
+  state "GTK::Glade::Engine" as Engine
 
-  [*] -> Engine
-  perlLibModule --> GladePerl6Api: "use GladePerl6Api;"
-  gladeFile --> GladePerl6Api: ":file('xyz.ui')"
+  '[*] -> Engine
+  perlLibModule --> GTK::Glade: "use GTK::Glade;"
+  gladeFile --> GTK::Glade: ":file('xyz.ui')"
   perlModule --> Engine: "use xyz;"
-  Engine -> GladePerl6Api: ":engine($obj)"
-  GladePerl6Api -> [*]: Exit main\nloop
+  Engine -> GTK::Glade: ":engine($obj)"
+  'GTK::Glade -> [*]: Exit main\nloop
 }
 
-Prepare --> P6CodeFlow
-P6CodeFlow --> [*]
-
+Prepare --> P6CodeFlow: Start\nprogram
+'P6CodeFlow --> [*]
+GTK::Glade --> [*]: Exit main\nloop
 ```

@@ -1,6 +1,6 @@
 use v6;
 
-use GladePerl6Api;
+use GTK::Glade;
 use Test;
 
 diag "\n";
@@ -73,7 +73,7 @@ $file.IO.spurt(Q:q:to/EOXML/);
   EOXML
 
 
-class E is GladePerl6Api::Engine {
+class E is GTK::Glade::Engine {
   #has Str $!t;
   #submethod BUILD ( Str:D :$!t ) { note "T: $!t"; }
 
@@ -116,8 +116,8 @@ class E is GladePerl6Api::Engine {
 #-------------------------------------------------------------------------------
 subtest 'Action object', {
   my E $engine .= new();
-  my GladePerl6Api $a .= new( :ui-file($file), :$engine);
-  isa-ok $a, GladePerl6Api, 'type ok';
+  my GTK::Glade $a .= new( :ui-file($file), :$engine);
+  isa-ok $a, GTK::Glade, 'type ok';
 
   #my A $w .= new();
   #$a.process(:actions($w));

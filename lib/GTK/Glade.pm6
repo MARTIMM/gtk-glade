@@ -87,7 +87,7 @@ constant G_CONNECT_SWAPPED = 2;
 
 #-------------------------------------------------------------------------------
 # Gtk function definitions not found in GTK::Simple::Raw and possibly needed
-# by the child classes of GladePerl6Api::Engine
+# by the child classes of GTK::Glade::Engine
 
 # void gtk_widget_set_name ( GtkWidget *widget, const gchar *name );
 sub gtk_widget_set_name ( GObject $widget, Str $name )
@@ -133,7 +133,7 @@ sub g_signal_connect_data( GObject $widget, Str $signal,
       { * }
 
 #-------------------------------------------------------------------------------
-class X::GladePerl6Api:auth<github:MARTIMM> is Exception {
+class X::GTK::Glade:auth<github:MARTIMM> is Exception {
   has Str $.message;            # Error text and error code are data mostly
 #  has Str $.method;             # Method or routine name
 #  has Int $.line;               # Line number where Message is called
@@ -141,7 +141,7 @@ class X::GladePerl6Api:auth<github:MARTIMM> is Exception {
 }
 
 #-------------------------------------------------------------------------------
-class GladePerl6Api::Engine {
+class GTK::Glade::Engine {
 
 #`{{
   #-----------------------------------------------------------------------------
@@ -189,11 +189,11 @@ class GladePerl6Api::Engine {
 }
 
 #-------------------------------------------------------------------------------
-class GladePerl6Api::Work:auth<github:MARTIMM> is XML::Actions::Work {
+class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
 
   has $!builder;
   has Hash $!gobjects;
-  has GladePerl6Api::Engine $!engine;
+  has GTK::Glade::Engine $!engine;
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( Str:D :$ui-file ) {
@@ -215,7 +215,7 @@ class GladePerl6Api::Work:auth<github:MARTIMM> is XML::Actions::Work {
   }
 
   #-----------------------------------------------------------------------------
-  method RUN ( GladePerl6Api::Engine :$!engine ) {
+  method RUN ( GTK::Glade::Engine :$!engine ) {
     gtk_main();
   }
 
@@ -310,16 +310,16 @@ class GladePerl6Api::Work:auth<github:MARTIMM> is XML::Actions::Work {
 }
 
 #-------------------------------------------------------------------------------
-class GladePerl6Api:auth<github:MARTIMM> {
+class GTK::Glade:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
-  submethod BUILD ( Str:D :$ui-file, GladePerl6Api::Engine :$engine ) {
+  submethod BUILD ( Str:D :$ui-file, GTK::Glade::Engine :$engine ) {
 
     # Prepare XML document for processing
     my XML::Actions $actions .= new(:file($ui-file));
 
     # Prepare Gtk Glade work for processing
-    my GladePerl6Api::Work $work .= new(:$ui-file);
+    my GTK::Glade::Work $work .= new(:$ui-file);
 
     # Process the XML document creating the API to the UI
     $actions.process(:actions($work));

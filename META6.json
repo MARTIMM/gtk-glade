@@ -1,6 +1,6 @@
 {
   "description": "Interfacing Glade XML to Perl6",
-  "name": "GladePerl6Api",
+  "name": "GTK::Glade",
   "version": "0.0.1",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "XML", "Glade", "Gtk", "Gtk+"],
@@ -9,10 +9,10 @@
   "license": "Artistic-2.0",
 
   "provides": {
-    "GladePerl6Api": "lib/GladePerl6Api.pm6"
+    "GTK::Glade": "lib/GTK/Glade.pm6"
   },
 
-  "source-url": "git://github.com/MARTIMM/GladePerl6Api.git",
+  "source-url": "git://github.com/MARTIMM/gtk-glade.git",
 
   "depends": [ "XML::Actions", "GTK::Simple"],
   "test-depends": [ "Test::META"],
