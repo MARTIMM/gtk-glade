@@ -1,0 +1,108 @@
+# Library - Meta data library
+
+<!--
+[![Build Status](https://travis-ci.org/MARTIMM/Library.svg?branch=master)](https://travis-ci.org/MARTIMM/Library)
+[![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
+-->
+
+# Description
+With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description which is saved by an external designer program. The program used is glade which saves an XML description of the made design. This program however also uses parts of GTK::Simple so one should be able to use methods from there too.
+
+The user must provide a module which holds the methods needed to receive signals defined in the ui-design.
+
+Then only two lines of code (besides the loading of modules) to let the ui appear and enter the main loop.
+
+# Synopsis
+
+#### User interface file
+The first thing to do is designing a ui. The result saved by glade is shown below. It is only a part of it focused on an exit button. This file is saved in **example.ui**.
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
+<interface>
+  <requires lib="gtk+" version="3.0"/>
+  <object class="GtkWindow" id="window">
+...
+          <object class="GtkButton" id="quit">
+            <property name="label">Quit</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="receives_default">False</property>
+            <signal name="clicked" handler="quit-program"/>
+          </object>
+...
+</interface>
+
+```
+
+#### Class for signal handlers
+Then write code to handle all signals which are defined by the user interface. Don't have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it. Only the method to handle a click event from the quit button is shown. The file is saved in **lib/MyEngine.pm6**.
+
+```
+class MyEngine is GladePerl6Api::Engine {
+
+  #-----------------------------------------------------------------------------
+  method quit-program ( Hash $o, :$widget, :$data, :$object ) {
+
+    note "Button label: ", gtk_button_get_label($widget);
+    note "Button name is by default button's class name: ",
+         gtk_widget_get_name($widget);
+
+    gtk_main_quit();
+  }
+
+  ...
+}
+
+```
+Above are a few examples of gtk subroutines which are mostly defined in ` GTK::Simple::Raw` of the GTK::Simple package. A few missing were added in `GladePerl6Api`. Examples used above are `gtk_button_get_label()`, `gtk_widget_get_name()` and `gtk_main_quit()`.
+
+
+#### The main program
+The rest is a piece of cake.
+```
+use v6;
+use MyEngine;
+use GladePerl6Api;
+
+# Instantiate your engine class with whatever your class needs
+my MyEngine $engine .= new();
+
+# Instantiate the api class, display the designed interface
+# and enter the main loop
+my GladePerl6Api $a .= new( :ui-file("example.ui"), :$engine);
+```
+
+# TODO
+
+* What can we do with the GladePerl6Api object after it exits the main loop.
+* Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends what is added later.
+* Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
+* Need to test more things like adding or modifying content of widgets.
+* Modifying the interface by using GTK::Simple.
+
+# Versions of involved software
+
+* Program is tested against the latest version of **perl6** on **rakudo** en **moarvm**.
+* Used **glade** version is **>= 3.22**
+* Generated user interface file is for **Gtk >= 3.10**
+
+
+# Installation of GladePerl6Api
+
+`zef install git://github:MARTIMM/GladePerl6Api.git`
+
+
+# Author
+
+Name: **Marcel Timmerman**
+Github account name: Github account MARTIMM
+
+
+
+<!--
+[release]: https://github.com/MARTIMM/Library/blob/master/doc/CHANGES.md
+[todo]: https://github.com/MARTIMM/Library/blob/master/doc/TODO.md
+[man]: https://github.com/MARTIMM/Library/blob/master/doc/manual.pdf
+[requir]: https://github.com/MARTIMM/Library/blob/master/doc/requirements.pdf
+-->
