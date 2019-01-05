@@ -10,3 +10,4 @@ spellTmp*
 Old/*
 ~*
 t/Travis-ci/*.tgz
+tests/Pencil*
