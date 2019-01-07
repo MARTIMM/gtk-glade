@@ -19,8 +19,15 @@ sub EXPORT {
 #-------------------------------------------------------------------------------
 # Gtk class definitions
 class GtkBuilder is repr('CPointer') { }
-#class GError is repr('CPointer') { }
 class GObject is repr('CPointer') { }
+
+#class GError is repr('CPointer') { }
+class GError is repr('CStruct') {
+  #has GQuark $.domain;
+  has uint32 $.domain;
+  has int32 $.code;
+  has Str $.message;
+}
 
 #-------------------------------------------------------------------------------
 # Gtk function definitions not found in GTK::Simple::Raw
@@ -39,7 +46,7 @@ sub gtk_builder_new ()
 # guint gtk_builder_add_from_file(
 #      GtkBuilder builder, const gchar *filename, GError **error);
 sub gtk_builder_add_from_file (
-    GtkBuilder $builder, Str $glade-ui  #, GError $error
+    GtkBuilder $builder, Str $glade-ui, GError $error
     ) returns int32
       is native(&gtk-lib)
       { * }
@@ -213,7 +220,9 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
     gtk_init( $argc, $argv);
 
     $!builder = gtk_builder_new();
-    gtk_builder_add_from_file( $!builder, $ui-file);
+    my GError $error .= new;
+    gtk_builder_add_from_file( $!builder, $ui-file, $error);
+    note $error.message;
   }
 
   #-----------------------------------------------------------------------------
@@ -228,10 +237,11 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
 
     if !? $id {
       $id = $default-id;
+      $parent-path[*-1].set( 'id', $default-id);
       $default-id .= succ;
     }
 
-    note "Object $class, name '$id'";
+    note "Object $class, id '$id'";
     self!set-object($id);
 
 #`{{
@@ -278,6 +288,7 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   ) {
     #TODO bring into XML::Actions
     my %object = $parent-path[*-2].attribs;
+note "Attr of el {$parent-path[*-2].name}: ", %object.perl;
     my $id = %object<id>;
 
     my Int $connect-flags = 0;
