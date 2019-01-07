@@ -102,9 +102,10 @@ Name: **Marcel Timmerman**
 Github account name: Github account MARTIMM
 
 
+<!---- [refs] ----------------------------------------------------------------->
+[release]: https://github.com/MARTIMM/gtk-glade/blob/master/doc/CHANGES.md
 
 <!--
-[release]: https://github.com/MARTIMM/Library/blob/master/doc/CHANGES.md
 [todo]: https://github.com/MARTIMM/Library/blob/master/doc/TODO.md
 [man]: https://github.com/MARTIMM/Library/blob/master/doc/manual.pdf
 [requir]: https://github.com/MARTIMM/Library/blob/master/doc/requirements.pdf
