@@ -93,7 +93,7 @@ my GTK::Glade $a .= new( :ui-file("example.ui"), :$engine);
 
 # Installation of GTK::Glade
 
-`zef install git://github:MARTIMM/GTK::Glade.git`
+`zef install GTK::Glade`
 
 
 # Author
