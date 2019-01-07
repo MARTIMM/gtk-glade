@@ -6,7 +6,7 @@ use Test;
 diag "\n";
 
 #-------------------------------------------------------------------------------
-my $dir = 't/x';
+my $dir = 'xt/x';
 mkdir $dir unless $dir.IO ~~ :e;
 
 my Str $file = "$dir/a.xml";

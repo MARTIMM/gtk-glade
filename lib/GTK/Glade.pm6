@@ -195,6 +195,8 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   has Hash $!gobjects;
   has GTK::Glade::Engine $!engine;
 
+  has Str $default-id = "gtk-glade-id-0001";
+
   #-----------------------------------------------------------------------------
   submethod BUILD ( Str:D :$ui-file ) {
 
@@ -220,7 +222,11 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   }
 
   #-----------------------------------------------------------------------------
-  method object ( Array:D $parent-path, Str:D :$id, Str:D :$class) {
+  method object ( Array:D $parent-path, Str :$id is copy, Str:D :$class) {
+
+    #die X::GTK::Glade.new(:message("\nId must be defined, go back to glade and set id for this $class widget"));
+    $id = $default-id;
+    $default-id .= succ;
     note "Object $class, name '$id'";
     self!set-object($id);
 

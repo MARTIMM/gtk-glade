@@ -17,21 +17,6 @@
         <property name="can_focus">False</property>
         <property name="row_spacing">6</property>
         <property name="column_spacing">6</property>
-        <property name="column_homogeneous">True</property>
-        <child>
-          <object class="GtkTextView" id="outputTxt">
-            <property name="width_request">200</property>
-            <property name="height_request">300</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="wrap_mode">word</property>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-            <property name="width">3</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkLabel" id="inputTxtLbl">
             <property name="visible">True</property>
@@ -97,6 +82,31 @@
           <packing>
             <property name="left_attach">2</property>
             <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="ScrolledOutputTxt">
+            <property name="width_request">200</property>
+            <property name="height_request">300</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="shadow_type">in</property>
+            <property name="max_content_width">200</property>
+            <property name="max_content_height">300</property>
+            <child>
+              <object class="GtkTextView" id="outputTxt">
+                <property name="width_request">200</property>
+                <property name="height_request">300</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="wrap_mode">word</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+            <property name="width">3</property>
           </packing>
         </child>
       </object>

@@ -9,7 +9,7 @@ use Test;
 diag "\n";
 
 #-------------------------------------------------------------------------------
-my $dir = 't/x';
+my $dir = 'xt/x';
 mkdir $dir unless $dir.IO ~~ :e;
 
 my Str $file = "$dir/a.xml";
@@ -32,54 +32,13 @@ $file.IO.spurt(Q:q:to/EOXML/);
           <property name="can_focus">False</property>
           <property name="row_spacing">6</property>
           <property name="column_spacing">6</property>
-          <property name="column_homogeneous">True</property>
-          <child>
-            <object class="GtkTextView" id="outputTxt">
-              <property name="width_request">200</property>
-              <property name="height_request">300</property>
-              <property name="visible">True</property>
-              <property name="can_focus">True</property>
-              <property name="wrap_mode">word</property>
-            </object>
-            <packing>
-              <property name="left_attach">0</property>
-              <property name="top_attach">0</property>
-              <property name="width">3</property>
-              <property name="height">1</property>
-            </packing>
-          </child>
-          <child>
-            <object class="GtkButton" id="quitBttn">
-              <property name="label">Quit</property>
-              <property name="visible">True</property>
-              <property name="can_focus">False</property>
-              <property name="receives_default">False</property>
-              <signal name="clicked" handler="exit-program" swapped="no"/>
-            </object>
-            <packing>
-              <property name="left_attach">2</property>
-              <property name="top_attach">2</property>
-            </packing>
-          </child>
-          <child>
-            <object class="GtkButton" id="copyBttn">
-              <property name="label">Copy Text</property>
-              <property name="visible">True</property>
-              <property name="can_focus">False</property>
-              <property name="receives_default">False</property>
-              <signal name="clicked" handler="copy-text" swapped="no"/>
-            </object>
-            <packing>
-              <property name="left_attach">1</property>
-              <property name="top_attach">2</property>
-            </packing>
-          </child>
           <child>
             <object class="GtkLabel" id="inputTxtLbl">
               <property name="visible">True</property>
               <property name="can_focus">False</property>
-              <property name="justify">right</property>
               <property name="label" translatable="yes">Text to copy</property>
+              <property name="justify">right</property>
+              <property name="single_line_mode">True</property>
               <attributes>
                 <attribute name="foreground" value="#c1c17d7d1111"/>
               </attributes>
@@ -112,6 +71,57 @@ $file.IO.spurt(Q:q:to/EOXML/);
             <packing>
               <property name="left_attach">0</property>
               <property name="top_attach">2</property>
+            </packing>
+          </child>
+          <child>
+            <object class="GtkButton" id="copyBttn">
+              <property name="label">Copy Text</property>
+              <property name="visible">True</property>
+              <property name="can_focus">False</property>
+              <property name="receives_default">False</property>
+              <signal name="clicked" handler="copy-text" swapped="no"/>
+            </object>
+            <packing>
+              <property name="left_attach">1</property>
+              <property name="top_attach">2</property>
+            </packing>
+          </child>
+          <child>
+            <object class="GtkButton" id="quitBttn">
+              <property name="label">Quit</property>
+              <property name="visible">True</property>
+              <property name="can_focus">False</property>
+              <property name="receives_default">False</property>
+              <signal name="clicked" handler="exit-program" swapped="no"/>
+            </object>
+            <packing>
+              <property name="left_attach">2</property>
+              <property name="top_attach">2</property>
+            </packing>
+          </child>
+          <child>
+            <object class="GtkScrolledWindow" id="ScrolledOutputTxt">
+              <property name="width_request">200</property>
+              <property name="height_request">300</property>
+              <property name="visible">True</property>
+              <property name="can_focus">True</property>
+              <property name="shadow_type">in</property>
+              <property name="max_content_width">200</property>
+              <property name="max_content_height">300</property>
+              <child>
+                <object class="GtkTextView" id="outputTxt">
+                  <property name="width_request">200</property>
+                  <property name="height_request">300</property>
+                  <property name="visible">True</property>
+                  <property name="can_focus">True</property>
+                  <property name="wrap_mode">word</property>
+                </object>
+              </child>
+            </object>
+            <packing>
+              <property name="left_attach">0</property>
+              <property name="top_attach">0</property>
+              <property name="width">3</property>
             </packing>
           </child>
         </object>
@@ -159,7 +169,8 @@ note "Text: ", $text//'-';
   method clear-text ( Hash $o, :$widget, :$data, :$object ) {
 
     # Get the output text and clear output field
-    my $output-text = $o<outputTxt>;
+    my GtkWidget $output-text = $o<outputTxt>;
+#note "outputTxt object: ", $output-text;
     my $buffer = gtk_text_view_get_buffer($output-text);
     note gtk_text_buffer_get_text(
            $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
@@ -206,5 +217,5 @@ subtest 'Action object', {
 #-------------------------------------------------------------------------------
 done-testing;
 
-unlink $file;
-rmdir $dir;
+#unlink $file;
+#rmdir $dir;
