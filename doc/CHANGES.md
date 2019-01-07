@@ -1,7 +1,8 @@
 ## Release notes
 
 * 0.3.1
-  * bugfix
+  * Bugfixes
+  * Added GError structure to get error messages
 * 0.3.0
   * Use native call interface to display glade designed ui using GtkBuilder.
   * Get GTK widget objects from GtkBuilder using their id found from the glade description.
