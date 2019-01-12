@@ -97,16 +97,17 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   #-----------------------------------------------------------------------------
   multi method glade-add-gui ( Str:D :$ui-string! ) {
 
+    my GError $err;
     if ?$!builder {
       my $error-code = gtk_builder_add_from_string(
-        $!builder, $ui-string, -1, Any
+        $!builder, $ui-string, $ui-string.chars, $err
       );
-
+note "Error message: $err.message()" if $error-code == 0;
       die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
     }
 
     else {
-      $!builder = gtk_builder_new_from_string( $ui-string, -1);
+      $!builder = gtk_builder_new_from_string( $ui-string, $ui-string.chars);
     }
   }
 
@@ -116,8 +117,8 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   }
 
   #-----------------------------------------------------------------------------
-  method !glade-get-object( Str:D $id --> GObject ) {
-    $!gobjects{$id} // GObject;
+  method !glade-get-object( Str:D $id --> GtkWidget ) {
+    $!gobjects{$id} // GtkWidget;
   }
 
   #-----------------------------------------------------------------------------
@@ -131,45 +132,8 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   #-----------------------------------------------------------------------------
   method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
-    #die X::GTK::Glade.new(:message("\nId must be defined, go back to glade and set id for this $class widget"));
-
     note "Object $class, id '$id'";
     self!glade-set-object($id);
-
-#`{{
-    given $class {
-      when "GtkWindow" {
-        g_signal_connect_object(
-          self!glade-get-object($id), "delete-event",
-          -> $widget, $data { self!exit-program; },
-          OpaquePointer, 0
-        );
-      }
-
-      when "GtkButton" {
-        if self.^can($id) {
-          g_signal_connect_object(
-            self!glade-get-object($id), "clicked",
-            sub ( $widget, $data ) {
-              note "in handler of ", self.perl;
-              note "can do PLACEHOLDER: ", self.^can("PLACEHOLDER");
-              #self.PLACEHOLDER( $id, $class);
-              note "Object $class '$id' signalled";
-            },
-            OpaquePointer, 0
-          );
-        }
-
-        else {
-          g_signal_connect_object(
-            $!gobjects{$id}, "clicked",
-            -> $widget, $data { self."$id"(); },
-            OpaquePointer, 0
-          );
-        }
-      }
-    }
-}}
   }
 
   #-----------------------------------------------------------------------------
@@ -178,10 +142,11 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
     Str:D :handler($handler-name),
     Str :$object, Str :$after, Str :$swapped
   ) {
-    #TODO bring into XML::Actions
+    #TODO bring following code into XML::Actions
     my %object = $parent-path[*-2].attribs;
     my $id = %object<id>;
-note "Attr of el {$parent-path[*-2].name}: ",
+
+note "Signal Attr of {$parent-path[*-2].name}: ",
       self!glade-get-object($id), ", ", %object.perl;
 
     my Int $connect-flags = 0;
@@ -211,15 +176,15 @@ note "Attr of el {$parent-path[*-2].name}: ",
 # Preprocessing class to get ids on all objects
 class GTK::Glade::PreProcess:auth<github:MARTIMM> is XML::Actions::Work {
 
-  has Str $default-id = "gtk-glade-id-0001";
+  has Str $!default-id = "gtk-glade-id-0001";
 
   method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
     # if no id is defined, modify the xml element
     if !? $id {
-      $id = $default-id;
-      $parent-path[*-1].set( 'id', $default-id);
-      $default-id .= succ;
+      $id = $!default-id;
+      $parent-path[*-1].set( 'id', $!default-id);
+      $!default-id .= succ;
     }
   }
 }
@@ -233,14 +198,18 @@ class GTK::Glade:auth<github:MARTIMM> {
     # Prepare XML document for processing
     my XML::Actions $actions .= new(:file($ui-file));
 
-    # Prepare Gtk Glade work for processing
+    # Prepare Gtk Glade work for preprocessing. In this phase all missing
+    # ids on objects are generated and written back in the xml elements.
     my GTK::Glade::PreProcess $pp .= new;
     $actions.process(:actions($pp));
     my Str $modified-ui = $actions.result;
+#    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
 
     # Prepare Gtk Glade work for processing
     my GTK::Glade::Work $work .= new;
     $work.glade-add-gui(:ui-string($modified-ui));
+#    $work.glade-add-gui(:ui-string("hoeperdepoep")); # test for failure
+    $modified-ui = Str;
 
     # Process the XML document creating the API to the UI
     $actions.process(:actions($work));
