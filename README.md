@@ -6,7 +6,7 @@
 -->
 
 # Description
-With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description which is saved by an external designer program. The program used is glade which saves an XML description of the made design. This program however also uses parts of GTK::Simple to tap into the rich set of native declarations.
+With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description which is saved by an external designer program. The program used is glade which saves an XML description of the made design.
 
 The user must provide a class which holds the methods needed to receive signals defined in the ui-design. This might be extended later on.
 
@@ -58,7 +58,7 @@ class MyEngine is GTK::Glade::Engine {
 }
 
 ```
-Above are a few examples of gtk subroutines which are mostly defined in ` GTK::Simple::Raw` of the GTK::Simple package. A few missing subs were added in `GTK::Glade`. Examples used above are `gtk_button_get_label()`, `gtk_widget_get_name()` and `gtk_main_quit()`.
+Above are a few examples of gtk subroutines which are mostly defined in ` GTK::Glade::NativeGtk` which is pinched largely from the GTK::Simple package. A few missing subs were added and others were modified or removed. Examples used above are `gtk_button_get_label()`, `gtk_widget_get_name()` and `gtk_main_quit()`.
 
 
 #### The main program
