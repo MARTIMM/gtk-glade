@@ -3,141 +3,19 @@ use XML::Actions;
 
 use nqp;
 use NativeCall;
-use GTK::Simple::NativeLib;
-use GTK::Simple::Raw :ALL;
+use GTK::Glade::NativeLib;
+use GTK::Glade::NativeGtk;
 
+#-------------------------------------------------------------------------------
 # Export all symbols and functions from GTK::Simple::Raw
 sub EXPORT {
   my %export;
-  for GTK::Simple::Raw::EXPORT::ALL::.kv -> $k,$v {
+  for GTK::Glade::NativeGtk::EXPORT::ALL::.kv -> $k,$v {
     %export{$k} = $v;
   }
 
   %export;
 }
-
-#-------------------------------------------------------------------------------
-# Gtk class definitions
-class GtkBuilder is repr('CPointer') { }
-class GObject is repr('CPointer') { }
-
-#class GError is repr('CPointer') { }
-class GError is repr('CStruct') {
-  #has GQuark $.domain;
-  has uint32 $.domain;
-  has int32 $.code;
-  has Str $.message;
-}
-
-#-------------------------------------------------------------------------------
-# Gtk function definitions not found in GTK::Simple::Raw
-
-# void gtk_init ( int *argc, char ***argv);
-#sub gtk_init ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
-#    is native(&gtk-lib)
-#    { * }
-
-# GtkBuilder *gtk_builder_new (void);
-sub gtk_builder_new ()
-    returns GtkBuilder
-    is native(&gtk-lib)
-    { * }
-
-# guint gtk_builder_add_from_file(
-#      GtkBuilder builder, const gchar *filename, GError **error);
-sub gtk_builder_add_from_file (
-    GtkBuilder $builder, Str $glade-ui, GError $error
-    ) returns int32
-      is native(&gtk-lib)
-      { * }
-
-# GObject *gtk_builder_get_object (
-#      GtkBuilder *builder, const gchar *name);
-sub gtk_builder_get_object (
-    GtkBuilder $builder, Str $object-id
-    ) returns GObject
-      is native(&gtk-lib)
-      { * }
-
-# void gtk_main (void);
-#sub gtk_main ( )
-#  is native(&gtk-lib)
-#  { * }
-
-# void gtk_main_quit (void);
-#sub gtk_main_quit ( )
-#  is native(&gtk-lib)
-#  { * }
-
-# gulong g_signal_connect_object (
-#      gpointer instance, const gchar *detailed_signal,
-#      GCallback c_handler, gpointer gobject,
-#      GConnectFlags connect_flags);
-#sub g_signal_connect_object( GObject $widget, Str $signal,
-#    &Handler ( GObject $h_widget, OpaquePointer $h_data),
-#    OpaquePointer $data, int32 $connect_flags
-#    ) returns int32
-#      is native(&gobject-lib)
-#      #is symbol('g_signal_connect_object')
-#      { * }
-
-# void g_signal_handler_disconnect (
-#     gpointer instance, gulong handler_id);
-#sub g_signal_handler_disconnect( GObject $widget, int32 $handler_id )
-#    is native(&gobject-lib)
-#    { * }
-
-#-------------------------------------------------------------------------------
-# Gtk constant definitions not found in GTK::Simple::Raw
-constant G_CONNECT_AFTER = 1;
-constant G_CONNECT_SWAPPED = 2;
-
-#-------------------------------------------------------------------------------
-# Gtk function definitions not found in GTK::Simple::Raw and possibly needed
-# by the child classes of GTK::Glade::Engine
-
-# void gtk_widget_set_name ( GtkWidget *widget, const gchar *name );
-sub gtk_widget_set_name ( GObject $widget, Str $name )
-    is native(&gtk-lib)
-    is export
-    { * }
-
-# const gchar *gtk_widget_get_name ( GtkWidget *widget );
-sub gtk_widget_get_name ( GObject $widget )
-    returns Str
-    is native(&gtk-lib)
-    is export
-    { * }
-
-# void gtk_text_buffer_insert (
-#      GtkTextBuffer *buffer, GtkTextIter *iter, const gchar *text, gint len);
-sub gtk_text_buffer_insert( OpaquePointer $buffer, CArray[int32] $start,
-    Str $text, int32 $len
-    ) is native(&gtk-lib)
-      is export
-      { * }
-
-# from /usr/include/glib-2.0/gobject/gsignal.h
-# #define g_signal_connect( instance, detailed_signal, c_handler, data)
-# as g_signal_connect_data (
-#      (instance), (detailed_signal),
-#      (c_handler), (data), NULL, (GConnectFlags) 0
-#    )
-# So;
-# gulong g_signal_connect_data ( gpointer instance,
-#          const gchar *detailed_signal,
-#          GCallback c_handler,
-#          gpointer data,
-#          GClosureNotify destroy_data,
-#          GConnectFlags connect_flags );
-sub g_signal_connect_data( GObject $widget, Str $signal,
-    &Handler ( GObject $h_widget, OpaquePointer $h_data),
-    OpaquePointer $data, OpaquePointer $destroy_data, int32 $connect_flags
-    ) returns int32
-      is native(&gobject-lib)
-      #is symbol('g_signal_connect_object')
-      #is export
-      { * }
 
 #-------------------------------------------------------------------------------
 class X::GTK::Glade:auth<github:MARTIMM> is Exception {
@@ -148,35 +26,7 @@ class X::GTK::Glade:auth<github:MARTIMM> is Exception {
 }
 
 #-------------------------------------------------------------------------------
-class GTK::Glade::Engine {
-
-#`{{
-  #-----------------------------------------------------------------------------
-  method g_signal_connect (
-    GtkWidget $widget, Str $signal, Routine $handler, OpaquePointer $data,
-    #Bool $swapped = False, Bool $after = False
-  ) {
-    g_signal_connect_data( $widget, $signal, $handler, $data, OpaquePointer, 0);
-  }
-}}
-
-#`{{
-  #-----------------------------------------------------------------------------
-  method exit-program ( :$widget, :$data, :$object ) {
-    note "Exit program...";
-    gtk_main_quit();
-  }
-}}
-
-  #-----------------------------------------------------------------------------
-  # From Gtk::Simple
-#`{{
-  method int2blob ( Int $i --> CArray[int32] ) {
-    my $blob = CArray[int32].new;
-    $blob[31] = $i;
-    $blob
-  }
-}}
+class GTK::Glade::Engine:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
   method start-iter ( $buffer ) {
@@ -202,10 +52,8 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   has Hash $!gobjects;
   has GTK::Glade::Engine $!engine;
 
-  has Str $default-id = "gtk-glade-id-0001";
-
   #-----------------------------------------------------------------------------
-  submethod BUILD ( Str:D :$ui-file ) {
+  submethod BUILD ( ) {
 
     $!gobjects = {};
     $!engine .= new();
@@ -219,36 +67,80 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
     $argv[0] = $arg_arr;
     gtk_init( $argc, $argv);
 
-    $!builder = gtk_builder_new();
-    my GError $error .= new;
-    gtk_builder_add_from_file( $!builder, $ui-file, $error);
-    note $error.message;
+#`{{
+    if $ui-file.IO ~~ :r {
+      $!builder = gtk_builder_new_from_file($ui-file);
+    }
+
+    else {
+      $!builder = gtk_builder_new();
+    }
+}}
   }
 
   #-----------------------------------------------------------------------------
-  method RUN ( GTK::Glade::Engine :$!engine ) {
+  # Prefix all methods with 'glade-' to distinguish them from callback methods
+  # for glade gui xml elements when that file is processed by XML::Actions
+  #-----------------------------------------------------------------------------
+  multi method glade-add-gui ( Str:D :$ui-file! ) {
+
+    if ?$!builder {
+      my $error-code = gtk_builder_add_from_file( $!builder, $ui-file, Any);
+      die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
+    }
+
+    else {
+      $!builder = gtk_builder_new_from_file($ui-file);
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+  multi method glade-add-gui ( Str:D :$ui-string! ) {
+
+    if ?$!builder {
+      my $error-code = gtk_builder_add_from_string(
+        $!builder, $ui-string, -1, Any
+      );
+
+      die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
+    }
+
+    else {
+      $!builder = gtk_builder_new_from_string( $ui-string, -1);
+    }
+  }
+
+  #-----------------------------------------------------------------------------
+  method glade-run ( GTK::Glade::Engine :$!engine ) {
     gtk_main();
   }
 
+  #-----------------------------------------------------------------------------
+  method !glade-get-object( Str:D $id --> GObject ) {
+    $!gobjects{$id} // GObject;
+  }
+
+  #-----------------------------------------------------------------------------
+  method !glade-set-object( Str:D $id ) {
+    $!gobjects{$id} = gtk_builder_get_object( $!builder, $id)
+      unless ?$!gobjects{$id};
+  }
+
+  #-----------------------------------------------------------------------------
+  # Callback methods called from XML::Actions
   #-----------------------------------------------------------------------------
   method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
     #die X::GTK::Glade.new(:message("\nId must be defined, go back to glade and set id for this $class widget"));
 
-    if !? $id {
-      $id = $default-id;
-      $parent-path[*-1].set( 'id', $default-id);
-      $default-id .= succ;
-    }
-
     note "Object $class, id '$id'";
-    self!set-object($id);
+    self!glade-set-object($id);
 
 #`{{
     given $class {
       when "GtkWindow" {
         g_signal_connect_object(
-          self!get-object($id), "delete-event",
+          self!glade-get-object($id), "delete-event",
           -> $widget, $data { self!exit-program; },
           OpaquePointer, 0
         );
@@ -257,7 +149,7 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
       when "GtkButton" {
         if self.^can($id) {
           g_signal_connect_object(
-            self!get-object($id), "clicked",
+            self!glade-get-object($id), "clicked",
             sub ( $widget, $data ) {
               note "in handler of ", self.perl;
               note "can do PLACEHOLDER: ", self.^can("PLACEHOLDER");
@@ -288,21 +180,24 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   ) {
     #TODO bring into XML::Actions
     my %object = $parent-path[*-2].attribs;
-note "Attr of el {$parent-path[*-2].name}: ", %object.perl;
     my $id = %object<id>;
+note "Attr of el {$parent-path[*-2].name}: ",
+      self!glade-get-object($id), ", ", %object.perl;
 
     my Int $connect-flags = 0;
     $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
     $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
-    self!set-object($id);
+    #self!glade-set-object($id);
+
     g_signal_connect_wd(
-      self!get-object($id), $signal-name,
+      self!glade-get-object($id), $signal-name,
       -> $widget, $data {
         if $!engine.^can($handler-name) {
           my Hash $o = $!gobjects.clone();
           $!engine."$handler-name"( $o, :$widget, :$data, :$object);
         }
+
         else {
           note "Handler $handler-name on $id object using $signal-name event not defined";
         }
@@ -310,24 +205,23 @@ note "Attr of el {$parent-path[*-2].name}: ", %object.perl;
       OpaquePointer, $connect-flags
     );
   }
+}
 
-  #-----------------------------------------------------------------------------
-  method !get-object( Str:D $id --> GObject ) {
-    $!gobjects{$id} // GObject;
-  }
+#-------------------------------------------------------------------------------
+# Preprocessing class to get ids on all objects
+class GTK::Glade::PreProcess:auth<github:MARTIMM> is XML::Actions::Work {
 
-  #-----------------------------------------------------------------------------
-  method !set-object( Str:D $id ) {
-    $!gobjects{$id} = gtk_builder_get_object( $!builder, $id)
-      unless ?$!gobjects{$id};
+  has Str $default-id = "gtk-glade-id-0001";
+
+  method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
+
+    # if no id is defined, modify the xml element
+    if !? $id {
+      $id = $default-id;
+      $parent-path[*-1].set( 'id', $default-id);
+      $default-id .= succ;
+    }
   }
-#`{{
-  #-----------------------------------------------------------------------------
-  method !exit-program ( ) {
-    note "Exit program...";
-    gtk_main_quit();
-  }
-}}
 }
 
 #-------------------------------------------------------------------------------
@@ -340,12 +234,18 @@ class GTK::Glade:auth<github:MARTIMM> {
     my XML::Actions $actions .= new(:file($ui-file));
 
     # Prepare Gtk Glade work for processing
-    my GTK::Glade::Work $work .= new(:$ui-file);
+    my GTK::Glade::PreProcess $pp .= new;
+    $actions.process(:actions($pp));
+    my Str $modified-ui = $actions.result;
+
+    # Prepare Gtk Glade work for processing
+    my GTK::Glade::Work $work .= new;
+    $work.glade-add-gui(:ui-string($modified-ui));
 
     # Process the XML document creating the API to the UI
     $actions.process(:actions($work));
 
-    $work.RUN(:$engine);
+    $work.glade-run(:$engine);
 
     #note $work.state-engine-data;
   }
