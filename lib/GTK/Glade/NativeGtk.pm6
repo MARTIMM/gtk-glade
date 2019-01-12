@@ -15,8 +15,9 @@ unit module GTK::Glade::NativeGtk;
 class GtkBuilder is repr('CPointer') { }
 class GObject is repr('CPointer') is export { }
 class GtkWidget is repr('CPointer') is export { }
+class GtkWindow is repr('CPointer') is export { }
 
-class GError is repr('CStruct') {
+class GError is repr('CStruct') is export {
   #has GQuark $.domain;
   has uint32 $.domain;
   has int32 $.code;
@@ -143,13 +144,13 @@ sub gtk_widget_set_tooltip_text(GtkWidget $widget, Str $text)
     { * }
 
 # void gtk_widget_set_name ( GtkWidget *widget, const gchar *name );
-sub gtk_widget_set_name ( GObject $widget, Str $name )
+sub gtk_widget_set_name ( GtkWidget $widget, Str $name )
     is native(&gtk-lib)
     is export
     { * }
 
 # const gchar *gtk_widget_get_name ( GtkWidget *widget );
-sub gtk_widget_get_name ( GObject $widget )
+sub gtk_widget_get_name ( GtkWidget $widget )
     returns Str
     is native(&gtk-lib)
     is export
@@ -180,7 +181,13 @@ sub gtk_window_set_default_size(GtkWidget $window, int32 $width, int32 $height)
 
 # void gtk_window_set_modal (GtkWindow *window, gboolean modal);
 # can be set in glade
-sub gtk_window_set_modal( GObject $window, bool $modal)
+sub gtk_window_set_modal( GtkWidget $window, bool $modal)
+    is native(&gtk-lib)
+    is export
+    { * }
+
+# void gtk_window_set_transient_for ( GtkWindow *window, GtkWindow *parent);
+sub gtk_window_set_transient_for( GtkWindow $window, GtkWindow $parent)
     is native(&gtk-lib)
     is export
     { * }
@@ -206,8 +213,8 @@ sub gtk_container_set_border_width(GtkWidget $container, int32 $border_width)
 # gulong g_signal_connect_object ( gpointer instance,
 #        const gchar *detailed_signal, GCallback c_handler,
 #        gpointer gobject, GConnectFlags connect_flags);
-sub g_signal_connect_wd( GObject $widget, Str $signal,
-    &Handler ( GObject $h_widget, OpaquePointer $h_data),
+sub g_signal_connect_wd( GtkWidget $widget, Str $signal,
+    &Handler ( GtkWidget $h_widget, OpaquePointer $h_data),
     OpaquePointer $data, int32 $connect_flags)
       returns int32
       is native(&gobject-lib)
@@ -215,7 +222,7 @@ sub g_signal_connect_wd( GObject $widget, Str $signal,
       is export
       { * }
 
-sub g_signal_handler_disconnect( GObject $widget, int32 $handler_id)
+sub g_signal_handler_disconnect( GtkWidget $widget, int32 $handler_id)
     is native(&gobject-lib)
     is export
     { * }
@@ -232,7 +239,7 @@ sub g_signal_handler_disconnect( GObject $widget, int32 $handler_id)
 #          gpointer data,  GClosureNotify destroy_data,
 #          GConnectFlags connect_flags );
 sub g_signal_connect_data( GtkWidget $widget, Str $signal,
-    &Handler ( GObject $h_widget, OpaquePointer $h_data),
+    &Handler ( GtkWidget $h_widget, OpaquePointer $h_data),
     OpaquePointer $data, OpaquePointer $destroy_data, int32 $connect_flags
     ) returns int32
       is native(&gobject-lib)
@@ -1123,7 +1130,7 @@ sub gtk_builder_add_from_string (
 #      GtkBuilder *builder, const gchar *name);
 sub gtk_builder_get_object (
     GtkBuilder $builder, Str $object-id
-    ) returns GObject
+    ) returns GtkWidget
       is native(&gtk-lib)
       is export
       { * }
