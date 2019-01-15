@@ -136,16 +136,16 @@ class E is GTK::Glade::Engine {
   #submethod BUILD ( Str:D :$!t ) { note "T: $!t"; }
 
   #-----------------------------------------------------------------------------
-  method exit-program ( Hash $o, :$widget, :$data, :$object ) {
+  method exit-program ( :$widget, :$data, :$object ) {
 
     gtk_main_quit();
   }
 
   #-----------------------------------------------------------------------------
-  method copy-text ( Hash $o, :$widget, :$data, :$object ) {
+  method copy-text ( :$widget, :$data, :$object ) {
 
     # Get the input text and clear input field
-    my $input-text = $o<inputTxt>;
+    my $input-text = self.get-widget('inputTxt');
     my $buffer = gtk_text_view_get_buffer($input-text);
     my $text = gtk_text_buffer_get_text(
                  $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
@@ -153,7 +153,7 @@ class E is GTK::Glade::Engine {
     gtk_text_buffer_set_text( $buffer, "", -1);
 note "Text: ", $text//'-';
 
-    my $output-text = $o<outputTxt>;
+    my $output-text = self.get-widget('outputTxt');
     $buffer = gtk_text_view_get_buffer($output-text);
     $text = gtk_text_buffer_get_text(
               $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
@@ -166,10 +166,10 @@ note "Text: ", $text//'-';
   }
 
   #-----------------------------------------------------------------------------
-  method clear-text ( Hash $o, :$widget, :$data, :$object ) {
+  method clear-text ( :$widget, :$data, :$object ) {
 
     # Get the output text and clear output field
-    my GtkWidget $output-text = $o<outputTxt>;
+    my GtkWidget $output-text = self.get-widget('outputTxt');
 #note "outputTxt object: ", $output-text;
     my $buffer = gtk_text_view_get_buffer($output-text);
     note gtk_text_buffer_get_text(
@@ -179,7 +179,7 @@ note "Text: ", $text//'-';
   }
 
   #-----------------------------------------------------------------------------
-  method insert-char ( Hash $o, :$widget, :$data, :$object ) {
+  method insert-char ( :$widget, :$data, :$object ) {
     note "Text inserted";
   }
 

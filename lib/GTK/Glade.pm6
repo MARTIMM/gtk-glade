@@ -28,6 +28,9 @@ class X::GTK::Glade:auth<github:MARTIMM> is Exception {
 #-------------------------------------------------------------------------------
 class GTK::Glade::Engine:auth<github:MARTIMM> {
 
+  # Must be set before by GTK::Glade.
+  has $.builder is rw;
+
   #-----------------------------------------------------------------------------
   method start-iter ( $buffer ) {
     my $iter_mem = CArray[int32].new;
@@ -43,19 +46,24 @@ class GTK::Glade::Engine:auth<github:MARTIMM> {
     gtk_text_buffer_get_end_iter( $buffer, $iter_mem);
     $iter_mem
   }
+
+  #-----------------------------------------------------------------------------
+  method get-widget( Str:D $id --> GtkWidget ) {
+    gtk_builder_get_object( $!builder, $id)
+  }
 }
 
 #-------------------------------------------------------------------------------
 class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
 
-  has $!builder;
-  has Hash $!gobjects;
+  has $.builder;
+#  has Hash $!gobjects;
   has GTK::Glade::Engine $!engine;
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
 
-    $!gobjects = {};
+#    $!gobjects = {};
     $!engine .= new();
 
     # Setup gtk using commandline arguments
@@ -116,6 +124,7 @@ note "Error message: $err.message()" if $error-code == 0;
     gtk_main();
   }
 
+#`{{
   #-----------------------------------------------------------------------------
   method !glade-get-object( Str:D $id --> GtkWidget ) {
     $!gobjects{$id} // GtkWidget;
@@ -126,15 +135,18 @@ note "Error message: $err.message()" if $error-code == 0;
     $!gobjects{$id} = gtk_builder_get_object( $!builder, $id)
       unless ?$!gobjects{$id};
   }
+}}
 
   #-----------------------------------------------------------------------------
   # Callback methods called from XML::Actions
+#`{{
   #-----------------------------------------------------------------------------
   method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
     note "Object $class, id '$id'";
     self!glade-set-object($id);
   }
+}}
 
   #-----------------------------------------------------------------------------
   method signal (
@@ -146,8 +158,9 @@ note "Error message: $err.message()" if $error-code == 0;
     my %object = $parent-path[*-2].attribs;
     my $id = %object<id>;
 
-note "Signal Attr of {$parent-path[*-2].name}: ",
-      self!glade-get-object($id), ", ", %object.perl;
+    my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+
+note "Signal Attr of {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
     my Int $connect-flags = 0;
     $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
@@ -156,11 +169,12 @@ note "Signal Attr of {$parent-path[*-2].name}: ",
     #self!glade-set-object($id);
 
     g_signal_connect_wd(
-      self!glade-get-object($id), $signal-name,
+      $widget, $signal-name,
       -> $widget, $data {
         if $!engine.^can($handler-name) {
-          my Hash $o = $!gobjects.clone();
-          $!engine."$handler-name"( $o, :$widget, :$data, :$object);
+#          my Hash $o = $!gobjects.clone();
+#          $!engine."$handler-name"( $o, :$widget, :$data, :$object);
+          $!engine."$handler-name"( :$widget, :$data, :$object);
         }
 
         else {
@@ -214,6 +228,8 @@ class GTK::Glade:auth<github:MARTIMM> {
     # Process the XML document creating the API to the UI
     $actions.process(:actions($work));
 
+    # Copy the builder object
+    $engine.builder = $work.builder;
     $work.glade-run(:$engine);
 
     #note $work.state-engine-data;

@@ -78,7 +78,7 @@ class E is GTK::Glade::Engine {
   #submethod BUILD ( Str:D :$!t ) { note "T: $!t"; }
 
   #-----------------------------------------------------------------------------
-  method quit-program ( Hash $o, :$widget, :$data, :$object ) {
+  method quit-program ( :$widget, :$data, :$object ) {
     diag "quit-program called";
     diag "Widget: " ~ $widget.perl if ?$widget;
     diag "Data: " ~ $data.perl if ?$data;
@@ -92,7 +92,7 @@ class E is GTK::Glade::Engine {
   }
 
   #-----------------------------------------------------------------------------
-  method hello-world1 ( Hash $o, :$widget, :$data, :$object ) {
+  method hello-world1 ( :$widget, :$data, :$object ) {
     is gtk_button_get_label($widget), "Button 1", "Label of button 1 ok";
 
     my Str $bn = gtk_widget_get_name($widget);
@@ -107,9 +107,10 @@ class E is GTK::Glade::Engine {
   }
 
   #-----------------------------------------------------------------------------
-  method hello-world2 ( Hash $o, :$widget, :$data, :$object ) {
+  method hello-world2 ( :$widget, :$data, :$object ) {
     is gtk_button_get_label($widget), "Button 2", "Label of button 2 ok";
-    is gtk_button_get_label($o<button1>), "Button 1", "Label of button 1 look up";
+    is gtk_button_get_label(self.get-widget('button1')),
+       "Button 1", "Label of button 1 look up";
   }
 }
 
