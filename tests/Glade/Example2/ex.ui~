@@ -7,7 +7,6 @@
     <property name="can_focus">False</property>
     <property name="border_width">10</property>
     <property name="title">Grid</property>
-    <signal name="check-resize" handler="window-resized" swapped="no"/>
     <child>
       <placeholder/>
     </child>
