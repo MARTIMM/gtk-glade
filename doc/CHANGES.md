@@ -2,6 +2,7 @@
 
 * 2019-01-15 0.3.3
   * The hash of objects is not provided anymore to the callback methods. A convenience method `get-widget( Str $id --> GtkWidget )` is provided in the `GTK::Glade::Engine` class.
+  * Search for glade interface file from other locations when filename is not provided.
 * 2019-01-12 0.3.2
   * Bugfixes
 * 2019-01-07 0.3.1

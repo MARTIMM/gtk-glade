@@ -207,7 +207,16 @@ class GTK::Glade::PreProcess:auth<github:MARTIMM> is XML::Actions::Work {
 class GTK::Glade:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
-  submethod BUILD ( Str:D :$ui-file, GTK::Glade::Engine :$engine ) {
+  submethod BUILD (
+    Str :$ui-file is copy = '', GTK::Glade::Engine:D :$engine
+  ) {
+
+
+    $ui-file = self!find-glade-file($ui-file);
+
+note "New ui file $ui-file";
+
+
 
     # Prepare XML document for processing
     my XML::Actions $actions .= new(:file($ui-file));
@@ -233,5 +242,59 @@ class GTK::Glade:auth<github:MARTIMM> {
     $work.glade-run(:$engine);
 
     #note $work.state-engine-data;
+  }
+
+  #-----------------------------------------------------------------------------
+  method !find-glade-file ( Str $ui-file is copy --> Str ) {
+
+    # return if readable
+    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+
+    my @tried-list = $ui-file,;
+
+note "Ui file '$ui-file' not found, $*PROGRAM-NAME";
+
+    my Str $program = $*PROGRAM-NAME.IO.basename;
+    $program ~~ s/\. <-[\.]>* $/.glade/;
+    $ui-file = %?RESOURCES{$program}.Str;
+note "Try '$program' from resources";
+    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+    @tried-list.push("Resources: $program");
+
+    $program ~~ s/\. glade $/.ui/;
+    $ui-file = %?RESOURCES{$program}.Str;
+note "Try '$program' from resources";
+    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+    @tried-list.push($program);
+
+    $ui-file = %?RESOURCES{"graphical-interface.glade"}.Str;
+note "Try 'graphical-interface.glade' from resources";
+    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+    @tried-list.push("graphical-interface.glade");
+
+
+    $program = $*PROGRAM-NAME.IO.basename;
+    $program ~~ s/\. <-[\.]>* $//;
+    note "Try 'graphical-interface.glade' from config directories $*HOME/.$program or $*HOME/.config/$program";
+
+    if "$*HOME/.$program".IO ~~ :d {
+      $ui-file = "$*HOME/.$program/graphical-interface.glade";
+note "Try '$ui-file'";
+      return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+      @tried-list.push("Config: $ui-file");
+    }
+
+    elsif "$*HOME/.config/$program".IO ~~ :d {
+      $ui-file = "$*HOME/.config/$program/graphical-interface.glade";
+note "Try '$ui-file'";
+      return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
+      @tried-list.push($ui-file);
+    }
+
+    die X::GTK::Glade.new(
+      :message(
+        "No suitable glade XML file found. Tried " ~ @tried-list.join(', ')
+      )
+    );
   }
 }
