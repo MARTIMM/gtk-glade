@@ -1,6 +1,10 @@
 ## Release notes
 
-* 0.3.1
+* 2019-01-15 0.3.3
+  * The hash of objects is not provided anymore to the callback methods. A convenience method `get-widget( Str $id --> GtkWidget )` is provided in the `GTK::Glade::Engine` class.
+* 2019-01-12 0.3.2
+  * Bugfixes
+* 2019-01-07 0.3.1
   * Bugfixes
   * Added GError structure to get error messages
 * 0.3.0

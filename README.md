@@ -45,7 +45,7 @@ use GTK::Glade;
 class MyEngine is GTK::Glade::Engine {
 
   #-----------------------------------------------------------------------------
-  method quit-program ( Hash $o, :$widget, :$data, :$object ) {
+  method quit-program ( :$widget, :$data, :$object ) {
 
     note "Button label: ", gtk_button_get_label($widget);
     note "Button name is by default button's class name: ",
@@ -82,7 +82,9 @@ my GTK::Glade $a .= new( :ui-file("example.ui"), :$engine);
 * Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends on what is added later.
 * Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
 * Need to test more things like adding or modifying content of widgets.
-* Modifying the interface by using GTK::Simple.
+* Add resources (GTK GResource)
+* Add stylesheets
+* Add animation
 
 # Versions of involved software
 
