@@ -16,6 +16,8 @@ class GtkBuilder is repr('CPointer') { }
 class GObject is repr('CPointer') is export { }
 class GtkWidget is repr('CPointer') is export { }
 class GtkWindow is repr('CPointer') is export { }
+class GtkCssProvider is repr('CPointer') is export { }
+class GdkScreen is repr('CPointer') is export { }
 
 class GError is repr('CStruct') is export {
   #has GQuark $.domain;
@@ -33,27 +35,27 @@ enum GtkWindowPosition is export (
     GTK_WIN_POS_CENTER_ON_PARENT   => 4,
 );
 
-enum GtkFileChooserAction is export(:file-chooser) (
+enum GtkFileChooserAction is export (
     GTK_FILE_CHOOSER_ACTION_OPEN           => 0,
     GTK_FILE_CHOOSER_ACTION_SAVE           => 1,
     GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER  => 2,
     GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER  => 3,
 );
 
-enum GtkPlacesOpenFlags is export(:places-sidebar) (
+enum GtkPlacesOpenFlags is export (
     GTK_PLACES_OPEN_NORMAL     => 0,
     GTK_PLACES_OPEN_NEW_TAB    => 1,
     GTK_PLACES_OPEN_NEW_WINDOW => 2,
 );
 
-enum GtkLevelBarMode is export(:level-bar) (
+enum GtkLevelBarMode is export (
     GTK_LEVEL_BAR_MODE_CONTINUOUS => 0,
     GTK_LEVEL_BAR_MODE_DISCRETE   => 1,
 );
 
 # Determines how the size should be computed to achieve the one of the
 # visibility mode for the scrollbars.
-enum GtkPolicyType is export(:scrolled-window) (
+enum GtkPolicyType is export (
     GTK_POLICY_ALWAYS => 0,     #The scrollbar is always visible.
                                 #The view size is independent of the content.
     GTK_POLICY_AUTOMATIC => 1,  #The scrollbar will appear and disappear as necessary.
@@ -66,6 +68,15 @@ enum GtkPolicyType is export(:scrolled-window) (
 
 constant G_CONNECT_AFTER is export = 1;
 constant G_CONNECT_SWAPPED is export = 2;
+
+# https://developer.gnome.org/gtk3/stable/GtkStyleProvider.html#GTK-STYLE-PROVIDER-PRIORITY-FALLBACK:CAPS
+enum GtkStyleProviderPriority is export (
+    GTK_STYLE_PROVIDER_PRIORITY_FALLBACK => 1,
+    GTK_STYLE_PROVIDER_PRIORITY_THEME => 200,
+    GTK_STYLE_PROVIDER_PRIORITY_SETTINGS => 400,
+    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION => 600,
+    GTK_STYLE_PROVIDER_PRIORITY_USER => 800,
+);
 
 #--[ gtk_widget_ ]--------------------------------------------------------------
 sub gtk_widget_show(GtkWidget $widgetw)
@@ -181,7 +192,7 @@ sub gtk_window_set_default_size(GtkWidget $window, int32 $width, int32 $height)
 
 # void gtk_window_set_modal (GtkWindow *window, gboolean modal);
 # can be set in glade
-sub gtk_window_set_modal( GtkWidget $window, bool $modal)
+sub gtk_window_set_modal( GtkWidget $window, Bool $modal)
     is native(&gtk-lib)
     is export
     { * }
@@ -1134,6 +1145,38 @@ sub gtk_builder_get_object (
       is native(&gtk-lib)
       is export
       { * }
+
+#--[ css style ]----------------------------------------------------------------
+sub gtk_css_provider_new ( )
+    returns GtkCssProvider
+    is native(&gtk-lib)
+    is export
+    { * }
+
+sub gtk_css_provider_get_named ( Str $name, Str $variant )
+    returns GtkCssProvider
+    is native(&gtk-lib)
+    is export
+    { * }
+
+sub gtk_css_provider_load_from_path (
+    GtkCssProvider $css_provider, Str $css-file, GError $error is rw
+    ) is native(&gtk-lib)
+      is export
+      { * }
+
+sub gtk_style_context_add_provider_for_screen (
+    GdkScreen $screen, int32 $provider, int32 $priority
+    ) is native(&gtk-lib)
+      is export
+      { * }
+
+#--[ Gdk screen ]---------------------------------------------------------------
+sub gdk_screen_get_default ( )
+    returns GdkScreen
+    is native(&gdk-lib)
+    is export
+    { * }
 
 #--[ dialog ]-------------------------------------------------------------------
 # gint gtk_dialog_run (GtkDialog *dialog);

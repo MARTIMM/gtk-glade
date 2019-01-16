@@ -59,6 +59,7 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
   has $.builder;
 #  has Hash $!gobjects;
   has GTK::Glade::Engine $!engine;
+#  has Str $!top-level-object-id;
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
@@ -110,7 +111,6 @@ class GTK::Glade::Work:auth<github:MARTIMM> is XML::Actions::Work {
       my $error-code = gtk_builder_add_from_string(
         $!builder, $ui-string, $ui-string.chars, $err
       );
-note "Error message: $err.message()" if $error-code == 0;
       die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
     }
 
@@ -120,10 +120,61 @@ note "Error message: $err.message()" if $error-code == 0;
   }
 
   #-----------------------------------------------------------------------------
+  method glade-add-css ( Str :$css-file ) {
+
+    return unless ?$css-file and $css-file.IO ~~ :r;
+note $css-file.IO.slurp;
+
+    #my GtkWidget $widget = gtk_builder_get_object(
+    #  $!builder, $!top-level-object-id
+    #);
+
+    my GdkScreen $default-screen = gdk_screen_get_default();
+    my GtkCssProvider $css-provider = gtk_css_provider_new();
+    g_signal_connect_wd(
+    $css-provider, 'parsing-error',
+    -> $provider, $section, $error, $pointer {
+      self!glade-parsing-error( $provider, $section, $error, $pointer);
+    },
+    OpaquePointer, 0
+    );
+
+    my GError $error .= new;
+    gtk_css_provider_load_from_path( $css-provider, $css-file, $error);
+  note "Error: $error.code(), ", $error.message()//'-' if ?$error;
+
+    gtk_style_context_add_provider_for_screen(
+      $default-screen, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+    );
+
+    #my GtkCssProvider $css-provider = gtk_css_provider_get_named(
+    #  'Kate', Any
+    #);
+
+#`{{
+    g_signal_connect_wd(
+    $css-provider, 'parsing-error',
+    -> $provider, $section, $error, $pointer {
+      self!glade-parsing-error( $provider, $section, $error, $pointer);
+    },
+    OpaquePointer, 0
+    );
+
+    my GError $error .= new;
+    gtk_css_provider_load_from_path( $css-provider, $css-file, $error);
+  note "Error: $error.code(), ", $error.message()//'-' if ?$error;
+}}
+  }
+
+  #-----------------------------------------------------------------------------
   method glade-run ( GTK::Glade::Engine :$!engine ) {
     gtk_main();
   }
 
+  #-----------------------------------------------------------------------------
+  method !glade-parsing-error( $provider, $section, $error, $pointer ) {
+note "Error";
+  }
 #`{{
   #-----------------------------------------------------------------------------
   method !glade-get-object( Str:D $id --> GtkWidget ) {
@@ -139,15 +190,17 @@ note "Error message: $err.message()" if $error-code == 0;
 
   #-----------------------------------------------------------------------------
   # Callback methods called from XML::Actions
-#`{{
   #-----------------------------------------------------------------------------
+#`{{
   method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
     note "Object $class, id '$id'";
-    self!glade-set-object($id);
+
+    return unless $class eq "GtkWindow";
+    $!top-level-object-id = $id unless ?$!top-level-object-id;
+
   }
 }}
-
   #-----------------------------------------------------------------------------
   method signal (
     Array:D $parent-path, Str:D :name($signal-name),
@@ -208,14 +261,14 @@ class GTK::Glade:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
   submethod BUILD (
-    Str :$ui-file is copy = '', GTK::Glade::Engine:D :$engine
+    Str :$ui-file, Str :$css-file, GTK::Glade::Engine:D :$engine
   ) {
 
-
-    $ui-file = self!find-glade-file($ui-file);
+    die X::GTK::Glade.new(
+      :message("No suitable glade XML file: '$ui-file'")
+    ) unless ?$ui-file and $ui-file.IO ~~ :r;
 
 note "New ui file $ui-file";
-
 
 
     # Prepare XML document for processing
@@ -232,10 +285,16 @@ note "New ui file $ui-file";
     my GTK::Glade::Work $work .= new;
     $work.glade-add-gui(:ui-string($modified-ui));
 #    $work.glade-add-gui(:ui-string("hoeperdepoep")); # test for failure
+
+    # deallocate string
     $modified-ui = Str;
 
     # Process the XML document creating the API to the UI
     $actions.process(:actions($work));
+
+    # Css can be added only after processing is done. There is a toplevel
+    # widget needed which is known afterwards.
+    $work.glade-add-css(:$css-file);
 
     # Copy the builder object
     $engine.builder = $work.builder;
@@ -244,6 +303,7 @@ note "New ui file $ui-file";
     #note $work.state-engine-data;
   }
 
+#`{{
   #-----------------------------------------------------------------------------
   method !find-glade-file ( Str $ui-file is copy --> Str ) {
 
@@ -297,4 +357,5 @@ note "Try '$ui-file'";
       )
     );
   }
+}}
 }
