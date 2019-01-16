@@ -1,7 +1,7 @@
 {
   "description": "Interfacing Glade XML to Perl6",
   "name": "GTK::Glade",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "XML", "Glade", "Gtk"],
 

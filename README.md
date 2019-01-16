@@ -15,7 +15,7 @@ Then only two lines of code (besides the loading of modules) to let the ui appea
 # Synopsis
 
 #### User interface file
-The first thing to do is designing a ui. The result saved by glade is shown below. It is only a part of it focused on an exit button. This file is saved in **example.ui**.
+The first thing to do is designing a ui and save it. A part of the saved result is shown below. It shows the part of an exit button. Assume that this file is saved in **example.glade**.
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.20.0 -->
@@ -36,7 +36,7 @@ The first thing to do is designing a ui. The result saved by glade is shown belo
 ```
 
 #### Class for signal handlers
-Then write code to handle all signals which are defined by the user interface. Don't have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it. Only the method to handle a click event from the quit button is shown. The file is saved in **lib/MyEngine.pm6**.
+Then write code to handle all signals which are defined by the user interface. Don't have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it. Only the method to handle a click event from the quit button is shown. This file is saved in **lib/MyEngine.pm6**.
 
 ```
 use v6;
@@ -73,17 +73,19 @@ my MyEngine $engine .= new();
 
 # Instantiate the api class, display the designed interface
 # and enter the main loop
-my GTK::Glade $a .= new( :ui-file("example.ui"), :$engine);
+my GTK::Glade $a .= new( :ui-file("example.glade"), :$engine);
 ```
 
 # TODO
 
-* What can we do with the GTK::Glade object after it exits the main loop.
-* Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends on what is added later.
-* Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
-* Need to test more things like adding or modifying content of widgets.
-* Add stylesheets
-* Add animation
+* [ ] What can we do with the GTK::Glade object after it exits the main loop.
+* [ ] Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends on what is added later.
+* [ ] Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
+* [ ] Need to test more things like adding or modifying content of widgets.
+* [x] Add css files
+* [ ] Add theme styling
+* [ ] Add animation
+* [ ] Add interface tester so it can be tested using prove. Only the callbacks can be tested.
 
 # Versions of involved software
 
