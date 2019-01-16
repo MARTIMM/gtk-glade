@@ -50,8 +50,10 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Clear the text in the large window</property>
             <signal name="clicked" handler="clear-text" swapped="no"/>
             <style>
+              <class name="circular"/>
               <class name="green"/>
             </style>
           </object>

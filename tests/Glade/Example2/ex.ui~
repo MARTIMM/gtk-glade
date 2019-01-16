@@ -51,6 +51,10 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <signal name="clicked" handler="clear-text" swapped="no"/>
+            <style>
+              <class name="circular"/>
+              <class name="green"/>
+            </style>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -64,6 +68,9 @@
             <property name="can_focus">False</property>
             <property name="receives_default">False</property>
             <signal name="clicked" handler="copy-text" swapped="no"/>
+            <style>
+              <class name="green"/>
+            </style>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -77,6 +84,9 @@
             <property name="can_focus">False</property>
             <property name="receives_default">False</property>
             <signal name="clicked" handler="exit-program" swapped="no"/>
+            <style>
+              <class name="yellow"/>
+            </style>
           </object>
           <packing>
             <property name="left_attach">2</property>
