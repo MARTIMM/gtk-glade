@@ -80,12 +80,11 @@ my GTK::Glade $a .= new( :ui-file("example.glade"), :$engine);
 
 * [ ] What can we do with the GTK::Glade object after it exits the main loop.
 * [ ] Name changes: E.g It feels a bit that 'Engine' is not a proper name. Better something with 'Handler' in it. It all depends on what is added later.
-* [ ] Adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
 * [ ] Need to test more things like adding or modifying content of widgets.
 * [x] Add css files
 * [ ] Add theme styling
 * [ ] Add animation
-* [ ] Add interface tester so it can be tested using prove. Only the callbacks can be tested.
+* [ ] Add an interface tester so it can be tested using prove. Only the callbacks can be tested. This might be implemented by adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
 
 # Versions of involved software
 

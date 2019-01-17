@@ -51,31 +51,52 @@ GTKGlade --> [*]: Exit main\nloop
 # Example glade design
 <img src="Screenshot_20190106_124223.png"/>
 
-To design a state layer over this design I first study how it follows this ui. The relevant widgets have the following id's; `inputTxt`, `outputTxt`, `quitBttn`, `copyBttn` and `clearBttn`.
+To design a state layer to test this design I first show a state diagram of the programs behavior. The relevant widgets have the following id's; `inputTxt` for the small imput text, `outputTxt` for the large one, `quitBttn`, `copyBttn` and `clearBttn` for the buttons.
 
 ```plantuml
+scale 0.7
 hide empty description
 
 state "Start state\nof program" as start
 
 [*] --> start
 start --> clear: clearBttn\npressed
-clear: get outputTxt button widget
-clear: get text buffer from widget
+clear: get text buffer from outputTxt widget and show
 clear: empty buffer
 clear --> start
 
 start --> copy: copyBttn\npressed
-copy: get inputTxt button widget
-copy: get text buffer from widget
+copy: get text buffer from inputTxt widget
 copy: get text from buffer and empty buffer
-copy: get outputTxt button widget
-copy: get text buffer from widget
+copy: get text buffer from outputTxt widget
 copy: append input text to output text
 copy: set buffer to new text
 copy --> start
 
 start --> quit: quitBttn\npressed
 
+user --> editLarge: text
+editLarge: add text to outputTxt
+
+user --> editSmall: text
+editSmall: add text to inputTxt
+
+start --> user: start edit
+
 quit --> [*]
 ```
+
+A small table of defined signals and their callbacks
+
+ |widget|event|handler
+ |------|-----|-------
+ |clearBttn       |clicked      |clear-text
+ |copyBttn        |clicked      |copy-text
+ |quitBttn        |clicked      |exit-program
+
+So to get all tested one can perform the steps
+* Clear all text windows.
+* Test that those windows have empty strings
+* Add text into large window
+* Get text and compare with original
+* Emit clearBttn:clicked signal and check that text in large window is empty.
