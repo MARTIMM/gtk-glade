@@ -1,5 +1,6 @@
 use v6;
 
+#use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade;
 use Test;
 
@@ -40,7 +41,8 @@ $file.IO.spurt(Q:q:to/EOXML/);
               <property name="justify">right</property>
               <property name="single_line_mode">True</property>
               <attributes>
-                <attribute name="foreground" value="#c1c17d7d1111"/>
+                <attribute name="foreground" value="#f1f1a5fff0a0"/>
+                <attribute name="background" value="#05058f8fa0a0"/>
               </attributes>
             </object>
             <packing>
@@ -52,7 +54,7 @@ $file.IO.spurt(Q:q:to/EOXML/);
             <object class="GtkTextView" id="inputTxt">
               <property name="visible">True</property>
               <property name="can_focus">True</property>
-              <signal name="insert-at-cursor" handler="insert-char" swapped="no"/>
+              <!--signal name="insert-at-cursor" handler="insert-char" swapped="no"/-->
             </object>
             <packing>
               <property name="left_attach">1</property>
@@ -144,22 +146,11 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   method copy-text ( :$widget, :$data, :$object ) {
 
-    # Get the input text and clear input field
-    my $input-text = self.get-widget('inputTxt');
-    my $buffer = gtk_text_view_get_buffer($input-text);
-    my $text = gtk_text_buffer_get_text(
-                 $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
-               );
-    gtk_text_buffer_set_text( $buffer, "", -1);
+    my Str $text = self.glade-clear-text('inputTxt');
 note "Text: ", $text//'-';
+    self.glade-add-text( 'outputTxt', $text);
 
-    my $output-text = self.get-widget('outputTxt');
-    $buffer = gtk_text_view_get_buffer($output-text);
-    $text = gtk_text_buffer_get_text(
-              $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
-            ) ~ "\n$text";
-    gtk_text_buffer_set_text( $buffer, $text, -1);
-# Keep getting double free crashes
+# Keep getting double free crashes using gtk_text_buffer_insert()
 #    gtk_text_buffer_insert(
 #      $buffer, self.end-iter($buffer), $text, -1 #$text.chars
 #    );
@@ -168,20 +159,13 @@ note "Text: ", $text//'-';
   #-----------------------------------------------------------------------------
   method clear-text ( :$widget, :$data, :$object ) {
 
-    # Get the output text and clear output field
-    my GtkWidget $output-text = self.get-widget('outputTxt');
-#note "outputTxt object: ", $output-text;
-    my $buffer = gtk_text_view_get_buffer($output-text);
-    note gtk_text_buffer_get_text(
-           $buffer, self.start-iter($buffer), self.end-iter($buffer), 1
-         );
-    gtk_text_buffer_set_text( $buffer, "", -1);
+    note self.glade-clear-text('outputTxt');
   }
 
   #-----------------------------------------------------------------------------
-  method insert-char ( :$widget, :$data, :$object ) {
-    note "Text inserted";
-  }
+  #method insert-char ( :$widget, :$data, :$object ) {
+  #  note "Text inserted";
+  #}
 
 #`{{
   #-----------------------------------------------------------------------------

@@ -151,7 +151,7 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   method hello-world2 ( :$widget, :$data, :$object ) {
     is gtk_button_get_label($widget), "Button 2", "Label of button 2 ok";
-    is gtk_button_get_label(self.get-widget('button1')),
+    is gtk_button_get_label(self.glade-get-widget('button1')),
        "Button 1", "Label of button 1 look up";
   }
 }

@@ -1,10 +1,10 @@
 use v6;
 use XML::Actions;
 
-use nqp;
+#use nqp;
 use NativeCall;
-use GTK::Glade::NativeLib;
-use GTK::Glade::NativeGtk;
+#use GTK::Glade::NativeLib;
+use GTK::Glade::NativeGtk :ALL;
 
 #-------------------------------------------------------------------------------
 # Export all symbols and functions from GTK::Simple::Raw
@@ -32,7 +32,7 @@ class GTK::Glade::Engine:auth<github:MARTIMM> {
   has $.builder is rw;
 
   #-----------------------------------------------------------------------------
-  method start-iter ( $buffer ) {
+  method glade-start-iter ( $buffer ) {
     my $iter_mem = CArray[int32].new;
     $iter_mem[31] = 0; # Just need a blob of memory.
     gtk_text_buffer_get_start_iter( $buffer, $iter_mem);
@@ -40,7 +40,7 @@ class GTK::Glade::Engine:auth<github:MARTIMM> {
   }
 
   #-----------------------------------------------------------------------------
-  method end-iter ( $buffer ) {
+  method glade-end-iter ( $buffer ) {
     my $iter_mem = CArray[int32].new;
     $iter_mem[16] = 0;
     gtk_text_buffer_get_end_iter( $buffer, $iter_mem);
@@ -48,8 +48,56 @@ class GTK::Glade::Engine:auth<github:MARTIMM> {
   }
 
   #-----------------------------------------------------------------------------
-  method get-widget( Str:D $id --> GtkWidget ) {
+  method glade-get-widget ( Str:D $id --> GtkWidget ) {
     gtk_builder_get_object( $!builder, $id)
+  }
+
+  #-----------------------------------------------------------------------------
+  method glade-get-text ( Str:D $id --> Str ) {
+
+    my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+    my $buffer = gtk_text_view_get_buffer($widget);
+
+    gtk_text_buffer_get_text(
+      $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+    )
+  }
+
+  #-----------------------------------------------------------------------------
+  method glade-set-text ( Str:D $id, Str:D $text ) {
+
+    my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+    my $buffer = gtk_text_view_get_buffer($widget);
+
+    gtk_text_buffer_set_text( $buffer, $text, -1);
+  }
+
+  #-----------------------------------------------------------------------------
+  method glade-add-text ( Str:D $id, Str:D $text is copy ) {
+
+    my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+    my $buffer = gtk_text_view_get_buffer($widget);
+
+    $text = gtk_text_buffer_get_text(
+      $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+    ) ~ $text;
+
+    gtk_text_buffer_set_text( $buffer, $text, -1);
+  }
+
+  #-----------------------------------------------------------------------------
+  # Get the text and clear text field. Returns the original text
+  method glade-clear-text ( Str:D $id --> Str ) {
+
+    my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+    my $buffer = gtk_text_view_get_buffer($widget);
+    my Str $text = gtk_text_buffer_get_text(
+      $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+    );
+
+    gtk_text_buffer_set_text( $buffer, "", -1);
+
+    $text
   }
 }
 
@@ -132,16 +180,17 @@ note $css-file.IO.slurp;
     my GdkScreen $default-screen = gdk_screen_get_default();
     my GtkCssProvider $css-provider = gtk_css_provider_new();
     g_signal_connect_wd(
-    $css-provider, 'parsing-error',
-    -> $provider, $section, $error, $pointer {
-      self!glade-parsing-error( $provider, $section, $error, $pointer);
-    },
-    OpaquePointer, 0
+      $css-provider, 'parsing-error',
+      -> GtkCssProvider $p, GtkCssSection $s, GError $e, $ptr {
+note "handler called";
+        self!glade-parsing-error( $p, $s, $e, $ptr);
+      },
+      OpaquePointer, 0
     );
 
     my GError $error .= new;
-    gtk_css_provider_load_from_path( $css-provider, $css-file, $error);
-  note "Error: $error.code(), ", $error.message()//'-' if ?$error;
+    gtk_css_provider_load_from_path( $css-provider, $css-file, Any);
+#note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 
     gtk_style_context_add_provider_for_screen(
       $default-screen, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
