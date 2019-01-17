@@ -26,6 +26,9 @@ class GError is repr('CStruct') is export {
   has CArray[int8] $.message;
 }
 
+#class GtkCssSection is repr('CStruct') is export { }
+class GtkCssSection is repr('CPointer') is export { }
+
 #--[ Constants and enum ]-------------------------------------------------------
 enum GtkWindowPosition is export (
     GTK_WIN_POS_NONE               => 0,
@@ -703,20 +706,20 @@ sub gtk_text_view_new()
     returns GtkWidget
     {*}
 
-sub gtk_text_view_get_buffer(GtkWidget $view)
+sub gtk_text_view_get_buffer ( GtkWidget $view )
     is native(&gtk-lib)
     is export(:text-view)
     returns OpaquePointer
     {*}
 
-sub gtk_text_buffer_get_text(OpaquePointer $buffer, CArray[int32] $start,
-        CArray[int32] $end, int32 $show_hidden)
+sub gtk_text_buffer_get_text ( OpaquePointer $buffer, CArray[int32] $start,
+        CArray[int32] $end, int32 $show_hidden )
     is native(&gtk-lib)
     is export
     returns Str
     {*}
 
-sub gtk_text_buffer_get_start_iter(OpaquePointer $buffer, CArray[int32] $i)
+sub gtk_text_buffer_get_start_iter ( OpaquePointer $buffer, CArray[int32] $i )
     is native(&gtk-lib)
     is export
     {*}
