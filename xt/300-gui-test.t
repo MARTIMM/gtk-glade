@@ -169,6 +169,12 @@ class T is GTK::Glade::Engine::Test {
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
     $!steps.push: {
+      :widget-id<inputTxt>,
+      :select,
+      :set-text<x>
+    };
+
+    $!steps.push: {
       :widget-id<quitBttn>,
       :signal-detail<clicked>,
       :test( {
@@ -185,7 +191,7 @@ subtest 'Action object', {
   my GTK::Glade $a .= new(
     :ui-file($file), :$engine, :test-setup(T.new())
   );
-  isa-ok $a, GTK::Glade, 'type ok';
+  #isa-ok $a, GTK::Glade, 'type ok';
 }
 
 #-------------------------------------------------------------------------------

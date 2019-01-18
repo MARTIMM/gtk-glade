@@ -129,8 +129,7 @@ note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 
 #-----------------------------------------------------------------------------
 method glade-run (
-  GTK::Glade::Engine :$!engine,
-  GTK::Glade::Engine::Test :$test-setup,
+  GTK::Glade::Engine :$!engine, GTK::Glade::Engine::Test :$test-setup,
   Str :$toplevel-id
 ) {
 
@@ -143,8 +142,7 @@ method glade-run (
     gtk_main();
 
     my $r = $p.result;
-    note "Result of tests: $r";
-
+    note "Number of tests executed: $r.";
   }
 
   else {
@@ -177,7 +175,7 @@ method signal (
 
   my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
 
-note "Signal Attr of {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
+#note "Signal Attr of {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
   my Int $connect-flags = 0;
   $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';

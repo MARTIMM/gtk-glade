@@ -12,6 +12,7 @@ use NativeCall;
 unit module GTK::Glade::NativeGtk;
 
 #--[ Classes and structures ]---------------------------------------------------
+class GdkDisplay is repr('CPointer') is export { }
 class GdkScreen is repr('CPointer') is export { }
 class GdkWindow is repr('CPointer') is export { }
 
@@ -148,7 +149,69 @@ enum GdkEventType is export (
 } GdkEventType;
 }}
 
+#--[ display ]------------------------------------------------------------------
+sub gdk_display_warp_pointer (
+  GdkDisplay $display, GdkScreen $screen, int32 $x, int32 $y
+  ) is native(&gtk-lib)
+    is export
+    {*}
+
+#--[ Gdk screen ]---------------------------------------------------------------
+sub gdk_screen_get_default ( )
+    returns GdkScreen
+    is native(&gdk-lib)
+    is export
+    { * }
+
+#--[ gtk_window_ ]--------------------------------------------------------------
+sub gtk_window_new(int32 $window_type)
+    is native(&gtk-lib)
+    is export
+    returns GtkWidget
+    {*}
+
+sub gtk_window_set_title(GtkWidget $w, Str $title)
+    is native(&gtk-lib)
+    is export
+    returns GtkWidget
+    {*}
+
+sub gtk_window_set_position(GtkWidget $window, int32 $position)
+    is native(&gtk-lib)
+    is export
+    { * }
+
+sub gtk_window_set_default_size(GtkWidget $window, int32 $width, int32 $height)
+    is native(&gtk-lib)
+    is export
+    { * }
+
+# void gtk_window_set_modal (GtkWindow *window, gboolean modal);
+# can be set in glade
+sub gtk_window_set_modal( GtkWidget $window, Bool $modal)
+    is native(&gtk-lib)
+    is export
+    { * }
+
+# void gtk_window_set_transient_for ( GtkWindow *window, GtkWindow *parent);
+sub gtk_window_set_transient_for( GtkWindow $window, GtkWindow $parent)
+    is native(&gtk-lib)
+    is export
+    { * }
+
+sub gdk_window_get_origin (
+    GdkWindow $window, int32 $x is rw, int32 $y is rw
+    ) is native(&gtk-lib)
+    is export
+    { * }
+
 #--[ gtk_widget_ ]--------------------------------------------------------------
+sub gtk_widget_get_display ( GtkWidget $widget )
+    returns GdkDisplay
+    is native(&gtk-lib)
+    is export
+    {*}
+
 sub gtk_widget_show(GtkWidget $widgetw)
     is native(&gtk-lib)
     is export
@@ -237,38 +300,8 @@ sub gtk_widget_get_name ( GtkWidget $widget )
     is export
     { * }
 
-#--[ gtk_window_ ]--------------------------------------------------------------
-sub gtk_window_new(int32 $window_type)
-    is native(&gtk-lib)
-    is export
-    returns GtkWidget
-    {*}
-
-sub gtk_window_set_title(GtkWidget $w, Str $title)
-    is native(&gtk-lib)
-    is export
-    returns GtkWidget
-    {*}
-
-sub gtk_window_set_position(GtkWidget $window, int32 $position)
-    is native(&gtk-lib)
-    is export
-    { * }
-
-sub gtk_window_set_default_size(GtkWidget $window, int32 $width, int32 $height)
-    is native(&gtk-lib)
-    is export
-    { * }
-
-# void gtk_window_set_modal (GtkWindow *window, gboolean modal);
-# can be set in glade
-sub gtk_window_set_modal( GtkWidget $window, Bool $modal)
-    is native(&gtk-lib)
-    is export
-    { * }
-
-# void gtk_window_set_transient_for ( GtkWindow *window, GtkWindow *parent);
-sub gtk_window_set_transient_for( GtkWindow $window, GtkWindow $parent)
+sub gtk_widget_get_window ( GtkWidget $widget )
+    returns GdkWindow
     is native(&gtk-lib)
     is export
     { * }
@@ -1281,13 +1314,6 @@ sub gtk_style_context_add_provider_for_screen (
     ) is native(&gtk-lib)
       is export
       { * }
-
-#--[ Gdk screen ]---------------------------------------------------------------
-sub gdk_screen_get_default ( )
-    returns GdkScreen
-    is native(&gdk-lib)
-    is export
-    { * }
 
 #--[ dialog ]-------------------------------------------------------------------
 # gint gtk_dialog_run (GtkDialog *dialog);
