@@ -10,6 +10,10 @@
 
   "provides": {
     "GTK::Glade": "lib/GTK/Glade.pm6",
+    "GTK::Glade::Engine": "lib/GTK/Glade/Engine.pm6",
+    "GTK::Glade::Engine::PreProcess": "lib/GTK/Glade/Engine/PreProcess.pm6",
+    "GTK::Glade::Engine::Test": "lib/GTK/Glade/Engine/Test.pm6",
+    "GTK::Glade::Engine::Work": "lib/GTK/Glade/Engine/Work.pm6",
     "GTK::Glade::NativeLib": "lib/GTK/Glade/NativeLib.pm6",
     "GTK::Glade::NativeGtk": "lib/GTK/Glade/NativeGtk.pm6"
   },
