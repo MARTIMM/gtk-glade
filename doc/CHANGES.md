@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-01-18 0.6.0
+  * Added basics of a testing framework. It is possible to emit a signal to some particular widget.
 * 2019-01-17 0.5.0
   * Added convenience methods to `Engine` to handle text easier in te callback methods.
 * 2019-01-16 0.4.0
