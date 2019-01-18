@@ -139,6 +139,10 @@ class E is GTK::Glade::Engine {
 
   #-----------------------------------------------------------------------------
   method exit-program ( :$widget, :$data, :$object ) {
+    diag "quit-program called";
+    diag "Widget: " ~ $widget.perl if ?$widget;
+    diag "Data: " ~ $data.perl if ?$data;
+    diag "Object: " ~ $object.perl if ?$object;
 
     gtk_main_quit();
   }
@@ -165,9 +169,12 @@ class T is GTK::Glade::Engine::Test {
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
     $!steps.push: {
-      :widget<quitBttn>,
-      :event<clicked>,
-      #:test({ }),
+      :widget-id<quitBttn>,
+      :signal-detail<clicked>,
+      :test( {
+          is gtk_main_level(), 0, 'quit button exits loop';
+        }
+      ),
     };
   }
 }

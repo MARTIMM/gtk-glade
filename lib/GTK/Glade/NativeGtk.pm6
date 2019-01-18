@@ -326,6 +326,35 @@ sub g_signal_connect_data( GtkWidget $widget, Str $signal,
       is native(&gobject-lib)
       { * }
 
+# a GQuark is a guint32, $detail is a quark
+# See https://developer.gnome.org/glib/stable/glib-Quarks.html
+sub g_signal_emit (
+    OpaquePointer $instance, uint32 $signal_id, uint32 $detail,
+    GtkWidget $widget, Str $data, Str $return-value is rw
+    ) is native(&gobject-lib)
+      is export
+      {*}
+
+sub g_signal_emit_by_name (
+    OpaquePointer $instance, Str $detailed_signal,
+    GtkWidget $widget, Str $data, Str $return-value is rw
+    ) is native(&gobject-lib)
+      is export
+      {*}
+
+#--[ Quarks ]-------------------------------------------------------------------
+sub g_quark_from_string ( Str $string )
+    returns uint32
+    is native(&glib-lib)
+    is export
+    {*}
+
+sub g_quark_to_string ( uint32 $quark )
+    returns Str
+    is native(&glib-lib)
+    is export
+    {*}
+
 #-------------------------------------------------------------------------------
 sub g_idle_add( &Handler (OpaquePointer $h_data), OpaquePointer $data)
     is native(&glib-lib)
@@ -353,6 +382,18 @@ sub gtk_main()
     {*}
 
 sub gtk_main_quit()
+    is native(&gtk-lib)
+    is export
+    {*}
+
+sub gtk_main_iteration_do ( Bool $blocking)
+    returns Bool
+    is native(&gtk-lib)
+    is export
+    {*}
+
+sub gtk_main_level ( )
+    returns uint32
     is native(&gtk-lib)
     is export
     {*}

@@ -4,8 +4,7 @@ use NativeCall;
 use XML::Actions;
 use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Engine;
-#use GTK::Glade::Engine::Test;
-#use GTK::Glade::Engine::PreProcess;
+use GTK::Glade::Engine::Test;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
@@ -129,8 +128,28 @@ note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 }
 
 #-----------------------------------------------------------------------------
-method glade-run ( GTK::Glade::Engine :$!engine ) {
-  gtk_main();
+method glade-run (
+  GTK::Glade::Engine :$!engine,
+  GTK::Glade::Engine::Test :$test-setup,
+  Str :$toplevel-id
+) {
+
+  if $test-setup.defined {
+
+    $test-setup.builder = $!builder;
+    my Promise $p = start {
+      $test-setup.run-tests( $test-setup, $toplevel-id);
+    }
+    gtk_main();
+
+    my $r = $p.result;
+    note "Result of tests: $r";
+
+  }
+
+  else {
+    gtk_main();
+  }
 }
 
 #-----------------------------------------------------------------------------

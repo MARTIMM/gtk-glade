@@ -9,6 +9,7 @@ unit class GTK::Glade::Engine::PreProcess:auth<github:MARTIMM>
 
 
 has Str $!default-id = "gtk-glade-id-0001";
+has $.toplevel-id;
 
 method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
@@ -17,5 +18,9 @@ method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
     $id = $!default-id;
     $parent-path[*-1].set( 'id', $!default-id);
     $!default-id .= succ;
+  }
+
+  if $class eq 'GtkWindow' {
+    $!toplevel-id = $id unless ?$!toplevel-id;
   }
 }

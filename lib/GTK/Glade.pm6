@@ -51,6 +51,7 @@ note "New ui file $ui-file";
     my GTK::Glade::Engine::PreProcess $pp .= new;
     $actions.process(:actions($pp));
     my Str $modified-ui = $actions.result;
+    my Str $toplevel-id = $pp.toplevel-id;
     $pp = GTK::Glade::Engine::PreProcess;
 
 #    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
@@ -72,7 +73,7 @@ note "New ui file $ui-file";
 
     # Copy the builder object
     $engine.builder = $work.builder;
-    $work.glade-run(:$engine);
+    $work.glade-run( :$engine, :$test-setup, :$toplevel-id);
 
     #note $work.state-engine-data;
   }
