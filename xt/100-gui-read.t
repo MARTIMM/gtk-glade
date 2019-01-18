@@ -156,7 +156,7 @@ class E is GTK::Glade::Engine {
   }
 }
 
-#-------------------------------------------------------------------------------
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 subtest 'Action object', {
   my E $engine .= new();
   my GTK::Glade $a .= new( :$ui-file, :$css-file, :$engine);
