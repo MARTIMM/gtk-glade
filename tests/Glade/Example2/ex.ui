@@ -110,6 +110,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="wrap_mode">word</property>
+                <signal name="focus" handler="text-focus" swapped="no"/>
               </object>
             </child>
           </object>
