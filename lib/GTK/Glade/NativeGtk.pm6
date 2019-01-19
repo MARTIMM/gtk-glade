@@ -2,7 +2,7 @@
 # is to remove dependency on that package because only 2 files can be used
 
 # CHANGES:
-# 2019-01-11 There are functions added and others are changed or removed
+# 2019-01-11 There are functions added
 
 use v6;
 
@@ -32,6 +32,7 @@ class GError is repr('CStruct') is export {
 
 #class GtkCssSection is repr('CStruct') is export { }
 class GtkCssSection is repr('CPointer') is export { }
+
 
 #`{{
 class GdkEventAny is repr('CStruct') is export {
@@ -93,6 +94,56 @@ enum GtkStyleProviderPriority is export (
     GTK_STYLE_PROVIDER_PRIORITY_USER => 800,
 );
 
+
+enum GdkModifierType is export (
+  GDK_SHIFT_MASK    => 1 +< 0,
+  GDK_LOCK_MASK     => 1 +< 1,
+  GDK_CONTROL_MASK  => 1 +< 2,
+  GDK_MOD1_MASK     => 1 +< 3,
+  GDK_MOD2_MASK     => 1 +< 4,
+  GDK_MOD3_MASK     => 1 +< 5,
+  GDK_MOD4_MASK     => 1 +< 6,
+  GDK_MOD5_MASK     => 1 +< 7,
+  GDK_BUTTON1_MASK  => 1 +< 8,
+  GDK_BUTTON2_MASK  => 1 +< 9,
+  GDK_BUTTON3_MASK  => 1 +< 10,
+  GDK_BUTTON4_MASK  => 1 +< 11,
+  GDK_BUTTON5_MASK  => 1 +< 12,
+
+  GDK_MODIFIER_RESERVED_13_MASK  => 1 +< 13,
+  GDK_MODIFIER_RESERVED_14_MASK  => 1 +< 14,
+  GDK_MODIFIER_RESERVED_15_MASK  => 1 +< 15,
+  GDK_MODIFIER_RESERVED_16_MASK  => 1 +< 16,
+  GDK_MODIFIER_RESERVED_17_MASK  => 1 +< 17,
+  GDK_MODIFIER_RESERVED_18_MASK  => 1 +< 18,
+  GDK_MODIFIER_RESERVED_19_MASK  => 1 +< 19,
+  GDK_MODIFIER_RESERVED_20_MASK  => 1 +< 20,
+  GDK_MODIFIER_RESERVED_21_MASK  => 1 +< 21,
+  GDK_MODIFIER_RESERVED_22_MASK   => 1 +< 22,
+  GDK_MODIFIER_RESERVED_23_MASK   => 1 +< 23,
+  GDK_MODIFIER_RESERVED_24_MASK   => 1 +< 24,
+  GDK_MODIFIER_RESERVED_25_MASK   => 1 +< 25,
+
+  #`{{
+   The next few modifiers are used by XKB, so we skip to the end.
+   Bits 15 - 25 are currently unused. Bit 29 is used internally.
+  }}
+
+  GDK_SUPER_MASK                  => 1 +< 26,
+  GDK_HYPER_MASK                  => 1 +< 27,
+  GDK_META_MASK                   => 1 +< 28,
+
+  GDK_MODIFIER_RESERVED_29_MASK   => 1 +< 29,
+
+  GDK_RELEASE_MASK                => 1 +< 30,
+
+  #`{{
+   Combination of GDK_SHIFT_MASK..GDK_BUTTON5_MASK + GDK_SUPER_MASK
+     + GDK_HYPER_MASK + GDK_META_MASK + GDK_RELEASE_MASK */
+  }}
+  GDK_MODIFIER_MASK               => 0x5c001fff
+);
+
 #`{{
 enum GdkEventType is export (
   GDK_NOTHING		=> -1,
@@ -152,7 +203,7 @@ enum GdkEventType is export (
 #--[ display ]------------------------------------------------------------------
 sub gdk_display_warp_pointer (
   GdkDisplay $display, GdkScreen $screen, int32 $x, int32 $y
-  ) is native(&gtk-lib)
+  ) is native(&gdk-lib)
     is export
     {*}
 
@@ -188,7 +239,7 @@ sub gtk_window_set_default_size(GtkWidget $window, int32 $width, int32 $height)
 
 # void gtk_window_set_modal (GtkWindow *window, gboolean modal);
 # can be set in glade
-sub gtk_window_set_modal( GtkWidget $window, Bool $modal)
+sub gtk_window_set_modal ( GtkWidget $window, Bool $modal)
     is native(&gtk-lib)
     is export
     { * }
@@ -201,7 +252,14 @@ sub gtk_window_set_transient_for( GtkWindow $window, GtkWindow $parent)
 
 sub gdk_window_get_origin (
     GdkWindow $window, int32 $x is rw, int32 $y is rw
-    ) is native(&gtk-lib)
+    ) returns int32
+      is native(&gdk-lib)
+      is export
+      { * }
+
+sub gtk_widget_get_has_window ( GtkWidget $window )
+    returns Bool
+    is native(&gtk-lib)
     is export
     { * }
 
@@ -1330,7 +1388,46 @@ sub gtk_dialog_response ( GtkWidget $dialog, int32 $response_id )
     { * }
 
 #--[ testing ]------------------------------------------------------------------
+#`[[[
 sub gtk_test_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
     is native(&gtk-lib)
     is export
     {*}
+
+#`{{
+# $modifiers is a GdkModifierType
+sub gtk_test_widget_send_key (
+    GtkWidget $widget, int32 $keyval, uint32 $modifiers
+    ) returns Bool
+      is native(&gtk-lib)
+      is export
+      { * }
+}}
+#`{{
+sub gtk_accel_group_get_modifier_mask ( GtkAccelGroup $accel_group )
+    returns GdkModifierType
+    is native(&gtk-lib)
+    is export
+    { * }
+}}
+
+sub g_thread_init ( )
+    is native(&gobject-lib)
+    is export
+    {*}
+
+sub gdk_threads_init ( )
+    is native(&gdk-lib)
+    is export
+    {*}
+
+sub gdk_threads_enter ( )
+    is native(&gdk-lib)
+    is export
+    {*}
+
+sub gdk_threads_leave ( )
+    is native(&gdk-lib)
+    is export
+    {*}
+]]]

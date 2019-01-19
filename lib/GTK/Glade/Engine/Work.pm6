@@ -13,6 +13,8 @@ has $.builder;
 #  has Hash $!gobjects;
 has GTK::Glade::Engine $!engine;
 #  has Str $!top-level-object-id;
+has Supplier $!supplier;
+has Supply $!supply;
 
 #-----------------------------------------------------------------------------
 submethod BUILD ( Bool :$test = False ) {
@@ -29,7 +31,11 @@ submethod BUILD ( Bool :$test = False ) {
   $argv[0] = $arg_arr;
 
   if $test {
-    gtk_test_init( $argc, $argv);
+    $!supplier .= new;
+    $!supply = $!supplier.Supply;
+
+    #gtk_test_init( $argc, $argv);
+    gtk_init( $argc, $argv);
   }
 
   else {
@@ -137,8 +143,11 @@ method glade-run (
 
     $test-setup.builder = $!builder;
     my Promise $p = start {
-      $test-setup.run-tests( $test-setup, $toplevel-id);
+      $test-setup.run-tests( $test-setup, $toplevel-id, $supplier);
     }
+
+    $supply.tap( -> $substep { $test-setup.execute-test($substep); } );
+
     gtk_main();
 
     my $r = $p.result;

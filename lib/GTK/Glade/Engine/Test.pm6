@@ -3,67 +3,178 @@ use v6;
 use NativeCall;
 use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Engine;
+#use GTK::Glade::Gdkkeysyms;
 
 #-------------------------------------------------------------------------------
-unit class GTK::Glade::Engine::Test:auth<github:MARTIMM> is GTK::Glade::Engine;
+unit role GTK::Glade::Engine::Test:auth<github:MARTIMM> is GTK::Glade::Engine;
 
 # Must be set before by GTK::Glade::Engine::Work.glade-run().
 has $.builder is rw;
 
+
+has GtkWidget $!widget;
+has Str $!text;
+
+
 #-----------------------------------------------------------------------------
 method run-tests (
-  GTK::Glade::Engine::Test:D $test-setup, Str:D $toplevel-id
+  GTK::Glade::Engine::Test:D $test-setup, Str:D $toplevel-id,
+  Supplier $supplier
   --> Str
 ) {
-
   my Int $executed-tests = 0;
 
   if ?$test-setup and ?$test-setup.steps and $test-setup.steps ~~ Array {
+    $!widget = GtkWidget;
+    $!text = Str;
 
     # show all widgets before continuing
     gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
-    sleep(2.0);
 
-    for $test-setup.steps -> Hash:D $step {
-      next unless ?$step<widget-id>;
+    for $test-setup.steps -> Array:D $step {
+      for @$step -> Pair $substep {
+        $supplier.emit($substep);
+      }
+    }
+  }
+#`{{
+  my Int $executed-tests = 0;
 
-#note "\n$step";
-      my $widget = gtk_builder_get_object( $!builder, $step<widget-id>);
-note "Widget: $widget";
+  if ?$test-setup and ?$test-setup.steps and $test-setup.steps ~~ Array {
+    $!widget = GtkWidget;
+    $!text = Str;
 
-      if ?$widget and ?$step<signal-detail> {
-note "Signal: $step<signal-detail>";
-        my $result;
-        g_signal_emit_by_name(
-          $widget, $step<signal-detail>, $widget, "x", $result
-        );
-        sleep(2.0);
+    # show all widgets before continuing
+    gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
+
+    for $test-setup.steps -> Array:D $step {
+      for @$step -> Pair $substep {
+        note "Substep: $substep.key() => ",
+              $substep.value() ~~ Block ?? 'Code block' !! $substep.value();
+
+        given $substep.key {
+
+          when 'set-widget' {
+            $!widget = gtk_builder_get_object( $!builder, $substep.value);
+          }
+
+          when 'emit-signal' {
+            next unless ?$!widget;
+
+            my $result;
+            g_signal_emit_by_name(
+              $!widget, $substep.value, $!widget, "x", $result
+            );
+          }
+
+          when 'get-text' {
+            next unless ?$!widget and gtk_widget_get_has_window($!widget);
+
+            my $buffer = gtk_text_view_get_buffer($!widget);
+            $!text = gtk_text_buffer_get_text(
+              $buffer, self.glade-start-iter($buffer),
+              self.glade-end-iter($buffer), 1
+            )
+          }
+
+          when 'set-text' {
+            next unless ?$!widget and gtk_widget_get_has_window($!widget);
+
+            my $buffer = gtk_text_view_get_buffer($!widget);
+            gtk_text_buffer_set_text( $buffer, $substep.value, -1);
+          }
+
+          when 'do-test' {
+            next unless $substep.value ~~ Block;
+
+            $substep.value()();
+            $executed-tests++;
+          }
+
+          when 'wait' {
+            sleep $substep.value();
+          }
+        }
       }
 
-      if ?$widget and ?$step<select> {
-note "select";
-
-        my GdkWindow $window = gtk_widget_get_window($widget);
-        my Int $x;
-        my Int $y;
-        #gdk_window_get_origin( $window, $x, $y);
-note "W: $window, $x, $y";
-        $x += gtk_widget_get_allocated_width($widget) / 2;
-        $y += gtk_widget_get_allocated_height($widget) / 2;
-note "Select: $x, $y";
-        my GdkDisplay $display = gtk_widget_get_display($widget);
-        my GdkScreen $screen = gdk_screen_get_default();
-        gdk_display_warp_pointer( $display, $screen, $x, $y);
-      }
-
-      if ?$step<test> {
-        $step<test>();
-        $executed-tests++;
-      }
-
-
+      # Stop when loop is exited
+      last unless gtk_main_level();
     }
   }
 
   ~(+($test-setup.steps) // 0)
+}}
+}
+
+#-----------------------------------------------------------------------------
+method execute-test ( Pair $substep ) {
+
+note "Substep: $substep";
+#`{{
+  my Int $executed-tests = 0;
+
+  if ?$test-setup and ?$test-setup.steps and $test-setup.steps ~~ Array {
+    $!widget = GtkWidget;
+    $!text = Str;
+
+    # show all widgets before continuing
+    gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
+
+    for $test-setup.steps -> Array:D $step {
+      for @$step -> Pair $substep {
+        note "Substep: $substep.key() => ",
+              $substep.value() ~~ Block ?? 'Code block' !! $substep.value();
+
+        given $substep.key {
+
+          when 'set-widget' {
+            $!widget = gtk_builder_get_object( $!builder, $substep.value);
+          }
+
+          when 'emit-signal' {
+            next unless ?$!widget;
+
+            my $result;
+            g_signal_emit_by_name(
+              $!widget, $substep.value, $!widget, "x", $result
+            );
+          }
+
+          when 'get-text' {
+            next unless ?$!widget and gtk_widget_get_has_window($!widget);
+
+            my $buffer = gtk_text_view_get_buffer($!widget);
+            $!text = gtk_text_buffer_get_text(
+              $buffer, self.glade-start-iter($buffer),
+              self.glade-end-iter($buffer), 1
+            )
+          }
+
+          when 'set-text' {
+            next unless ?$!widget and gtk_widget_get_has_window($!widget);
+
+            my $buffer = gtk_text_view_get_buffer($!widget);
+            gtk_text_buffer_set_text( $buffer, $substep.value, -1);
+          }
+
+          when 'do-test' {
+            next unless $substep.value ~~ Block;
+
+            $substep.value()();
+            $executed-tests++;
+          }
+
+          when 'wait' {
+            sleep $substep.value();
+          }
+        }
+      }
+
+      # Stop when loop is exited
+      last unless gtk_main_level();
+    }
+  }
+
+  ~(+($test-setup.steps) // 0)
+}}
 }

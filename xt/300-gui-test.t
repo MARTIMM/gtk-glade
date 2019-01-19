@@ -56,7 +56,6 @@ $file.IO.spurt(Q:q:to/EOXML/);
             <object class="GtkTextView" id="inputTxt">
               <property name="visible">True</property>
               <property name="can_focus">True</property>
-              <!--signal name="insert-at-cursor" handler="insert-char" swapped="no"/-->
             </object>
             <packing>
               <property name="left_attach">1</property>
@@ -139,11 +138,12 @@ class E is GTK::Glade::Engine {
 
   #-----------------------------------------------------------------------------
   method exit-program ( :$widget, :$data, :$object ) {
+#`{{
     diag "quit-program called";
     diag "Widget: " ~ $widget.perl if ?$widget;
     diag "Data: " ~ $data.perl if ?$data;
     diag "Object: " ~ $object.perl if ?$object;
-
+}}
     gtk_main_quit();
   }
 
@@ -162,26 +162,74 @@ class E is GTK::Glade::Engine {
 }
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-class T is GTK::Glade::Engine::Test {
+class T does GTK::Glade::Engine::Test {
 
   has Array $.steps = [];
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
-    $!steps.push: {
-      :widget-id<inputTxt>,
-      :select,
-      :set-text<x>
-    };
+    # Wait for start
+    $!steps.push: [
+      :wait(1.8),
+    ];
 
-    $!steps.push: {
-      :widget-id<quitBttn>,
-      :signal-detail<clicked>,
-      :test( {
+    # Test Copy button
+    $!steps.push: [
+      :set-widget<inputTxt>,
+      :do-test( {
+          isa-ok $!widget, GTK::Glade::NativeGtk::GtkWidget;
+        }
+      ),
+      :set-text("text voor invoer\n"),
+      :set-widget<copyBttn>,
+      :emit-signal<clicked>,
+      :wait(1.0),
+      :set-widget<outputTxt>,
+      :get-text,
+      :do-test( {
+          is $!text, "text voor invoer\n", 'Text found is same as input';
+        }
+      ),
+    ];
+
+    # Repeat test of Copy button
+    $!steps.push: [
+      :set-widget<inputTxt>,
+      :set-text("2e text\n"),
+      :set-widget<copyBttn>,
+      :emit-signal<clicked>,
+      :wait(1.0),
+      :set-widget<outputTxt>,
+      :get-text,
+      :do-test( {
+          is $!text, "text voor invoer\n2e text\n",
+             'Text is appended properly';
+        }
+      ),
+    ];
+
+    $!steps.push: [
+      :set-widget<clearBttn>,
+      :emit-signal<clicked>,
+      :wait(1.0),
+      :set-widget<outputTxt>,
+      :get-text,
+      :do-test( {
+          is $!text, "", 'Text is cleared';
+        }
+      ),
+    ];
+
+    # Test Quit button
+    $!steps.push: [
+      :set-widget<quitBttn>,
+      :emit-signal<clicked>,
+      :wait(1.0),
+      :do-test( {
           is gtk_main_level(), 0, 'quit button exits loop';
         }
       ),
-    };
+    ];
   }
 }
 
