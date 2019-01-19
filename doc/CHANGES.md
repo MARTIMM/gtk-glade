@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-01-19 0.6.1
+  * The testing framework is improved. There are however problems using threads.
 * 2019-01-18 0.6.0
   * Added basics of a testing framework. It is possible to emit a signal to some particular widget.
 * 2019-01-17 0.5.0
