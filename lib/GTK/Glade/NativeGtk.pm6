@@ -200,6 +200,13 @@ enum GdkEventType is export (
 } GdkEventType;
 }}
 
+
+constant G_PRIORITY_HIGH is export = -100;
+constant G_PRIORITY_DEFAULT is export = 0;
+constant G_PRIORITY_HIGH_IDLE is export = 100;
+constant G_PRIORITY_DEFAULT_IDLE is export = 200;
+constant G_PRIORITY_LOW is export = 300;
+
 #--[ display ]------------------------------------------------------------------
 sub gdk_display_warp_pointer (
   GdkDisplay $display, GdkScreen $screen, int32 $x, int32 $y
@@ -381,7 +388,7 @@ sub gtk_container_set_border_width(GtkWidget $container, int32 $border_width)
     is export
     {*}
 
-#--[ g_signal_ ]----------------------------------------------------------------
+#--[ signals and events ]-------------------------------------------------------
 # gulong g_signal_connect_object ( gpointer instance,
 #        const gchar *detailed_signal, GCallback c_handler,
 #        gpointer gobject, GConnectFlags connect_flags);
@@ -433,6 +440,12 @@ sub g_signal_emit_by_name (
       is export
       {*}
 
+sub gtk_events_pending ( )
+    returns Bool
+    is native(&gtk-lib)
+    is export
+    {*}
+
 #--[ Quarks ]-------------------------------------------------------------------
 sub g_quark_from_string ( Str $string )
     returns uint32
@@ -477,7 +490,12 @@ sub gtk_main_quit()
     is export
     {*}
 
-sub gtk_main_iteration_do ( Bool $blocking)
+sub gtk_main_iteration ( )
+    is native(&gtk-lib)
+    is export
+    {*}
+
+sub gtk_main_iteration_do ( Bool $blocking )
     returns Bool
     is native(&gtk-lib)
     is export
@@ -1388,6 +1406,21 @@ sub gtk_dialog_response ( GtkWidget $dialog, int32 $response_id )
     { * }
 
 #--[ testing ]------------------------------------------------------------------
+sub gdk_threads_add_idle (
+  &function ( OpaquePointer $f_data ), OpaquePointer $data
+  ) returns uint32
+    is native(&gdk-lib)
+    is export
+    { * }
+
+sub gdk_threads_add_idle_full (
+  int32 $priority, &function ( OpaquePointer $f_data ),
+  OpaquePointer $data, &notify ( )
+  ) returns uint32
+    is native(&gdk-lib)
+    is export
+    { * }
+
 #`[[[
 sub gtk_test_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
     is native(&gtk-lib)

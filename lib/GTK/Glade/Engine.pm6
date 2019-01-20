@@ -77,3 +77,10 @@ method glade-clear-text ( Str:D $id --> Str ) {
 
   $text
 }
+
+#-----------------------------------------------------------------------------
+# Insert GTK/GDK actions into the main loop
+#method glade-add-to-queue ( &function, $data, Int $priority ) {
+
+#  gdk_threads_add_idle_full( $priority, &function, $data, Any);
+#}

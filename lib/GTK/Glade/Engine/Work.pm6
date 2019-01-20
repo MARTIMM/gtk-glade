@@ -13,8 +13,6 @@ has $.builder;
 #  has Hash $!gobjects;
 has GTK::Glade::Engine $!engine;
 #  has Str $!top-level-object-id;
-has Supplier $!supplier;
-has Supply $!supply;
 
 #-----------------------------------------------------------------------------
 submethod BUILD ( Bool :$test = False ) {
@@ -31,9 +29,6 @@ submethod BUILD ( Bool :$test = False ) {
   $argv[0] = $arg_arr;
 
   if $test {
-    $!supplier .= new;
-    $!supply = $!supplier.Supply;
-
     #gtk_test_init( $argc, $argv);
     gtk_init( $argc, $argv);
   }
@@ -142,16 +137,22 @@ method glade-run (
   if $test-setup.defined {
 
     $test-setup.builder = $!builder;
-    my Promise $p = start {
-      $test-setup.run-tests( $test-setup, $toplevel-id, $supplier);
-    }
 
-    $supply.tap( -> $substep { $test-setup.execute-test($substep); } );
+note "LL 0: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+
+    g_timeout_add(
+      300,
+      -> $data {
+note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+        $test-setup.run-tests( $test-setup, $toplevel-id);
+note "X: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+#        return False;
+      },
+      Any
+    );
 
     gtk_main();
-
-    my $r = $p.result;
-    note "Number of tests executed: $r.";
+note "LL 2: ", gtk_main_level(), ', thread: ', $*THREAD.id();
   }
 
   else {

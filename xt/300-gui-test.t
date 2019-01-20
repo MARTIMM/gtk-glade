@@ -144,12 +144,15 @@ class E is GTK::Glade::Engine {
     diag "Data: " ~ $data.perl if ?$data;
     diag "Object: " ~ $object.perl if ?$object;
 }}
+note "LL 1c: ", gtk_main_level();
     gtk_main_quit();
+note "LL 1d: ", gtk_main_level();
   }
 
   #-----------------------------------------------------------------------------
   method copy-text ( :$widget, :$data, :$object ) {
 
+note "copy text thread: $*THREAD.id()";
     my Str $text = self.glade-clear-text('inputTxt');
     self.glade-add-text( 'outputTxt', $text);
   }
@@ -157,6 +160,7 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   method clear-text ( :$widget, :$data, :$object ) {
 
+note "clear text thread: $*THREAD.id()";
     note self.glade-clear-text('outputTxt');
   }
 }
@@ -169,12 +173,10 @@ class T does GTK::Glade::Engine::Test {
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
     # Wait for start
-    $!steps.push: [
-      :wait(1.8),
-    ];
+    $!steps = [
+      :wait(1.2),
 
-    # Test Copy button
-    $!steps.push: [
+      # Test Copy button
       :set-widget<inputTxt>,
       :do-test( {
           isa-ok $!widget, GTK::Glade::NativeGtk::GtkWidget;
@@ -190,10 +192,8 @@ class T does GTK::Glade::Engine::Test {
           is $!text, "text voor invoer\n", 'Text found is same as input';
         }
       ),
-    ];
 
-    # Repeat test of Copy button
-    $!steps.push: [
+      # Repeat test of Copy button
       :set-widget<inputTxt>,
       :set-text("2e text\n"),
       :set-widget<copyBttn>,
@@ -206,9 +206,8 @@ class T does GTK::Glade::Engine::Test {
              'Text is appended properly';
         }
       ),
-    ];
 
-    $!steps.push: [
+      # Test Clear button
       :set-widget<clearBttn>,
       :emit-signal<clicked>,
       :wait(1.0),
@@ -218,10 +217,8 @@ class T does GTK::Glade::Engine::Test {
           is $!text, "", 'Text is cleared';
         }
       ),
-    ];
 
-    # Test Quit button
-    $!steps.push: [
+      # Test Quit button
       :set-widget<quitBttn>,
       :emit-signal<clicked>,
       :wait(1.0),
@@ -229,6 +226,9 @@ class T does GTK::Glade::Engine::Test {
           is gtk_main_level(), 0, 'quit button exits loop';
         }
       ),
+
+      # Stop tests
+#      :finish
     ];
   }
 }
