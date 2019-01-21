@@ -212,7 +212,7 @@ sub gdk_display_warp_pointer (
   GdkDisplay $display, GdkScreen $screen, int32 $x, int32 $y
   ) is native(&gdk-lib)
     is export
-    {*}
+    { * }
 
 #--[ Gdk screen ]---------------------------------------------------------------
 sub gdk_screen_get_default ( )
@@ -226,13 +226,13 @@ sub gtk_window_new(int32 $window_type)
     is native(&gtk-lib)
     is export
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_window_set_title(GtkWidget $w, Str $title)
     is native(&gtk-lib)
     is export
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_window_set_position(GtkWidget $window, int32 $position)
     is native(&gtk-lib)
@@ -275,12 +275,12 @@ sub gtk_widget_get_display ( GtkWidget $widget )
     returns GdkDisplay
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_show(GtkWidget $widgetw)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_hide(GtkWidget $widgetw)
     is native(&gtk-lib)
@@ -306,40 +306,40 @@ sub gtk_widget_get_no_show_all(GtkWidget $widgetw)
 sub gtk_widget_destroy(GtkWidget $widget)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_set_sensitive(GtkWidget $widget, int32 $sensitive)
     is native(&gtk-lib)
     is export
 
-    {*}
+    { * }
 sub gtk_widget_get_sensitive(GtkWidget $widget)
     returns int32
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_set_size_request(GtkWidget $widget, int32 $w, int32 $h)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_get_allocated_height(GtkWidget $widget)
     returns int32
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_get_allocated_width(GtkWidget $widget)
     returns int32
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_queue_draw(GtkWidget $widget)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_widget_get_tooltip_text(GtkWidget $widget)
     is native(&gtk-lib)
@@ -375,18 +375,18 @@ sub gtk_widget_get_window ( GtkWidget $widget )
 sub gtk_container_add(GtkWidget $container, GtkWidget $widgen)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_container_get_border_width(GtkWidget $container)
     returns int32
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_container_set_border_width(GtkWidget $container, int32 $border_width)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 #--[ signals and events ]-------------------------------------------------------
 # gulong g_signal_connect_object ( gpointer instance,
@@ -431,99 +431,99 @@ sub g_signal_emit (
     GtkWidget $widget, Str $data, Str $return-value is rw
     ) is native(&gobject-lib)
       is export
-      {*}
+      { * }
 
 sub g_signal_emit_by_name (
     OpaquePointer $instance, Str $detailed_signal,
     GtkWidget $widget, Str $data, Str $return-value is rw
     ) is native(&gobject-lib)
       is export
-      {*}
+      { * }
 
 sub gtk_events_pending ( )
     returns Bool
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 #--[ Quarks ]-------------------------------------------------------------------
 sub g_quark_from_string ( Str $string )
     returns uint32
     is native(&glib-lib)
     is export
-    {*}
+    { * }
 
 sub g_quark_to_string ( uint32 $quark )
     returns Str
     is native(&glib-lib)
     is export
-    {*}
+    { * }
 
 #-------------------------------------------------------------------------------
 sub g_idle_add( &Handler (OpaquePointer $h_data), OpaquePointer $data)
+    returns int32
     is native(&glib-lib)
     is export
-    returns int32
-    {*}
+    { * }
 
 sub g_timeout_add(
-    int32 $interval, &Handler (OpaquePointer $h_data, --> int32),
-    OpaquePointer $data)
+    int32 $interval, &Handler ( OpaquePointer $h_data, --> int32 ),
+    OpaquePointer $data
+    ) returns int32
       is native(&gtk-lib)
       is export
-      returns int32
-      {*}
+      { * }
 
 #--[ App ]----------------------------------------------------------------------
-sub gtk_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
+sub gtk_init ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
-sub gtk_main()
+sub gtk_main ( )
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
-sub gtk_main_quit()
+sub gtk_main_quit ( )
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_main_iteration ( )
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_main_iteration_do ( Bool $blocking )
     returns Bool
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_main_level ( )
     returns uint32
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 #--[ Box ]----------------------------------------------------------------------
 #`{{
 sub gtk_box_pack_start(GtkWidget, GtkWidget, int32, int32, int32)
     is native(&gtk-lib)
     is export(:box)
-    {*}
+    { * }
 
 sub gtk_box_get_spacing(GtkWidget $box)
     returns int32
     is native(&gtk-lib)
     is export(:box)
-    {*}
+    { * }
 
 sub gtk_box_set_spacing(GtkWidget $box, int32 $spacing)
     is native(&gtk-lib)
     is export(:box)
-    {*}
+    { * }
 
 #
 # HBox
@@ -532,7 +532,7 @@ sub gtk_hbox_new(int32, int32)
     is native(&gtk-lib)
     is export(:hbox)
     returns GtkWidget
-    {*}
+    { * }
 
 #
 # VBox
@@ -541,7 +541,7 @@ sub gtk_vbox_new(int32, int32)
     is native(&gtk-lib)
     is export(:vbox)
     returns GtkWidget
-    {*}
+    { * }
 }}
 
 #
@@ -551,7 +551,7 @@ sub gtk_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:button)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_button_get_label(GtkWidget $widget)
     is native(&gtk-lib)
@@ -571,7 +571,7 @@ sub gtk_check_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:check-button)
     returns GtkWidget
-    {*}
+    { * }
 
 #
 # ToggleButton
@@ -580,19 +580,19 @@ sub gtk_toggle_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:toggle-button)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_toggle_button_get_active(GtkWidget $w)
     is native(&gtk-lib)
     is export(:toggle-button)
     returns int32
-    {*}
+    { * }
 
 sub gtk_toggle_button_set_active(GtkWidget $w, int32 $active)
     is native(&gtk-lib)
     is export(:toggle-button)
     returns int32
-    {*}
+    { * }
 
 #
 # ComboBoxText
@@ -658,12 +658,12 @@ sub gtk_grid_new()
     is native(&gtk-lib)
     is export(:grid)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_grid_attach(GtkWidget $grid, GtkWidget $child, int32 $x, int32 $y, int32 $w, int32 $h)
     is native(&gtk-lib)
     is export(:grid)
-    {*}
+    { * }
 }}
 
 #
@@ -673,7 +673,7 @@ sub gtk_scale_new_with_range( int32 $orientation, num64 $min, num64 $max, num64 
     is native(&gtk-lib)
     is export(:scale)
     returns GtkWidget
-    {*}
+    { * }
 
 # orientation:
 # horizontal = 0
@@ -681,23 +681,23 @@ sub gtk_scale_new_with_range( int32 $orientation, num64 $min, num64 $max, num64 
 sub gtk_scale_set_digits( GtkWidget $scale, int32 $digits )
     is native( &gtk-lib)
     is export(:scale)
-    {*}
+    { * }
 
 sub gtk_range_get_value( GtkWidget $scale )
     is native(&gtk-lib)
     is export(:scale)
     returns num64
-    {*}
+    { * }
 
 sub gtk_range_set_value( GtkWidget $scale, num64 $value )
     is native(&gtk-lib)
     is export(:scale)
-    {*}
+    { * }
 
 sub gtk_range_set_inverted( GtkWidget $scale, Bool $invertOK )
     is native(&gtk-lib)
     is export(:scale)
-    {*}
+    { * }
 
 #`{{
 # Separator
@@ -746,18 +746,18 @@ sub gtk_entry_new()
     is native(&gtk-lib)
     is export(:entry)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_entry_get_text(GtkWidget $entry)
     is native(&gtk-lib)
     is export(:entry)
     returns Str
-    {*}
+    { * }
 
 sub gtk_entry_set_text(GtkWidget $entry, Str $text)
     is native(&gtk-lib)
     is export(:entry)
-    {*}
+    { * }
 
 #`{{
 # Frame
@@ -786,23 +786,23 @@ sub gtk_label_new(Str $text)
     is native(&gtk-lib)
     is export(:label)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_label_get_text(GtkWidget $label)
     is native(&gtk-lib)
     is export(:label)
     returns Str
-    {*}
+    { * }
 
 sub gtk_label_set_text(GtkWidget $label, Str $text)
     is native(&gtk-lib)
     is export(:label)
-    {*}
+    { * }
 
 sub gtk_label_set_markup(GtkWidget $label, Str $text)
     is native(&gtk-lib)
     is export(:label)
-    {*}
+    { * }
 }}
 
 #
@@ -812,7 +812,7 @@ sub gtk_drawing_area_new()
     is native(&gtk-lib)
     is export(:drawing-area)
     returns GtkWidget
-    {*}
+    { * }
 
 #
 # ProgressBar
@@ -901,18 +901,18 @@ sub gtk_switch_new()
     is native(&gtk-lib)
     is export(:switch)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_switch_get_active(GtkWidget $w)
     is export(:switch)
     is native(&gtk-lib)
     returns int32
-    {*}
+    { * }
 
 sub gtk_switch_set_active(GtkWidget $w, int32 $a)
     is native(&gtk-lib)
     is export(:switch)
-    {*}
+    { * }
 
 #
 # TextView
@@ -921,35 +921,35 @@ sub gtk_text_view_new()
     is native(&gtk-lib)
     is export(:text-view)
     returns GtkWidget
-    {*}
+    { * }
 
 sub gtk_text_view_get_buffer ( GtkWidget $view )
     is native(&gtk-lib)
     is export(:text-view)
     returns OpaquePointer
-    {*}
+    { * }
 
 sub gtk_text_buffer_get_text ( OpaquePointer $buffer, CArray[int32] $start,
         CArray[int32] $end, int32 $show_hidden )
     is native(&gtk-lib)
     is export
     returns Str
-    {*}
+    { * }
 
 sub gtk_text_buffer_get_start_iter ( OpaquePointer $buffer, CArray[int32] $i )
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_text_buffer_get_end_iter(OpaquePointer $buffer, CArray[int32] $i)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_text_buffer_set_text(OpaquePointer $buffer, Str $text, int32 $len)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 sub gtk_text_view_set_editable(GtkWidget $widget, int32 $setting)
     is native(&gtk-lib)
@@ -1425,7 +1425,7 @@ sub gdk_threads_add_idle_full (
 sub gtk_test_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
     is native(&gtk-lib)
     is export
-    {*}
+    { * }
 
 #`{{
 # $modifiers is a GdkModifierType
@@ -1447,20 +1447,20 @@ sub gtk_accel_group_get_modifier_mask ( GtkAccelGroup $accel_group )
 sub g_thread_init ( )
     is native(&gobject-lib)
     is export
-    {*}
+    { * }
 
 sub gdk_threads_init ( )
     is native(&gdk-lib)
     is export
-    {*}
+    { * }
 
 sub gdk_threads_enter ( )
     is native(&gdk-lib)
     is export
-    {*}
+    { * }
 
 sub gdk_threads_leave ( )
     is native(&gdk-lib)
     is export
-    {*}
+    { * }
 ]]]

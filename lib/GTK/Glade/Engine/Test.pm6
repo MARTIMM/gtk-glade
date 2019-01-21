@@ -30,8 +30,6 @@ method run-tests (
     $!widget = GtkWidget;
     $!text = Str;
 
-    gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
-
     for $test-setup.steps -> Pair $substep {
       note "    Substep: $substep.key() => ",
             $substep.value() ~~ Block ?? 'Code block' !! $substep.value();
@@ -80,21 +78,19 @@ method run-tests (
         when 'wait' {
           sleep $substep.value();
         }
-
-        when 'finish' {
-#          ;
-        }
       }
 
-note "LL 1a: ", gtk_main_level();
+#note "LL 1a: ", gtk_main_level();
       while gtk_events_pending() { gtk_main_iteration_do(False); }
-note "LL 1b: ", gtk_main_level();
+#note "LL 1b: ", gtk_main_level();
 
       # Stop when loop is exited
-#      last unless gtk_main_level();
+      last unless gtk_main_level();
     }
 
+    # End the main loop
     gtk_main_quit() if gtk_main_level();
+    while gtk_events_pending() { gtk_main_iteration_do(False); }
   }
 note "Done testing";
 

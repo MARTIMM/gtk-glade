@@ -144,15 +144,15 @@ class E is GTK::Glade::Engine {
     diag "Data: " ~ $data.perl if ?$data;
     diag "Object: " ~ $object.perl if ?$object;
 }}
-note "LL 1c: ", gtk_main_level();
+#note "LL 1c: ", gtk_main_level();
     gtk_main_quit();
-note "LL 1d: ", gtk_main_level();
+#note "LL 1d: ", gtk_main_level();
   }
 
   #-----------------------------------------------------------------------------
   method copy-text ( :$widget, :$data, :$object ) {
 
-note "copy text thread: $*THREAD.id()";
+#note "copy text thread: $*THREAD.id()";
     my Str $text = self.glade-clear-text('inputTxt');
     self.glade-add-text( 'outputTxt', $text);
   }
@@ -160,8 +160,8 @@ note "copy text thread: $*THREAD.id()";
   #-----------------------------------------------------------------------------
   method clear-text ( :$widget, :$data, :$object ) {
 
-note "clear text thread: $*THREAD.id()";
-    note self.glade-clear-text('outputTxt');
+#note "clear text thread: $*THREAD.id()";
+    self.glade-clear-text('outputTxt');
   }
 }
 
@@ -219,13 +219,13 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Test Quit button
-      :set-widget<quitBttn>,
-      :emit-signal<clicked>,
-      :wait(1.0),
-      :do-test( {
-          is gtk_main_level(), 0, 'quit button exits loop';
-        }
-      ),
+#      :set-widget<quitBttn>,
+#      :emit-signal<clicked>,
+#      :wait(1.0),
+#      :do-test( {
+#          is gtk_main_level(), 0, 'quit button exits loop';
+#        }
+#      ),
 
       # Stop tests
 #      :finish

@@ -145,14 +145,18 @@ note "LL 0: ", gtk_main_level(), ', thread: ', $*THREAD.id();
       -> $data {
 note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
         $test-setup.run-tests( $test-setup, $toplevel-id);
-note "X: ", gtk_main_level(), ', thread: ', $*THREAD.id();
-#        return False;
+
+        # MoarVM panic: Internal error: Unwound entire stack and missed handler
+        # if the next statement is left out. Dunno why...
+        note " ";
+#note "X: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+#        return 0;
       },
       Any
     );
 
     gtk_main();
-note "LL 2: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+#note "LL 2: ", gtk_main_level(), ', thread: ', $*THREAD.id();
   }
 
   else {
