@@ -76,6 +76,10 @@ my MyEngine $engine .= new();
 my GTK::Glade $a .= new( :ui-file("example.glade"), :$engine);
 ```
 
+# Documentation
+
+* [Release notes][release]
+
 # TODO
 
 * [ ] What can we do with the GTK::Glade object after it exits the main loop.
@@ -84,7 +88,8 @@ my GTK::Glade $a .= new( :ui-file("example.glade"), :$engine);
 * [x] Add css files
 * [ ] Add theme styling
 * [ ] Add animation
-* [ ] Add an interface tester so it can be tested using prove. Only the callbacks can be tested. This might be implemented by adding a layer of a state engine using e.g. Tinky or Tinky::Hash.
+* [x] Add an interface tester so it can be tested using prove. Only the callbacks can be tested. However, it cannot be used to test stuff on Travis-ci or Appveyor.
+* [ ] Documentation.
 
 # Versions of involved software
 

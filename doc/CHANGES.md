@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-01-21 0.6.2
+  * Bug fixes in the testing framework. Some are captured but not understood.
 * 2019-01-19 0.6.1
   * The testing framework is improved. There are however problems using threads.
 * 2019-01-18 0.6.0
