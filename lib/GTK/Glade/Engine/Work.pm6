@@ -3,6 +3,10 @@ use v6;
 use NativeCall;
 use XML::Actions;
 use GTK::Glade::NativeGtk :ALL;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::Gdk;
+use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::GtkBuilder;
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 
@@ -10,14 +14,11 @@ use GTK::Glade::Engine::Test;
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
 
 has $.builder;
-#  has Hash $!gobjects;
 has GTK::Glade::Engine $!engine;
-#  has Str $!top-level-object-id;
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$test = False ) {
 
-#    $!gobjects = {};
   $!engine .= new();
 
   # Setup gtk using commandline arguments
@@ -48,10 +49,10 @@ submethod BUILD ( Bool :$test = False ) {
 }}
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Prefix all methods with 'glade-' to distinguish them from callback methods
 # for glade gui xml elements when that file is processed by XML::Actions
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 multi method glade-add-gui ( Str:D :$ui-file! ) {
 
   if ?$!builder {
@@ -64,7 +65,7 @@ multi method glade-add-gui ( Str:D :$ui-file! ) {
   }
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 multi method glade-add-gui ( Str:D :$ui-string! ) {
 
   my GError $err;
@@ -80,7 +81,7 @@ multi method glade-add-gui ( Str:D :$ui-string! ) {
   }
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-add-css ( Str :$css-file ) {
 
   return unless ?$css-file and $css-file.IO ~~ :r;
@@ -92,7 +93,7 @@ note $css-file.IO.slurp;
 
   my GdkScreen $default-screen = gdk_screen_get_default();
   my GtkCssProvider $css-provider = gtk_css_provider_new();
-  g_signal_connect_wd(
+  g_signal_connect_object(
     $css-provider, 'parsing-error',
     -> GtkCssProvider $p, GtkCssSection $s, GError $e, $ptr {
 note "handler called";
@@ -114,7 +115,7 @@ note "handler called";
   #);
 
 #`{{
-  g_signal_connect_wd(
+  g_signal_connect_object(
   $css-provider, 'parsing-error',
   -> $provider, $section, $error, $pointer {
     self!glade-parsing-error( $provider, $section, $error, $pointer);
@@ -128,7 +129,7 @@ note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 }}
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-run (
   GTK::Glade::Engine :$!engine, GTK::Glade::Engine::Test :$test-setup,
   Str :$toplevel-id
@@ -138,12 +139,12 @@ method glade-run (
 
     $test-setup.builder = $!builder;
 
-note "LL 0: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+#note "LL 0: ", gtk_main_level(), ', thread: ', $*THREAD.id();
 
     g_timeout_add(
       300,
       -> $data {
-note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
+#note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
         $test-setup.run-tests( $test-setup, $toplevel-id);
 
         # MoarVM panic: Internal error: Unwound entire stack and missed handler
@@ -160,13 +161,14 @@ note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
   }
 
   else {
+#note "Start loop";
     gtk_main();
   }
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Callback methods called from XML::Actions
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #`{{
 method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
@@ -177,7 +179,7 @@ method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
 }
 }}
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method signal (
   Array:D $parent-path, Str:D :name($signal-name),
   Str:D :handler($handler-name),
@@ -197,12 +199,11 @@ method signal (
 
   #self!glade-set-object($id);
 
-  g_signal_connect_wd(
+  g_signal_connect_object(
     $widget, $signal-name,
     -> $widget, $data {
       if $!engine.^can($handler-name) {
-#          my Hash $o = $!gobjects.clone();
-#          $!engine."$handler-name"( $o, :$widget, :$data, :$object);
+#note "in callback, calling $handler-name";
         $!engine."$handler-name"( :$widget, :$data, :$object);
       }
 
@@ -214,21 +215,9 @@ method signal (
   );
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Private methods
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method !glade-parsing-error( $provider, $section, $error, $pointer ) {
-note "Error";
+  note "Error";
 }
-#`{{
-#-----------------------------------------------------------------------------
-method !glade-get-object( Str:D $id --> GtkWidget ) {
-  $!gobjects{$id} // GtkWidget;
-}
-
-#-----------------------------------------------------------------------------
-method !glade-set-object( Str:D $id ) {
-  $!gobjects{$id} = gtk_builder_get_object( $!builder, $id)
-    unless ?$!gobjects{$id};
-}
-}}

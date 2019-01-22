@@ -1,6 +1,10 @@
 use v6;
 
 use GTK::Glade;
+use GTK::Glade::NativeGtk :ALL;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::GtkWidget;
+
 use Test;
 
 diag "\n";

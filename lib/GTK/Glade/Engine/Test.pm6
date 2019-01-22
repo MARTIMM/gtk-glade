@@ -2,6 +2,9 @@ use v6;
 
 use NativeCall;
 use GTK::Glade::NativeGtk :ALL;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::GtkBuilder;
 use GTK::Glade::Engine;
 #use GTK::Glade::Gdkkeysyms;
 

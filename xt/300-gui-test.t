@@ -1,12 +1,12 @@
 use v6;
 
-#use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade;
 use GTK::Glade::Engine;
-use Test;
+use GTK::Glade::NativeGtk :ALL;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::GtkWidget;
 
-#use nqp;
-#use NativeCall;
+use Test;
 
 diag "\n";
 
@@ -179,7 +179,8 @@ class T does GTK::Glade::Engine::Test {
       # Test Copy button
       :set-widget<inputTxt>,
       :do-test( {
-          isa-ok $!widget, GTK::Glade::NativeGtk::GtkWidget;
+          note $!widget;
+          isa-ok $!widget, GTK::Glade::Native::GtkWidget::GtkWidget;
         }
       ),
       :set-text("text voor invoer\n"),

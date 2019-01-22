@@ -2,6 +2,9 @@ use v6;
 
 use NativeCall;
 use GTK::Glade::NativeGtk :ALL;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::GtkBuilder;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine:auth<github:MARTIMM>;
@@ -46,7 +49,6 @@ method glade-set-text ( Str:D $id, Str:D $text ) {
 
   my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
   my $buffer = gtk_text_view_get_buffer($widget);
-
   gtk_text_buffer_set_text( $buffer, $text, -1);
 }
 
@@ -77,10 +79,3 @@ method glade-clear-text ( Str:D $id --> Str ) {
 
   $text
 }
-
-#-----------------------------------------------------------------------------
-# Insert GTK/GDK actions into the main loop
-#method glade-add-to-queue ( &function, $data, Int $priority ) {
-
-#  gdk_threads_add_idle_full( $priority, &function, $data, Any);
-#}

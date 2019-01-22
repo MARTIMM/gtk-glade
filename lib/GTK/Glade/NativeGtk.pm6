@@ -7,40 +7,12 @@
 use v6;
 
 use GTK::Glade::NativeLib;
+use GTK::Glade::Native::Gtk;
+use GTK::Glade::Native::Gdk;
+use GTK::Glade::Native::GtkWidget;
 use NativeCall;
 
 unit module GTK::Glade::NativeGtk;
-
-#--[ Classes and structures ]---------------------------------------------------
-class GdkDisplay is repr('CPointer') is export { }
-class GdkScreen is repr('CPointer') is export { }
-class GdkWindow is repr('CPointer') is export { }
-
-class GObject is repr('CPointer') is export { }
-
-class GtkBuilder is repr('CPointer') { }
-class GtkWidget is repr('CPointer') is export { }
-class GtkWindow is repr('CPointer') is export { }
-class GtkCssProvider is repr('CPointer') is export { }
-
-class GError is repr('CStruct') is export {
-  #has GQuark $.domain;
-  has uint32 $.domain;
-  has int32 $.code;
-  has CArray[int8] $.message;
-}
-
-#class GtkCssSection is repr('CStruct') is export { }
-class GtkCssSection is repr('CPointer') is export { }
-
-
-#`{{
-class GdkEventAny is repr('CStruct') is export {
-  GdkEventType type;
-  GdkWindow *window;
-  int8 send_event;
-};
-}}
 
 #--[ Constants and enum ]-------------------------------------------------------
 enum GtkWindowPosition is export (
@@ -207,20 +179,45 @@ constant G_PRIORITY_HIGH_IDLE is export = 100;
 constant G_PRIORITY_DEFAULT_IDLE is export = 200;
 constant G_PRIORITY_LOW is export = 300;
 
+
+enum GtkOrientation is export (
+  GTK_ORIENTATION_HORIZONTAL    => 0,
+  GTK_ORIENTATION_VERTICAL      => 1,
+);
+
+#`{{ -> toplevel
+enum GtkResponseType is export (
+  GTK_RESPONSE_NONE         => -1,
+  GTK_RESPONSE_REJECT       => -2,
+  GTK_RESPONSE_ACCEPT       => -3,
+  GTK_RESPONSE_DELETE_EVENT => -4,
+  GTK_RESPONSE_OK           => -5,
+  GTK_RESPONSE_CANCEL       => -6,
+  GTK_RESPONSE_CLOSE        => -7,
+  GTK_RESPONSE_YES          => -8,
+  GTK_RESPONSE_NO           => -9,
+  GTK_RESPONSE_APPLY        => -10,
+  GTK_RESPONSE_HELP         => -11,
+);
+}}
+
 #--[ display ]------------------------------------------------------------------
+#`{{
 sub gdk_display_warp_pointer (
   GdkDisplay $display, GdkScreen $screen, int32 $x, int32 $y
   ) is native(&gdk-lib)
     is export
     { * }
-
+}}
+#`{{
 #--[ Gdk screen ]---------------------------------------------------------------
 sub gdk_screen_get_default ( )
     returns GdkScreen
     is native(&gdk-lib)
     is export
     { * }
-
+}}
+#`{{
 #--[ gtk_window_ ]--------------------------------------------------------------
 sub gtk_window_new(int32 $window_type)
     is native(&gtk-lib)
@@ -269,7 +266,8 @@ sub gtk_widget_get_has_window ( GtkWidget $window )
     is native(&gtk-lib)
     is export
     { * }
-
+}}
+#`{{
 #--[ gtk_widget_ ]--------------------------------------------------------------
 sub gtk_widget_get_display ( GtkWidget $widget )
     returns GdkDisplay
@@ -371,6 +369,12 @@ sub gtk_widget_get_window ( GtkWidget $widget )
     is export
     { * }
 
+sub gtk_widget_set_visible ( GtkWidget $widget, Bool $visible)
+    is native(&gtk-lib)
+    is export
+    { * }
+}}
+
 #--[ gtk_container_ ]-----------------------------------------------------------
 sub gtk_container_add(GtkWidget $container, GtkWidget $widgen)
     is native(&gtk-lib)
@@ -392,12 +396,12 @@ sub gtk_container_set_border_width(GtkWidget $container, int32 $border_width)
 # gulong g_signal_connect_object ( gpointer instance,
 #        const gchar *detailed_signal, GCallback c_handler,
 #        gpointer gobject, GConnectFlags connect_flags);
-sub g_signal_connect_wd( GtkWidget $widget, Str $signal,
+sub g_signal_connect_object( GtkWidget $widget, Str $signal,
     &Handler ( GtkWidget $h_widget, OpaquePointer $h_data),
     OpaquePointer $data, int32 $connect_flags)
-      returns int32
+      returns uint32
       is native(&gobject-lib)
-      is symbol('g_signal_connect_object')
+#      is symbol('g_signal_connect_object')
       is export
       { * }
 
@@ -467,9 +471,9 @@ sub g_idle_add( &Handler (OpaquePointer $h_data), OpaquePointer $data)
     { * }
 
 sub g_timeout_add(
-    int32 $interval, &Handler ( OpaquePointer $h_data, --> int32 ),
+    int32 $interval, &Handler (OpaquePointer $h_data, --> int32),
     OpaquePointer $data
-    ) returns int32
+    )  returns int32
       is native(&gtk-lib)
       is export
       { * }
@@ -507,20 +511,27 @@ sub gtk_main_level ( )
     is export
     { * }
 
-#--[ Box ]----------------------------------------------------------------------
 #`{{
-sub gtk_box_pack_start(GtkWidget, GtkWidget, int32, int32, int32)
+#--[ Box ]----------------------------------------------------------------------
+# GtkOrientation is an unsigned int (enum)
+sub gtk_box_new ( uint32 $orientation, int32 $spacing )
+    returns GtkWidget
     is native(&gtk-lib)
     is export(:box)
     { * }
 
-sub gtk_box_get_spacing(GtkWidget $box)
+sub gtk_box_pack_start ( GtkWidget, GtkWidget, Bool, Bool, uint32 )
+    is native(&gtk-lib)
+    is export(:box)
+    { * }
+
+sub gtk_box_get_spacing ( GtkWidget $box )
     returns int32
     is native(&gtk-lib)
     is export(:box)
     { * }
 
-sub gtk_box_set_spacing(GtkWidget $box, int32 $spacing)
+sub gtk_box_set_spacing ( GtkWidget $box, int32 $spacing )
     is native(&gtk-lib)
     is export(:box)
     { * }
@@ -543,6 +554,12 @@ sub gtk_vbox_new(int32, int32)
     returns GtkWidget
     { * }
 }}
+
+#--[ Listbox ]------------------------------------------------------------------
+sub gtk_list_box_insert ( GtkWidget $box, GtkWidget $child, int32 $position)
+    is native(&gtk-lib)
+    is export
+    { * }
 
 #
 # Button
@@ -651,20 +668,28 @@ sub gtk_combo_box_text_remove_all(GtkWidget $widget)
     is export(:combo-box-text)
     { * }
 
-#`{{
-# Grid
-#
+#--[ Grid ]---------------------------------------------------------------------
 sub gtk_grid_new()
+    returns GtkWidget
     is native(&gtk-lib)
     is export(:grid)
-    returns GtkWidget
     { * }
 
-sub gtk_grid_attach(GtkWidget $grid, GtkWidget $child, int32 $x, int32 $y, int32 $w, int32 $h)
+sub gtk_grid_attach( GtkWidget $grid, GtkWidget $child, int32 $x, int32 $y,
+    int32 $w, int32 $h
+    ) is native(&gtk-lib)
+      is export(:grid)
+      { * }
+
+sub gtk_grid_insert_row ( GtkWidget $grid, int32 $position)
     is native(&gtk-lib)
     is export(:grid)
     { * }
-}}
+
+sub gtk_grid_insert_column ( GtkWidget $grid, int32 $position)
+    is native(&gtk-lib)
+    is export(:grid)
+    { * }
 
 #
 # Scale
@@ -739,9 +764,7 @@ sub gtk_action_bar_set_center_widget(GtkWidget $widget, GtkWidget $centre-widget
     is export(:action-bar)
     { * }
 
-#
-# Entry
-#
+#--[ Entry ]--------------------------------------------------------------------
 sub gtk_entry_new()
     is native(&gtk-lib)
     is export(:entry)
@@ -755,6 +778,11 @@ sub gtk_entry_get_text(GtkWidget $entry)
     { * }
 
 sub gtk_entry_set_text(GtkWidget $entry, Str $text)
+    is native(&gtk-lib)
+    is export(:entry)
+    { * }
+
+sub gtk_entry_set_visibility ( GtkWidget $entry, Bool $visible)
     is native(&gtk-lib)
     is export(:entry)
     { * }
@@ -914,9 +942,7 @@ sub gtk_switch_set_active(GtkWidget $w, int32 $a)
     is export(:switch)
     { * }
 
-#
-# TextView
-#
+#--[ TextView ]-----------------------------------------------------------------
 sub gtk_text_view_new()
     is native(&gtk-lib)
     is export(:text-view)
@@ -1317,6 +1343,7 @@ sub gtk_scrolled_window_set_policy(GtkWidget $scrolled_window,
     is export(:scrolled-window)
     { * }
 
+#`{{
 #--[ gtk_builder_ ]-------------------------------------------------------------
 # GtkBuilder *gtk_builder_new (void);
 sub gtk_builder_new ()
@@ -1365,7 +1392,8 @@ sub gtk_builder_get_object (
       is native(&gtk-lib)
       is export
       { * }
-
+}}
+#`{{
 #--[ css style ]----------------------------------------------------------------
 sub gtk_css_provider_new ( )
     returns GtkCssProvider
@@ -1390,9 +1418,11 @@ sub gtk_style_context_add_provider_for_screen (
     ) is native(&gtk-lib)
       is export
       { * }
-
+}}
+#`{{ -> toplevel
 #--[ dialog ]-------------------------------------------------------------------
 # gint gtk_dialog_run (GtkDialog *dialog);
+# GtkResponseType is an int32
 sub gtk_dialog_run ( GtkWidget $dialog )
     returns int32
     is native(&gtk-lib)
@@ -1404,8 +1434,10 @@ sub gtk_dialog_response ( GtkWidget $dialog, int32 $response_id )
     is native(&gtk-lib)
     is export
     { * }
+}}
 
-#--[ testing ]------------------------------------------------------------------
+#--[ testing ]-----------------------------------------------------------------
+#`{{
 sub gdk_threads_add_idle (
   &function ( OpaquePointer $f_data ), OpaquePointer $data
   ) returns uint32
@@ -1420,7 +1452,7 @@ sub gdk_threads_add_idle_full (
     is native(&gdk-lib)
     is export
     { * }
-
+}}
 #`[[[
 sub gtk_test_init(CArray[int32] $argc, CArray[CArray[Str]] $argv)
     is native(&gtk-lib)
@@ -1443,24 +1475,4 @@ sub gtk_accel_group_get_modifier_mask ( GtkAccelGroup $accel_group )
     is export
     { * }
 }}
-
-sub g_thread_init ( )
-    is native(&gobject-lib)
-    is export
-    { * }
-
-sub gdk_threads_init ( )
-    is native(&gdk-lib)
-    is export
-    { * }
-
-sub gdk_threads_enter ( )
-    is native(&gdk-lib)
-    is export
-    { * }
-
-sub gdk_threads_leave ( )
-    is native(&gdk-lib)
-    is export
-    { * }
 ]]]

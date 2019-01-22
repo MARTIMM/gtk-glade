@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-01-22 0.6.3
+  * Factoring out NativeGtk. It is getting too big.
 * 2019-01-21 0.6.2
   * Bug fixes in the testing framework. Some are captured but not understood.
 * 2019-01-19 0.6.1
