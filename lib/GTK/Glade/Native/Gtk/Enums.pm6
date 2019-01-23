@@ -17,13 +17,11 @@ enum GtkOrientation is export <
 >;
 
 enum GtkScrollablePolicy is export <
-{
   GTK_SCROLL_MINIMUM
   GTK_SCROLL_NATURAL
 >;
 
 enum GtkStateFlags is export (
-{
   GTK_STATE_FLAG_NORMAL       => 0,
   GTK_STATE_FLAG_ACTIVE       => 1 +< 0,
   GTK_STATE_FLAG_PRELIGHT     => 1 +< 1,
@@ -125,7 +123,7 @@ enum GtkPanDirection is export <
   GTK_PAN_DIRECTION_RIGHT
   GTK_PAN_DIRECTION_UP
   GTK_PAN_DIRECTION_DOWN
-<;
+>;
 
 enum GtkPopoverConstraint is export <
   GTK_POPOVER_CONSTRAINT_NONE
