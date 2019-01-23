@@ -3,8 +3,10 @@ use v6;
 use NativeCall;
 use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::GtkWidget;
-use GTK::Glade::Native::GtkBuilder;
+use GTK::Glade::Native::Glib::GSignal;
+use GTK::Glade::Native::Gtk::Main;
+use GTK::Glade::Native::Gtk::Widget;
+use GTK::Glade::Native::Gtk::Builder;
 use GTK::Glade::Engine;
 #use GTK::Glade::Gdkkeysyms;
 
@@ -95,7 +97,8 @@ method run-tests (
     gtk_main_quit() if gtk_main_level();
     while gtk_events_pending() { gtk_main_iteration_do(False); }
   }
-note "Done testing";
+
+  note "    Done testing";
 
   return ~(+($test-setup.steps) // 0);
 }

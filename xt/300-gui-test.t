@@ -2,9 +2,10 @@ use v6;
 
 use GTK::Glade;
 use GTK::Glade::Engine;
-use GTK::Glade::NativeGtk :ALL;
+#use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::Gtk::Main;
+use GTK::Glade::Native::Gtk::Widget;
 
 use Test;
 
@@ -174,19 +175,19 @@ class T does GTK::Glade::Engine::Test {
   submethod BUILD ( ) {
     # Wait for start
     $!steps = [
-      :wait(1.2),
+#      :wait(1.2),
 
       # Test Copy button
       :set-widget<inputTxt>,
       :do-test( {
-          note $!widget;
-          isa-ok $!widget, GTK::Glade::Native::GtkWidget::GtkWidget;
+#note $!widget;
+          isa-ok $!widget, GTK::Glade::Native::Gtk::Widget::GtkWidget;
         }
       ),
       :set-text("text voor invoer\n"),
       :set-widget<copyBttn>,
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget<outputTxt>,
       :get-text,
       :do-test( {
@@ -199,7 +200,7 @@ class T does GTK::Glade::Engine::Test {
       :set-text("2e text\n"),
       :set-widget<copyBttn>,
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget<outputTxt>,
       :get-text,
       :do-test( {
@@ -211,7 +212,7 @@ class T does GTK::Glade::Engine::Test {
       # Test Clear button
       :set-widget<clearBttn>,
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget<outputTxt>,
       :get-text,
       :do-test( {

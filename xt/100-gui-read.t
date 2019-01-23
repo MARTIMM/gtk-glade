@@ -1,9 +1,11 @@
 use v6;
 
 use GTK::Glade;
-use GTK::Glade::NativeGtk :ALL;
+#use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::Gtk::Main;
+use GTK::Glade::Native::Gtk::Widget;
+use GTK::Glade::Native::Gtk::Button;
 
 use Test;
 

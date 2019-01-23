@@ -7,14 +7,16 @@
 use v6;
 
 use GTK::Glade::NativeLib;
-use GTK::Glade::Native::Gtk;
+#use GTK::Glade::Native::Glib::GObject;
+#use GTK::Glade::Native::Gtk;
 use GTK::Glade::Native::Gdk;
-use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::Gtk::Widget;
 use NativeCall;
 
 unit module GTK::Glade::NativeGtk;
 
 #--[ Constants and enum ]-------------------------------------------------------
+#`{{
 enum GtkWindowPosition is export (
     GTK_WIN_POS_NONE               => 0,
     GTK_WIN_POS_CENTER             => 1,
@@ -22,6 +24,7 @@ enum GtkWindowPosition is export (
     GTK_WIN_POS_CENTER_ALWAYS      => 3,
     GTK_WIN_POS_CENTER_ON_PARENT   => 4,
 );
+}}
 
 enum GtkFileChooserAction is export (
     GTK_FILE_CHOOSER_ACTION_OPEN           => 0,
@@ -54,9 +57,19 @@ enum GtkPolicyType is export (
                                 #This can be used e.g. to make multiple scrolled windows share a scrollbar.
 );
 
+# /usr/include/glib-2.0/gobject/gsignal.h
 constant G_CONNECT_AFTER is export = 1;
 constant G_CONNECT_SWAPPED is export = 2;
 
+# /usr/include/glib-2.0/glib/gmain.h
+constant G_PRIORITY_HIGH is export = -100;
+constant G_PRIORITY_DEFAULT is export = 0;
+constant G_PRIORITY_HIGH_IDLE is export = 100;
+constant G_PRIORITY_DEFAULT_IDLE is export = 200;
+constant G_PRIORITY_LOW is export = 300;
+
+#`{{
+# /usr/include/glib-2.0/gtk/gtkstyleprovider.h
 # https://developer.gnome.org/gtk3/stable/GtkStyleProvider.html#GTK-STYLE-PROVIDER-PRIORITY-FALLBACK:CAPS
 enum GtkStyleProviderPriority is export (
     GTK_STYLE_PROVIDER_PRIORITY_FALLBACK => 1,
@@ -65,8 +78,8 @@ enum GtkStyleProviderPriority is export (
     GTK_STYLE_PROVIDER_PRIORITY_APPLICATION => 600,
     GTK_STYLE_PROVIDER_PRIORITY_USER => 800,
 );
-
-
+}}
+#`[[
 enum GdkModifierType is export (
   GDK_SHIFT_MASK    => 1 +< 0,
   GDK_LOCK_MASK     => 1 +< 1,
@@ -115,7 +128,7 @@ enum GdkModifierType is export (
   }}
   GDK_MODIFIER_MASK               => 0x5c001fff
 );
-
+]]
 #`{{
 enum GdkEventType is export (
   GDK_NOTHING		=> -1,
@@ -172,19 +185,13 @@ enum GdkEventType is export (
 } GdkEventType;
 }}
 
-
-constant G_PRIORITY_HIGH is export = -100;
-constant G_PRIORITY_DEFAULT is export = 0;
-constant G_PRIORITY_HIGH_IDLE is export = 100;
-constant G_PRIORITY_DEFAULT_IDLE is export = 200;
-constant G_PRIORITY_LOW is export = 300;
-
-
+#`{{
+# gtk/gtkenums.h
 enum GtkOrientation is export (
   GTK_ORIENTATION_HORIZONTAL    => 0,
   GTK_ORIENTATION_VERTICAL      => 1,
 );
-
+}}
 #`{{ -> toplevel
 enum GtkResponseType is export (
   GTK_RESPONSE_NONE         => -1,
@@ -374,7 +381,7 @@ sub gtk_widget_set_visible ( GtkWidget $widget, Bool $visible)
     is export
     { * }
 }}
-
+#`{{
 #--[ gtk_container_ ]-----------------------------------------------------------
 sub gtk_container_add(GtkWidget $container, GtkWidget $widgen)
     is native(&gtk-lib)
@@ -391,7 +398,8 @@ sub gtk_container_set_border_width(GtkWidget $container, int32 $border_width)
     is native(&gtk-lib)
     is export
     { * }
-
+}}
+#`{{
 #--[ signals and events ]-------------------------------------------------------
 # gulong g_signal_connect_object ( gpointer instance,
 #        const gchar *detailed_signal, GCallback c_handler,
@@ -443,13 +451,17 @@ sub g_signal_emit_by_name (
     ) is native(&gobject-lib)
       is export
       { * }
+}}
 
+#`{{
+# /usr/include/gtk-3.0/gtk/gtkmain.h
 sub gtk_events_pending ( )
     returns Bool
     is native(&gtk-lib)
     is export
     { * }
-
+}}
+#`{{
 #--[ Quarks ]-------------------------------------------------------------------
 sub g_quark_from_string ( Str $string )
     returns uint32
@@ -462,7 +474,8 @@ sub g_quark_to_string ( uint32 $quark )
     is native(&glib-lib)
     is export
     { * }
-
+}}
+#`{{
 #-------------------------------------------------------------------------------
 sub g_idle_add( &Handler (OpaquePointer $h_data), OpaquePointer $data)
     returns int32
@@ -477,7 +490,8 @@ sub g_timeout_add(
       is native(&gtk-lib)
       is export
       { * }
-
+}}
+#`{{
 #--[ App ]----------------------------------------------------------------------
 sub gtk_init ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
     is native(&gtk-lib)
@@ -510,7 +524,7 @@ sub gtk_main_level ( )
     is native(&gtk-lib)
     is export
     { * }
-
+}}
 #`{{
 #--[ Box ]----------------------------------------------------------------------
 # GtkOrientation is an unsigned int (enum)
@@ -555,15 +569,17 @@ sub gtk_vbox_new(int32, int32)
     { * }
 }}
 
+#`{{
 #--[ Listbox ]------------------------------------------------------------------
 sub gtk_list_box_insert ( GtkWidget $box, GtkWidget $child, int32 $position)
     is native(&gtk-lib)
     is export
     { * }
-
+}}
 #
 # Button
 #
+#`{{
 sub gtk_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:button)
@@ -580,19 +596,21 @@ sub gtk_button_set_label(GtkWidget $widget, Str $label)
     is native(&gtk-lib)
     is export(:button)
     { * }
-
+}}
 #
 # CheckButton
 #
+#`{{
 sub gtk_check_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:check-button)
     returns GtkWidget
     { * }
-
+}}
 #
 # ToggleButton
 #
+#`{{
 sub gtk_toggle_button_new_with_label(Str $label)
     is native(&gtk-lib)
     is export(:toggle-button)
@@ -610,8 +628,8 @@ sub gtk_toggle_button_set_active(GtkWidget $w, int32 $active)
     is export(:toggle-button)
     returns int32
     { * }
-
-#
+}}
+#`{{
 # ComboBoxText
 #
 sub gtk_combo_box_text_new()
@@ -667,7 +685,9 @@ sub gtk_combo_box_text_remove_all(GtkWidget $widget)
     is native(&gtk-lib)
     is export(:combo-box-text)
     { * }
+}}
 
+#`{{
 #--[ Grid ]---------------------------------------------------------------------
 sub gtk_grid_new()
     returns GtkWidget
@@ -690,8 +710,8 @@ sub gtk_grid_insert_column ( GtkWidget $grid, int32 $position)
     is native(&gtk-lib)
     is export(:grid)
     { * }
-
-#
+}}
+#`{{
 # Scale
 #
 sub gtk_scale_new_with_range( int32 $orientation, num64 $min, num64 $max, num64 $step )
@@ -723,7 +743,7 @@ sub gtk_range_set_inverted( GtkWidget $scale, Bool $invertOK )
     is native(&gtk-lib)
     is export(:scale)
     { * }
-
+}}
 #`{{
 # Separator
 #
@@ -734,7 +754,7 @@ sub gtk_separator_new(int32 $orientation)
     { * }
 }}
 
-#
+#`{{
 # ActionBar
 #
 sub gtk_action_bar_new()
@@ -763,7 +783,8 @@ sub gtk_action_bar_set_center_widget(GtkWidget $widget, GtkWidget $centre-widget
     is native(&gtk-lib)
     is export(:action-bar)
     { * }
-
+}}
+#`{{
 #--[ Entry ]--------------------------------------------------------------------
 sub gtk_entry_new()
     is native(&gtk-lib)
@@ -786,7 +807,7 @@ sub gtk_entry_set_visibility ( GtkWidget $entry, Bool $visible)
     is native(&gtk-lib)
     is export(:entry)
     { * }
-
+}}
 #`{{
 # Frame
 #

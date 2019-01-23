@@ -3,8 +3,8 @@ use v6;
 use NativeCall;
 use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::GtkWidget;
-use GTK::Glade::Native::GtkBuilder;
+use GTK::Glade::Native::Gtk::Widget;
+use GTK::Glade::Native::Gtk::Builder;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine:auth<github:MARTIMM>;
@@ -12,7 +12,7 @@ unit class GTK::Glade::Engine:auth<github:MARTIMM>;
 # Must be set before by GTK::Glade.
 has $.builder is rw;
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-start-iter ( $buffer ) {
   my $iter_mem = CArray[int32].new;
   $iter_mem[31] = 0; # Just need a blob of memory.
@@ -20,7 +20,7 @@ method glade-start-iter ( $buffer ) {
   $iter_mem
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-end-iter ( $buffer ) {
   my $iter_mem = CArray[int32].new;
   $iter_mem[16] = 0;
@@ -28,12 +28,12 @@ method glade-end-iter ( $buffer ) {
   $iter_mem
 }
 
-#-----------------------------------------------------------------------------
-method glade-get-widget ( Str:D $id --> GtkWidget ) {
+#-------------------------------------------------------------------------------
+method glade-get-widget ( Str:D $id --> Any ) {
   gtk_builder_get_object( $!builder, $id)
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-get-text ( Str:D $id --> Str ) {
 
   my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
@@ -44,7 +44,7 @@ method glade-get-text ( Str:D $id --> Str ) {
   )
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-set-text ( Str:D $id, Str:D $text ) {
 
   my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
@@ -52,7 +52,7 @@ method glade-set-text ( Str:D $id, Str:D $text ) {
   gtk_text_buffer_set_text( $buffer, $text, -1);
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 method glade-add-text ( Str:D $id, Str:D $text is copy ) {
 
   my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
@@ -65,7 +65,7 @@ method glade-add-text ( Str:D $id, Str:D $text is copy ) {
   gtk_text_buffer_set_text( $buffer, $text, -1);
 }
 
-#-----------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Get the text and clear text field. Returns the original text
 method glade-clear-text ( Str:D $id --> Str ) {
 

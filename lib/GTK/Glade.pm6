@@ -6,8 +6,8 @@ use XML::Actions;
 use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
 use GTK::Glade::Native::Gdk;
-use GTK::Glade::Native::GtkWidget;
-use GTK::Glade::Native::GtkBuilder;
+use GTK::Glade::Native::Gtk::Widget;
+use GTK::Glade::Native::Gtk::Builder;
 
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
