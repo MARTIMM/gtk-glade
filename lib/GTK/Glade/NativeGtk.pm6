@@ -9,7 +9,7 @@ use v6;
 use GTK::Glade::NativeLib;
 #use GTK::Glade::Native::Glib::GObject;
 #use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::Gdk;
+#use GTK::Glade::Native::Gdk;
 use GTK::Glade::Native::Gtk::Widget;
 use NativeCall;
 
@@ -39,11 +39,12 @@ enum GtkPlacesOpenFlags is export (
     GTK_PLACES_OPEN_NEW_WINDOW => 2,
 );
 
+#`{{
 enum GtkLevelBarMode is export (
     GTK_LEVEL_BAR_MODE_CONTINUOUS => 0,
     GTK_LEVEL_BAR_MODE_DISCRETE   => 1,
 );
-
+}}
 # Determines how the size should be computed to achieve the one of the
 # visibility mode for the scrollbars.
 enum GtkPolicyType is export (
