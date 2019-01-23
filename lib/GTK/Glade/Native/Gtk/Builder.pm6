@@ -5,11 +5,11 @@ use GTK::Glade::NativeLib;
 #use GTK::Glade::NativeGtk :ALL;
 use GTK::Glade::Native::Gtk;
 use GTK::Glade::Native::Gdk;
-use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::Gtk::Widget;
 
 #-------------------------------------------------------------------------------
 # See /usr/include/gtk-3.0/gtk on Fedora-28
-unit module GTK::Glade::Native::GtkBuilder:auth<github:MARTIMM>;
+unit module GTK::Glade::Native::Gtk::Builder:auth<github:MARTIMM>;
 
 
 #--[ builder_ ]-----------------------------------------------------------------
@@ -66,6 +66,18 @@ sub gtk_builder_get_object (
       { * }
 
 #--[ css style ]----------------------------------------------------------------
+# /usr/include/glib-2.0/gtk/gtkstyleprovider.h
+# https://developer.gnome.org/gtk3/stable/GtkStyleProvider.html#GTK-STYLE-PROVIDER-PRIORITY-FALLBACK:CAPS
+
+enum GtkStyleProviderPriority is export (
+    GTK_STYLE_PROVIDER_PRIORITY_FALLBACK => 1,
+    GTK_STYLE_PROVIDER_PRIORITY_THEME => 200,
+    GTK_STYLE_PROVIDER_PRIORITY_SETTINGS => 400,
+    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION => 600,
+    GTK_STYLE_PROVIDER_PRIORITY_USER => 800,
+);
+
+
 sub gtk_css_provider_new ( )
     returns GtkCssProvider
     is native(&gtk-lib)

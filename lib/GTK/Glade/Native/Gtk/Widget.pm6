@@ -7,7 +7,7 @@ use GTK::Glade::Native::Gdk;
 
 #-------------------------------------------------------------------------------
 # See /usr/include/gtk-3.0/gtk/gtkwidget.h on Fedora 28 (2019-01)
-unit module GTK::Glade::Native::GtkWidget:auth<github:MARTIMM>;
+unit module GTK::Glade::Native::Gtk::Widget:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 class GtkWidget is repr('CPointer') is export { }

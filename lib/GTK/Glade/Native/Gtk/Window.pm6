@@ -3,16 +3,23 @@ use NativeCall;
 
 use GTK::Glade::NativeLib;
 use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::GtkWidget;
+use GTK::Glade::Native::Gtk::Widget;
 
 #-------------------------------------------------------------------------------
 # See /usr/include/gtk-3.0/gtk/gtkwindow.h on Fedora 28 (2019-01)
-unit module GTK::Glade::Native::GtkWindow:auth<github:MARTIMM>;
+unit module GTK::Glade::Native::Gtk::Window:auth<github:MARTIMM>;
 
 #--[ gtk_window_ ]--------------------------------------------------------------
 class GtkWindow is repr('CPointer') is export { }
 
-sub gtk_window_new ( int32 $window_type )
+enum GtkWindowPosition is export (
+    GTK_WIN_POS_NONE               => 0,
+    GTK_WIN_POS_CENTER             => 1,
+    GTK_WIN_POS_MOUSE              => 2,
+    GTK_WIN_POS_CENTER_ALWAYS      => 3,
+    GTK_WIN_POS_CENTER_ON_PARENT   => 4,
+);
+
     is native(&gtk-lib)
     is export
     returns GtkWidget
