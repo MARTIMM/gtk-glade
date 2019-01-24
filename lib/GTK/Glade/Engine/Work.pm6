@@ -138,29 +138,27 @@ method glade-run (
   Str :$toplevel-id
 ) {
 
+#  gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
+
   if $test-setup.defined {
 
+    # copy builder object to test object
     $test-setup.builder = $!builder;
-
-#note "LL 0: ", gtk_main_level(), ', thread: ', $*THREAD.id();
 
     g_timeout_add(
       300,
       -> $data {
-#note "LL 1: ", gtk_main_level(), ', thread: ', $*THREAD.id();
-        $test-setup.run-tests( $test-setup, $toplevel-id);
+        $test-setup.run-tests($test-setup);
 
         # MoarVM panic: Internal error: Unwound entire stack and missed handler
         # if the next statement is left out. Dunno why...
         note " ";
-#note "X: ", gtk_main_level(), ', thread: ', $*THREAD.id();
-#        return 0;
+        return False;
       },
       Any
     );
 
     gtk_main();
-#note "LL 2: ", gtk_main_level(), ', thread: ', $*THREAD.id();
   }
 
   else {

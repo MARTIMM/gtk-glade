@@ -25,7 +25,8 @@ has Str $!text;
 # This method runs in a thread from where no gui updates may take place
 # https://stackoverflow.com/questions/30607429/gtk3-and-multithreading-replacing-deprecated-functions
 method run-tests (
-  GTK::Glade::Engine::Test:D $test-setup, Str:D $toplevel-id
+  GTK::Glade::Engine::Test:D $test-setup,
+#  Str:D $toplevel-id
   --> Str
 ) {
 
