@@ -10,9 +10,9 @@ use GTK::Glade::Native::Gtk::Widget;
 # See /usr/include/gtk-3.0/gtkaboutdialog.h
 unit module GTK::Glade::Native::Gtk::Dialog:auth<github:MARTIMM>;
 
-#--[ dialog ]-------------------------------------------------------------------
-class GtkDialog is repr('CPointer') is export { }
-class GtkAboutDialog is repr('CPointer') is export { }
+#-------------------------------------------------------------------------------
+#class GtkDialog is repr('CPointer') is export { }
+#class GtkAboutDialog is repr('CPointer') is export { }
 
 enum GtkResponseType is export (
   GTK_RESPONSE_NONE         => -1,
@@ -28,6 +28,7 @@ enum GtkResponseType is export (
   GTK_RESPONSE_HELP         => -11,
 );
 
+#-------------------------------------------------------------------------------
 # gint gtk_dialog_run (GtkDialog *dialog);
 # GtkResponseType is an int32
 sub gtk_dialog_run ( GtkWidget $dialog )
@@ -41,3 +42,9 @@ sub gtk_dialog_response ( GtkWidget $dialog, int32 $response_id )
     is native(&gtk-lib)
     is export
     { * }
+
+sub gtk_about_dialog_set_logo (
+    GtkWidget $about, OpaquePointer $logo-pixbuf
+    ) is native(&gtk-lib)
+      is export
+      { * }
