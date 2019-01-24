@@ -1,7 +1,7 @@
 {
   "description": "Interfacing Glade XML to Perl6",
   "name": "GTK::Glade",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "XML", "Glade", "Gtk"],
 
@@ -48,5 +48,8 @@
 
   "depends": [ "XML::Actions"],
   "X-test-depends": [ "Test::META"],
-  "build-depends": [ ]
+  "build-depends": [ ],
+  "resources": [
+    "library-logo.png", "library.glade", "mimetypes"
+  ]
 }
