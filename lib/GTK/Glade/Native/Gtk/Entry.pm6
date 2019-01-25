@@ -9,19 +9,19 @@ use GTK::Glade::Native::Gtk::Widget;
 unit module GTK::Glade::Native::Gtk::Entry:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
-sub gtk_entry_new()
-    is native(&gtk-lib)
-    is export
+sub gtk_entry_new ( )
     returns GtkWidget
-    { * }
-
-sub gtk_entry_get_text(GtkWidget $entry)
     is native(&gtk-lib)
     is export
-    returns Str
     { * }
 
-sub gtk_entry_set_text(GtkWidget $entry, Str $text)
+sub gtk_entry_get_text ( GtkWidget $entry )
+    returns Str
+    is native(&gtk-lib)
+    is export
+    { * }
+
+sub gtk_entry_set_text ( GtkWidget $entry, Str $text )
     is native(&gtk-lib)
     is export
     { * }
