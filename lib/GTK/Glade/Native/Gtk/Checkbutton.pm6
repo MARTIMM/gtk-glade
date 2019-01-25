@@ -9,8 +9,8 @@ use GTK::Glade::Native::Gtk::Widget;
 unit module GTK::Glade::Native::Gtk::Checkbutton:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
-sub gtk_check_button_new_with_label(Str $label)
+sub gtk_check_button_new_with_label ( Str $label )
+    returns GtkWidget
     is native(&gtk-lib)
     is export
-    returns GtkWidget
     { * }

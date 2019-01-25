@@ -9,20 +9,20 @@ use GTK::Glade::Native::Gtk::Widget;
 unit module GTK::Glade::Native::Gtk::Togglebutton:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
-sub gtk_toggle_button_new_with_label(Str $label)
-    is native(&gtk-lib)
-    is export
+sub gtk_toggle_button_new_with_label ( Str $label )
     returns GtkWidget
-    { * }
-
-sub gtk_toggle_button_get_active(GtkWidget $w)
     is native(&gtk-lib)
     is export
-    returns int32
     { * }
 
-sub gtk_toggle_button_set_active(GtkWidget $w, int32 $active)
+sub gtk_toggle_button_get_active ( GtkWidget $w )
+    returns int32
     is native(&gtk-lib)
     is export
+    { * }
+
+sub gtk_toggle_button_set_active ( GtkWidget $w, int32 $active )
     returns int32
+    is native(&gtk-lib)
+    is export
     { * }

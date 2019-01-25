@@ -27,19 +27,14 @@ sub gtk_entry_set_text ( GtkWidget $entry, Str $text )
     is export
     { * }
 
-sub gtk_entry_set_visibility ( GtkWidget $entry, Bool $visible)
-    is native(&gtk-lib)
-    is export
-    { * }
-
-sub gtk_entry_set_visibility ( GtkWidget $entry, Bool $visible)
+sub gtk_entry_set_visibility ( GtkWidget $entry, Bool $visible )
     is native(&gtk-lib)
     is export
     { * }
 
 # hints is an enum with type GtkInputHints -> int
 # The values are defined in Enums.pm6
-sub gtk_entry_set_input_hints ( GtkWidget $entry, uint32 $hints)
+sub gtk_entry_set_input_hints ( GtkWidget $entry, uint32 $hints )
     is native(&gtk-lib)
     is export
     { * }
