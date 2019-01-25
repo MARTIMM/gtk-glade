@@ -30,3 +30,9 @@ sub gtk_grid_insert_column ( GtkWidget $grid, int32 $position)
     is native(&gtk-lib)
     is export
     { * }
+
+sub gtk_grid_get_child_at ( GtkWidget $grid, uint32 $left, uint32 $top)
+    returns GtkWidget
+    is native(&gtk-lib)
+    is export
+    { * }
