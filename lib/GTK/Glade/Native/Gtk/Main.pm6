@@ -15,6 +15,12 @@ sub gtk_init ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
     is export
     { * }
 
+sub gtk_init_check ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
+    returns int32
+    is native(&gtk-lib)
+    is export
+    { * }
+
 sub gtk_main ( )
     is native(&gtk-lib)
     is export
