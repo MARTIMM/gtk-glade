@@ -2,12 +2,10 @@ use v6;
 use NativeCall;
 
 use N::NativeLib;
-#use GTK::Glade::Native::Gtk;
-#use GTK::Glade::Native::Gtk::Widget;
 
 #-------------------------------------------------------------------------------
 # See /usr/include/gtk-3.0/gtk/gtkmain.h
-unit module N::GtkMain:auth<github:MARTIMM>;
+unit class GtkMain:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
 sub gtk_init ( CArray[int32] $argc, CArray[CArray[Str]] $argv )
@@ -53,3 +51,18 @@ sub gtk_events_pending ( )
     is native(&gtk-lib)
     is export
     { * }
+
+# = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+submethod BUILD ( ) {
+
+  # Must setup gtk otherwise perl6 will crash
+  my $argc = CArray[int32].new;
+  $argc[0] = 1;
+
+  my $argv = CArray[CArray[Str]].new;
+  my $arg_arr = CArray[Str].new;
+  $arg_arr[0] = $*PROGRAM.Str;
+  $argv[0] = $arg_arr;
+
+  gtk_init( $argc, $argv), 1, "gtk initalized";
+}

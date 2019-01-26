@@ -1,12 +1,13 @@
 use v6;
 use NativeCall;
-use N::GtkMain;
+use GtkMain;
 use GtkWidget;
 use GtkLabel;
 use Test;
 
 diag "\n";
 
+#`{{
 # Must setup gtk otherwise perl6 will crash
 my $argc = CArray[int32].new;
 $argc[0] = 1;
@@ -16,7 +17,10 @@ my $arg_arr = CArray[Str].new;
 $arg_arr[0] = $*PROGRAM.Str;
 $argv[0] = $arg_arr;
 
-is gtk_init_check( $argc, $argv), 1, "gtk initalized";
+is gtk_init_check( 0, Any), 1, "gtk initalized";
+}}
+
+my GtkMain $main .= new;
 
 #-------------------------------------------------------------------------------
 subtest 'Label create', {

@@ -1,8 +1,8 @@
 use v6;
 use NativeCall;
 
-use GtkWidget;
 use N::NativeLib;
+use GtkWidget;
 
 #-------------------------------------------------------------------------------
 unit class GtkLabel does GtkWidget;
