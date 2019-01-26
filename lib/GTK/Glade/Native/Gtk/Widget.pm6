@@ -2,11 +2,11 @@ use v6;
 use NativeCall;
 
 use GTK::Glade::NativeLib;
-use GTK::Glade::Native::Gtk;
+#use GTK::Glade::Native::Gtk;
 use GTK::Glade::Native::Gdk;
 
 #-------------------------------------------------------------------------------
-# See /usr/include/gtk-3.0/gtk/gtkwidget.h on Fedora 28 (2019-01)
+# See /usr/include/gtk-3.0/gtk/gtkwidget.h
 unit module GTK::Glade::Native::Gtk::Widget:auth<github:MARTIMM>;
 
 #-------------------------------------------------------------------------------
