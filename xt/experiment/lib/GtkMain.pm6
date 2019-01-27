@@ -64,5 +64,5 @@ submethod BUILD ( ) {
   $arg_arr[0] = $*PROGRAM.Str;
   $argv[0] = $arg_arr;
 
-  gtk_init( $argc, $argv), 1, "gtk initalized";
+  gtk_init( $argc, $argv);
 }

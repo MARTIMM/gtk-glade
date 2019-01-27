@@ -7,29 +7,30 @@ use Test;
 
 diag "\n";
 
-#`{{
-# Must setup gtk otherwise perl6 will crash
-my $argc = CArray[int32].new;
-$argc[0] = 1;
-
-my $argv = CArray[CArray[Str]].new;
-my $arg_arr = CArray[Str].new;
-$arg_arr[0] = $*PROGRAM.Str;
-$argv[0] = $arg_arr;
-
-is gtk_init_check( 0, Any), 1, "gtk initalized";
-}}
-
+# initialize
 my GtkMain $main .= new;
+
+# check with default args
+my $argc = CArray[int32].new;
+$argc[0] = 0;
+is gtk_init_check( $argc, CArray[CArray[Str]]), 1, "gtk initalized";
 
 #-------------------------------------------------------------------------------
 subtest 'Label create', {
 
-  my GtkLabel $label .= new(:text('abc def'));
-  isa-ok $label, GtkLabel;
-  isa-ok $label(), N-GtkWidget;
+  my GtkLabel $label1 .= new(:text('abc def'));
+  isa-ok $label1, GtkLabel;
+  isa-ok $label1(), N-GtkWidget;
 
-  is $label.get-text, 'abc def', 'text ok';
+  is gtk_label_get_text($label1()), 'abc def',
+     'label 1 text ok using native call: gtk_label_get_text';
+#  is $label1.gtk-label-get-text, 'abc def',
+#    'label 1 text ok using method $label1.gtk-label-get-text';
+
+  my GtkLabel $label2 .= new(:text('pqr'));
+  is $label2.gtk-label-get-text, 'pqr', 'label 2 text ok';
+  $label1($label2());
+  is $label1.get-text, 'pqr', 'label 1 text replaced';
 }
 
 #-------------------------------------------------------------------------------
