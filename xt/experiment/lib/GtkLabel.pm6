@@ -30,16 +30,16 @@ submethod BUILD ( Str:D :$text, Bool :$visible = True ) {
 }
 
 #-------------------------------------------------------------------------------
-method XFALLBACK ( $native-sub is copy, |c ) {
+method FALLBACK ( $native-sub is copy, |c ) {
 
   $native-sub ~~ s:g/ '-' /_/;
 
   my &s;
-note "l s0: $native-sub, ", &s;
+#note "l s0: $native-sub, ", &s;
   try { &s = &::($native-sub); }
-note "l s1: gtk_label_$native-sub, ", &s unless ?&s;
+#note "l s1: gtk_label_$native-sub, ", &s unless ?&s;
   try { &s = &::('gtk_label_' ~ $native-sub); } unless ?&s;
-note "l s2: gtk_widget_$native-sub, ", &s unless ?&s;
+#note "l s2: gtk_widget_$native-sub, ", &s unless ?&s;
   try { &s = &::('gtk_widget_' ~ $native-sub); } unless ?&s;
 
   CATCH {

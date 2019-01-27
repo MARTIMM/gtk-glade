@@ -146,23 +146,22 @@ role GtkWidget is Callable {
   method FALLBACK ( $native-sub is copy, |c ) {
 
     $native-sub ~~ s:g/ '-' /_/;
-note "w name: $native-sub";
-note "w this: ", self.WHAT;
+#note "w name: $native-sub";
+#note "w this: ", self.WHAT;
 #    my $class = self.WHAT;
 
     my &s;
-note "w s0: $native-sub, ", &s;
+#note "w s0: $native-sub, ", &s;
     try { &s = &::($native-sub); }
-note "w s1: gtk_widget_$native-sub, ", &s unless ?&s;
+#note "w s1: gtk_widget_$native-sub, ", &s unless ?&s;
     try { &s = &::('gtk_widget_' ~ $native-sub); } unless ?&s;
-
+#`{{
     my Str $widget-type = self.^name;
 note "w s2: $widget-type :: $native-sub, ", &s unless ?&s;
-note "X: ", ($widget-type).keys;
-    try { &s = &::($widget-type)::($native-sub); } unless ?&s;
-note "w s3: $widget-type :: gtk_widget_$native-sub, ", &s unless ?&s;
-    try { &s = &::($widget-type)::('gtk_widget_' ~ $native-sub); } unless ?&s;
-
+    try { &s = &::("$widget-type")::("$native-sub"); } unless ?&s;
+note "w s3: $widget-type :: gtk_label_$native-sub, ", &s unless ?&s;
+    try { &s = &::($widget-type)::('gtk_label_' ~ $native-sub); } unless ?&s;
+}}
     CATCH {
       default {
         note "w Cannot call $native-sub. Sub is not found";
@@ -170,7 +169,7 @@ note "w s3: $widget-type :: gtk_widget_$native-sub, ", &s unless ?&s;
       }
     }
 
-note "w s: ", &s;
+#note "w s: ", &s;
     &s( $!gtk-widget, |c)
   }
 
