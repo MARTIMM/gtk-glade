@@ -46,7 +46,7 @@ role GTK::Glade::Gui:auth<github:MARTIMM> {
 note "Error type: ", $_.WHAT;
 note "Error message: ", .message;
 #.note;
-#TODO will never work
+
       # X::AdHoc
       when .message ~~ m:s/Cannot invoke this object/ {
         die X::Gui.new(
@@ -79,7 +79,17 @@ note "Error message: ", .message;
       }
     }
 
+    # call the fallback functions of the role user
     my Callable $s = self.fallback($native-sub);
-    &$s( $!gtk-widget, |c)
+
+    # check if first argument is a native widget
+    my List $sig-params = $s.signature.params;
+    if +$sig-params and $sig-params[0] ~~ N-GtkWidget {
+      &$s( $!gtk-widget, |c)
+    }
+
+    else {
+      &$s(|c)
+    }
   }
 }
