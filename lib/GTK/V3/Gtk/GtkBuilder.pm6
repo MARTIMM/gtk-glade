@@ -1,9 +1,12 @@
 use v6;
 use NativeCall;
 
+use GTK::V3::X;
+use GTK::V3::Gui;
 use GTK::V3::N::NativeLib;
 use GTK::V3::Gdk::GdkScreen;
 use GTK::V3::Gtk::GtkWidget;
+use GTK::V3::Glib::GError;
 
 #-------------------------------------------------------------------------------
 # See /usr/include/gtk-3.0/gtk/gtkbuilder.h
@@ -93,7 +96,7 @@ constant G_TYPE_OBJECT = 20 +< G_TYPE_FUNDAMENTAL_SHIFT;
 constant G_TYPE_VARIANT = 21 +< G_TYPE_FUNDAMENTAL_SHIFT;
 
 #-------------------------------------------------------------------------------
-class N-GtkBuilder is repr('CPointer') { }
+class N-GtkBuilder is repr('CPointer') is export { }
 #class N-GtkCssSection is repr('CPointer') is export { }
 #class N-GtkCssProvider is repr('CPointer') is export { }
 
@@ -115,42 +118,44 @@ sub gtk_builder_new_from_string ( Str $glade-ui, uint32 $length)
   is native(&gtk-lib)
   { * }
 
-# guint gtk_builder_add_from_file(
-#      GtkBuilder builder, const gchar *filename, GError **error);
 sub gtk_builder_add_from_file (
-  N-GtkBuilder $builder, Str $glade-ui, GError $error is rw
-) returns int32
+  N-GtkBuilder $builder, Str $glade-ui, OpaquePointer $error
+) returns int32         # 0 or 1, 1 = ok, 0 look into GError
   is native(&gtk-lib)
     { * }
 
-# guint gtk_builder_add_from_string ( GtkBuilder *builder,
-#       const gchar *buffer, gsize length, GError **error);
 sub gtk_builder_add_from_string (
-  N-GtkBuilder $builder, Str $glade-ui, uint32 $size, GError $error is rw
-) returns int32
+  N-GtkBuilder $builder, Str $glade-ui, uint32 $size, OpaquePointer $error
+) returns int32         # 0 or 1, 1 = ok, 0 look into GError
   is native(&gtk-lib)
   { * }
 
-# GObject *gtk_builder_get_object (
-#      GtkBuilder *builder, const gchar *name);
 sub gtk_builder_get_object (
   N-GtkBuilder $builder, Str $object-id
-) returns GtkWidget
+) returns N-GtkWidget   # is GObject
   is native(&gtk-lib)
   { * }
 
-# GType
-sub gtk_builder_get_type_from_name (
-  N-GtkBuilder *builder, const char *type_name
-) returns int32
+sub gtk_builder_get_type_from_name ( N-GtkBuilder $builder, Str $type_name )
+  returns int32         # is GType
   is native(&gtk-lib)
   { * }
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 has N-GtkBuilder $!gtk-builder;
 
-submethod BUILD ( ) {
-  $!gtk-builder = gtk-builder-new;
+multi submethod BUILD ( Str:D :$filename! ) {
+  $!gtk-builder = gtk_builder_new_from_file($filename);
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+multi submethod BUILD ( Str:D :$string! ) {
+  $!gtk-builder = gtk_builder_new_from_string( $string, $string.chars);
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+multi submethod BUILD ( ) {
+  $!gtk-builder = gtk_builder_new;
 }
 
 #-------------------------------------------------------------------------------
@@ -163,22 +168,7 @@ method CALL-ME ( N-GtkBuilder $builder? --> N-GtkBuilder ) {
 #-------------------------------------------------------------------------------
 method FALLBACK ( $native-sub is copy, |c ) {
 
-  CATCH {
-    when X::AdHoc {
-      die X::Gui.new(:message(.message));
-    }
-
-    when X::TypeCheck::Argument {
-      die X::Gui.new(:message(.message));
-    }
-
-    default {
-      .rethrow;
-      #die X::GUI.new(
-      #  :message("Could not find native sub '$native-sub\(...\)'")
-      #);
-    }
-  }
+  CATCH { test-catch-exception( $_, $native-sub); }
 
   $native-sub ~~ s:g/ '-' /_/ if $native-sub.index('-');
 
@@ -187,5 +177,43 @@ method FALLBACK ( $native-sub is copy, |c ) {
   try { $s = &::("gtk_builder_$native-sub"); }
 
 #note "l call sub: ", $s.perl, ', ', $!gtk-widget.perl;
-  &$s(|c)
+  test-call( &$s, $!gtk-builder, |c)
+}
+
+#-------------------------------------------------------------------------------
+multi method add-gui ( Str:D :$filename! ) {
+
+note "B: $!gtk-builder";
+
+  if ?$!gtk-builder {
+    #my GTK::V3::Glib::GError $g-error .= new;
+    my N-GError $g-error;
+    my Int $e-code = gtk_builder_add_from_file(
+      $!gtk-builder, $filename, Any #$g-error
+    );
+note "BE: $g-error";
+
+    #die X::Gui.new(:message("Error: " ~ $g-error().message)) if $e-code == 0;
+  }
+
+  else {
+    $!gtk-builder = gtk_builder_new_from_file($filename);
+  }
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+multi method add-gui ( Str:D :$string! ) {
+
+  if ?$!gtk-builder {
+    my N-GError $g-error;
+    my Int $e-code = gtk_builder_add_from_string(
+      $!gtk-builder, $string, $string.chars, $g-error
+    );
+
+    die X::Gui.new(:message("Error: ")) if $e-code == 0;
+  }
+
+  else {
+    $!gtk-builder = gtk_builder_new_from_string( $string, $string.chars);
+  }
 }
