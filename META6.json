@@ -42,30 +42,12 @@
     "GTK::Glade::Native::Gtk::Togglebutton": "lib/GTK/Glade/Native/Gtk/Togglebutton.pm6",
     "GTK::Glade::Native::Gtk::Widget": "lib/GTK/Glade/Native/Gtk/Widget.pm6",
     "GTK::Glade::Native::Gtk::Window": "lib/GTK/Glade/Native/Gtk/Window.pm6",
-
-    "GTK::V3::Gui": "lib/GTK/V3/Gui.pm6",
-    "GTK::V3::X": "lib/GTK/V3/X.pm6",
-
-    "GTK::V3::Gdk::GdkDisplay": "lib/GTK/V3/Gdk/GdkDisplay.pm6",
-    "GTK::V3::Gdk::GdkScreen": "lib/GTK/V3/Gdk/GdkScreen.pm6",
-    "GTK::V3::Gdk::GdkWindow": "lib/GTK/V3/Gdk/GdkWindow.pm6",
-
-    "GTK::V3::Glib::GMain": "lib/GTK/V3/Glib/GMain.pm6",
-
-    "GTK::V3::Gtk::GtkBin": "lib/GTK/V3/Gtk/GtkBin.pm6",
-    "GTK::V3::Gtk::GtkButton": "lib/GTK/V3/Gtk/GtkButton.pm6",
-    "GTK::V3::Gtk::GtkContainer": "lib/GTK/V3/Gtk/GtkContainer.pm6",
-    "GTK::V3::Gtk::GtkLabel": "lib/GTK/V3/Gtk/GtkLabel.pm6",
-    "GTK::V3::Gtk::GtkMain": "lib/GTK/V3/Gtk/GtkMain.pm6",
-    "GTK::V3::Gtk::GtkWidget": "lib/GTK/V3/Gtk/GtkWidget.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/gtk-glade.git",
 
   "depends": [ "XML::Actions"],
-  "X-test-depends": [ "Test::META"],
+  "test-depends": [ ],
   "build-depends": [ ],
-  "resources": [
-    "library-logo.png", "library.glade", "mimetypes"
-  ]
+  "resources": [ ]
 }
