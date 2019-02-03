@@ -1,6 +1,6 @@
 use v6;
 
-use GTK::Glade::X;
+use GTK::V3::X;
 
 # Role to capture tools and other thingies needed by widgets. This
 # means that it cannot be used by GtkMain, GdkScreen etc
@@ -12,7 +12,7 @@ class N-GtkWidget
   { }
 
 #-------------------------------------------------------------------------------
-role GTK::Glade::Gui:auth<github:MARTIMM> {
+role GTK::V3::Gui:auth<github:MARTIMM> {
 
   #-----------------------------------------------------------------------------
   has N-GtkWidget $!gtk-widget;
@@ -47,14 +47,6 @@ role GTK::Glade::Gui:auth<github:MARTIMM> {
     # call the fallback functions of the role user
     my Callable $s = self.fallback($native-sub);
 
-    # check if first argument is a native widget
-    my List $sig-params = $s.signature.params;
-    if +$sig-params and $sig-params[0] ~~ N-GtkWidget {
-      &$s( $!gtk-widget, |c)
-    }
-
-    else {
-      &$s(|c)
-    }
+    test-call( $s, $!gtk-widget, |c)
   }
 }
