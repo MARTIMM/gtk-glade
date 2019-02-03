@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 
-use GTK::Glade::Gui;
+use GTK::V3::Gui;
 use GTK::V3::N::NativeLib;
 use GTK::V3::Gtk::GtkWidget;
 
@@ -10,7 +10,7 @@ use GTK::V3::Gtk::GtkWidget;
 # https://developer.gnome.org/gtk3/stable/GtkLabel.html
 unit class GTK::V3::Gtk::GtkLabel:auth<github:MARTIMM>
   is GTK::V3::Gtk::GtkWidget
-  does GTK::Glade::Gui;
+  does GTK::V3::Gui;
 
 #-------------------------------------------------------------------------------
 sub gtk_label_new ( Str $text )
@@ -45,5 +45,5 @@ method fallback ( $native-sub is copy --> Callable ) {
   try { $s = &::("gtk_label_$native-sub"); } unless ?$s;
   $s = callsame unless ?$s;
 
-  &$s
+  $s
 }

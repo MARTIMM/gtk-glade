@@ -1,6 +1,7 @@
 use v6;
 use NativeCall;
 
+use GTK::V3::X;
 use GTK::V3::N::NativeLib;
 
 #-------------------------------------------------------------------------------
@@ -74,22 +75,7 @@ submethod BUILD ( Bool :$check = False ) {
 #-------------------------------------------------------------------------------
 method FALLBACK ( $native-sub is copy, |c ) {
 
-  CATCH {
-    when X::AdHoc {
-      die X::Gui.new(:message(.message));
-    }
-
-    when X::TypeCheck::Argument {
-      die X::Gui.new(:message(.message));
-    }
-
-    default {
-      .rethrow;
-      #die X::GUI.new(
-      #  :message("Could not find native sub '$native-sub\(...\)'")
-      #);
-    }
-  }
+  CATCH { test-catch-exception( $_, $native-sub); }
 
   $native-sub ~~ s:g/ '-' /_/ if $native-sub.index('-');
 
@@ -97,5 +83,6 @@ method FALLBACK ( $native-sub is copy, |c ) {
   try { $s = &::($native-sub); }
 
 #note "l call sub: ", $s.perl, ', ', $!gtk-widget.perl;
-  &$s(|c)
+  test-call( &$s, Any, |c)
+#  &$s(|c)
 }

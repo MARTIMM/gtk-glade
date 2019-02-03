@@ -1,7 +1,8 @@
 use v6;
 use NativeCall;
 
-use GTK::Glade::Gui;
+use GTK::V3::X;
+#use GTK::V3::Gui;
 use GTK::V3::N::NativeLib;
 use GTK::V3::Gtk::GtkWidget;
 
@@ -94,22 +95,7 @@ sub g_signal_handler_disconnect( N-GtkWidget $widget, int32 $handler_id)
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 method FALLBACK ( $native-sub is copy, |c ) {
 
-  CATCH {
-    when X::AdHoc {
-      die X::Gui.new(:message(.message));
-    }
-
-    when X::TypeCheck::Argument {
-      die X::Gui.new(:message(.message));
-    }
-
-    default {
-      .rethrow;
-      #die X::GUI.new(
-      #  :message("Could not find native sub '$native-sub\(...\)'")
-      #);
-    }
-  }
+  CATCH { test-catch-exception( $_, $native-sub); }
 
   $native-sub ~~ s:g/ '-' /_/ if $native-sub.index('-');
 
@@ -117,22 +103,5 @@ method FALLBACK ( $native-sub is copy, |c ) {
   try { $s = &::($native-sub); }
   try { $s = &::("g_signal_$native-sub"); }
 
-#note "l call sub: ", $s.perl, ', ', $!gtk-widget.perl;
-  &$s(|c)
+  test-call( $s, $!gdk-window, |c)
 }
-
-#-------------------------------------------------------------------------------
-#`{{
-method fallback ( $native-sub is copy --> Callable ) {
-
-  $native-sub ~~ s:g/ '-' /_/ if $native-sub.index('-');
-
-  my Callable $s;
-  try { $s = &::($native-sub); }
-  try { $s = &::("gtk_button_$native-sub"); } unless ?$s;
-
-  $s = callsame unless ?$s;
-
-  &$s
-}
-}}

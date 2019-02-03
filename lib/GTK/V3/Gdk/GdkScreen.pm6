@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 
-use GTK::Glade::X;
+use GTK::V3::X;
 use GTK::V3::N::NativeLib;
 
 #-------------------------------------------------------------------------------
@@ -43,21 +43,7 @@ method FALLBACK ( $native-sub is copy, |c ) {
   try { $s = &::($native-sub); }
   try { $s = &::("gdk_screen_$native-sub"); } unless ?$s;
 
-  CATCH {
-    default {
-      when X::AdHoc {
-        die X::Gui.new(:message(.message));
-      }
-
-      when X::TypeCheck::Argument {
-        die X::Gui.new(:message(.message));
-      }
-
-      die X::Gui.new(
-        :message("Could not find native sub '$native-sub\(...\)'")
-      );
-    }
-  }
+  CATCH { test-catch-exception( $_, $native-sub); }
 
   &$s( $!gdk-screen, |c)
 }

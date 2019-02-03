@@ -2,10 +2,12 @@ use v6;
 use NativeCall;
 use Test;
 
-use GTK::Glade::Gui;
+use GTK::V3::Gui;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkWidget;
+use GTK::V3::Gtk::GtkBin;
 use GTK::V3::Gtk::GtkButton;
+use GTK::V3::Gtk::GtkContainer;
 use GTK::V3::Gtk::GtkLabel;
 
 diag "\n";
@@ -18,14 +20,16 @@ subtest 'Button create', {
 
   my GTK::V3::Gtk::GtkButton $button1 .= new(:text('abc def'));
   isa-ok $button1, GTK::V3::Gtk::GtkButton;
+  isa-ok $button1, GTK::V3::Gtk::GtkBin;
+  isa-ok $button1, GTK::V3::Gtk::GtkContainer;
   isa-ok $button1, GTK::V3::Gtk::GtkWidget;
-  does-ok $button1, GTK::Glade::Gui;
+  does-ok $button1, GTK::V3::Gui;
   isa-ok $button1(), N-GtkWidget;
 
   throws-like
     { $button1.get-label('xyz'); },
     X::Gui, "wrong arguments",
-    :message("Wrong call arguments to native sub 'get-label\(...\)'");
+    :message('Calling gtk_button_get_label(N-GtkWidget, Str) will never work with declared signature (N-GtkWidget $widget --> Str)');
 
   is $button1.get-label, 'abc def', 'text on button ok';
   $button1.set-label('xyz');

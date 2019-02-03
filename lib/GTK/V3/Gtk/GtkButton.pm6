@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 
-use GTK::Glade::Gui;
+use GTK::V3::Gui;
 use GTK::V3::N::NativeLib;
 use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkBin;
@@ -11,7 +11,7 @@ use GTK::V3::Gtk::GtkBin;
 # https://developer.gnome.org/gtk3/stable/GtkButton.html
 unit class GTK::V3::Gtk::GtkButton:auth<github:MARTIMM>
   is GTK::V3::Gtk::GtkBin
-  does GTK::Glade::Gui;
+  does GTK::V3::Gui;
 
 #-------------------------------------------------------------------------------
 sub gtk_button_get_label ( N-GtkWidget $widget )
@@ -56,5 +56,5 @@ method fallback ( $native-sub is copy --> Callable ) {
 
   $s = callsame unless ?$s;
 
-  &$s
+  $s
 }

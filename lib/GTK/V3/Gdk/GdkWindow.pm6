@@ -1,6 +1,7 @@
 use v6;
 use NativeCall;
 
+use GTK::V3::X;
 use GTK::V3::N::NativeLib;
 
 #-------------------------------------------------------------------------------
@@ -73,21 +74,7 @@ method FALLBACK ( $native-sub is copy, |c ) {
   my Callable $s;
   try { $s = &::($native-sub); }
 
-  CATCH {
-    when X::AdHoc {
-      die X::Gui.new(:message(.message));
-    }
+  CATCH { test-catch-exception( $_, $native-sub); }
 
-    when X::TypeCheck::Argument {
-      die X::Gui.new(:message(.message));
-    }
-
-    default {
-      die X::Gui.new(
-        :message("Could not find native sub '$native-sub\(...\)'")
-      );
-    }
-  }
-
-  &$s( $!gdk-window, |c)
+  test-call( $s, $!gdk-window, |c)
 }
