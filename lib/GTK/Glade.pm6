@@ -3,37 +3,11 @@ use NativeCall;
 
 use XML::Actions;
 
-use GTK::Glade::NativeGtk :ALL;
-use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::Gdk;
-use GTK::Glade::Native::Gtk::Widget;
-use GTK::Glade::Native::Gtk::Builder;
-
+use GTK::Glade::X;
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 use GTK::Glade::Engine::Work;
 use GTK::Glade::Engine::PreProcess;
-
-#`{{
-#-------------------------------------------------------------------------------
-# Export all symbols and functions from GTK::Simple::Raw
-sub EXPORT {
-  my %export;
-  for GTK::Glade::NativeGtk::EXPORT::ALL::.kv -> $k,$v {
-    %export{$k} = $v;
-  }
-
-  %export;
-}
-}}
-
-#-------------------------------------------------------------------------------
-class X::GTK::Glade:auth<github:MARTIMM> is Exception {
-  has Str $.message;            # Error text and error code are data mostly
-#  has Str $.method;             # Method or routine name
-#  has Int $.line;               # Line number where Message is called
-#  has Str $.file;               # File in which that happened
-}
 
 #-------------------------------------------------------------------------------
 class GTK::Glade:auth<github:MARTIMM> {
@@ -44,11 +18,11 @@ class GTK::Glade:auth<github:MARTIMM> {
     GTK::Glade::Engine::Test :$test-setup
   ) {
 
-    die X::GTK::Glade.new(
+    die X::Glade.new(
       :message("No suitable glade XML file: '$ui-file'")
     ) unless ?$ui-file and $ui-file.IO ~~ :r;
 
-note "New ui file $ui-file";
+#note "New ui file $ui-file";
 
 
     # Prepare XML document for processing
@@ -134,7 +108,7 @@ note "Try '$ui-file'";
       @tried-list.push($ui-file);
     }
 
-    die X::GTK::Glade.new(
+    die X::Glade.new(
       :message(
         "No suitable glade XML file found. Tried " ~ @tried-list.join(', ')
       )
