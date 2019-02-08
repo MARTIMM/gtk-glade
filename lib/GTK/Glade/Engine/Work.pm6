@@ -153,7 +153,7 @@ method glade-run (
         # MoarVM panic: Internal error: Unwound entire stack and missed handler
         # if the next statement is left out. Dunno why...
         note " ";
-        return False;
+        #return False;
       },
       Any
     );
