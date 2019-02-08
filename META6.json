@@ -41,7 +41,7 @@
     "GTK::Glade::Native::Gtk::Separator": "lib/GTK/Glade/Native/Gtk/Separator.pm6",
     "GTK::Glade::Native::Gtk::Togglebutton": "lib/GTK/Glade/Native/Gtk/Togglebutton.pm6",
     "GTK::Glade::Native::Gtk::Widget": "lib/GTK/Glade/Native/Gtk/Widget.pm6",
-    "GTK::Glade::Native::Gtk::Window": "lib/GTK/Glade/Native/Gtk/Window.pm6",
+    "GTK::Glade::Native::Gtk::Window": "lib/GTK/Glade/Native/Gtk/Window.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/gtk-glade.git",
