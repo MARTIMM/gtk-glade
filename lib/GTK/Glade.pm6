@@ -22,9 +22,6 @@ class GTK::Glade:auth<github:MARTIMM> {
       :message("No suitable glade XML file: '$ui-file'")
     ) unless ?$ui-file and $ui-file.IO ~~ :r;
 
-#note "New ui file $ui-file";
-
-
     # Prepare XML document for processing
     my XML::Actions $actions .= new(:file($ui-file));
 
@@ -34,6 +31,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     $actions.process(:actions($pp));
     my Str $modified-ui = $actions.result;
     my Str $toplevel-id = $pp.toplevel-id;
+    # cleanup preprocess object
     $pp = GTK::Glade::Engine::PreProcess;
 
 #    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
@@ -42,8 +40,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     my GTK::Glade::Engine::Work $work .= new(:test(?$test-setup));
     $work.glade-add-gui(:ui-string($modified-ui));
 #    $work.glade-add-gui(:ui-string("hoeperdepoep")); # test for failure
-
-    # deallocate the glade XML string
+    # cleanup the glade XML string
     $modified-ui = Str;
 
     # Process the XML document creating the API to the UI
@@ -59,60 +56,4 @@ class GTK::Glade:auth<github:MARTIMM> {
 
     #note $work.state-engine-data;
   }
-
-#`{{
-  #-----------------------------------------------------------------------------
-  method !find-glade-file ( Str $ui-file is copy --> Str ) {
-
-    # return if readable
-    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-
-    my @tried-list = $ui-file,;
-
-note "Ui file '$ui-file' not found, $*PROGRAM-NAME";
-
-    my Str $program = $*PROGRAM-NAME.IO.basename;
-    $program ~~ s/\. <-[\.]>* $/.glade/;
-    $ui-file = %?RESOURCES{$program}.Str;
-note "Try '$program' from resources";
-    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-    @tried-list.push("Resources: $program");
-
-    $program ~~ s/\. glade $/.ui/;
-    $ui-file = %?RESOURCES{$program}.Str;
-note "Try '$program' from resources";
-    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-    @tried-list.push($program);
-
-    $ui-file = %?RESOURCES{"graphical-interface.glade"}.Str;
-note "Try 'graphical-interface.glade' from resources";
-    return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-    @tried-list.push("graphical-interface.glade");
-
-
-    $program = $*PROGRAM-NAME.IO.basename;
-    $program ~~ s/\. <-[\.]>* $//;
-    note "Try 'graphical-interface.glade' from config directories $*HOME/.$program or $*HOME/.config/$program";
-
-    if "$*HOME/.$program".IO ~~ :d {
-      $ui-file = "$*HOME/.$program/graphical-interface.glade";
-note "Try '$ui-file'";
-      return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-      @tried-list.push("Config: $ui-file");
-    }
-
-    elsif "$*HOME/.config/$program".IO ~~ :d {
-      $ui-file = "$*HOME/.config/$program/graphical-interface.glade";
-note "Try '$ui-file'";
-      return $ui-file if ?$ui-file and $ui-file.IO ~~ :r;
-      @tried-list.push($ui-file);
-    }
-
-    die X::Glade.new(
-      :message(
-        "No suitable glade XML file found. Tried " ~ @tried-list.join(', ')
-      )
-    );
-  }
-}}
 }
