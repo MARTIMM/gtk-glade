@@ -2,28 +2,46 @@ use v6;
 
 use NativeCall;
 use XML::Actions;
-use GTK::Glade::NativeGtk :ALL;
-use GTK::Glade::Native::Glib::GMain;
-use GTK::Glade::Native::Glib::GSignal;
-use GTK::Glade::Native::Gdk;
-use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::Gtk::Main;
-use GTK::Glade::Native::Gtk::Widget;
-use GTK::Glade::Native::Gtk::Builder;
+#use GTK::Glade::NativeGtk :ALL;
+#use GTK::Glade::Native::Glib::GMain;
+#use GTK::Glade::Native::Glib::GSignal;
+#use GTK::Glade::Native::Gdk;
+#use GTK::Glade::Native::Gtk;
+#use GTK::Glade::Native::Gtk::Main;
+#use GTK::Glade::Native::Gtk::Widget;
+#use GTK::Glade::Native::Gtk::Builder;
+
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
+
+use GTK::V3::Glib::GMain;
+use GTK::V3::Gdk::GdkScreen;
+
+use GTK::V3::Gtk::GtkMain;
+use GTK::V3::Gtk::GtkWidget;
+use GTK::V3::Gtk::GtkBuilder;
+use GTK::V3::Gtk::GtkCssProvider;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
 
-has $.builder;
+has GTK::V3::Gdk::GdkScreen $!gdk-screen;
+has GTK::V3::Gtk::GtkBuilder $.builder;
+has GTK::V3::Gtk::GtkMain $!main;
+has GTK::V3::Gtk::GtkCssProvider $!css-provider;
+
 has GTK::Glade::Engine $!engine;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( Bool :$test = False ) {
 
-  $!engine .= new();
+  # initialize
+  $!main .= new;
+  $!engine .= new;
+  $!gdk-screen .= new;
+  $!css-provider .= new;
 
+#`{{
   # Setup gtk using commandline arguments
   my $arg_arr = CArray[Str].new;
   $arg_arr[0] = $*PROGRAM.Str;
@@ -40,6 +58,7 @@ submethod BUILD ( Bool :$test = False ) {
   else {
     gtk_init( $argc, $argv);
   }
+}}
 
 #`{{
   if $ui-file.IO ~~ :r {
@@ -59,28 +78,28 @@ submethod BUILD ( Bool :$test = False ) {
 multi method glade-add-gui ( Str:D :$ui-file! ) {
 
   if ?$!builder {
-    my $error-code = gtk_builder_add_from_file( $!builder, $ui-file, Any);
+    my $error-code = $!builder.gtk_builder_add_from_file( $ui-file, Any);
     die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
   }
 
   else {
-    $!builder = gtk_builder_new_from_file($ui-file);
+    $!builder .= new(:filename($ui-file));
   }
 }
 
 #-------------------------------------------------------------------------------
 multi method glade-add-gui ( Str:D :$ui-string! ) {
 
-  my GError $err;
+  #my GError $err;
   if ?$!builder {
-    my $error-code = gtk_builder_add_from_string(
-      $!builder, $ui-string, $ui-string.chars, $err
+    my $error-code = $!builder.gtk_builder_add_from_string(
+      $ui-string, $ui-string.chars, Any
     );
     die X::GTK::Glade.new(:message("error adding ui")) if $error-code == 0;
   }
 
   else {
-    $!builder = gtk_builder_new_from_string( $ui-string, $ui-string.chars);
+    $!builder .= new(:string($ui-string));
   }
 }
 
@@ -94,8 +113,9 @@ note $css-file.IO.slurp;
   #  $!builder, $!top-level-object-id
   #);
 
-  my GdkScreen $default-screen = gdk_screen_get_default();
-  my GtkCssProvider $css-provider = gtk_css_provider_new();
+  #my GdkScreen $default-screen = gdk_screen_get_default();
+  #my GtkCssProvider $css-provider = gtk_css_provider_new();
+#`{{
   g_signal_connect_object(
     $css-provider, 'parsing-error',
     -> GtkCssProvider $p, GtkCssSection $s, GError $e, $ptr {
@@ -104,13 +124,14 @@ note "handler called";
     },
     OpaquePointer, 0
   );
+}}
 
-  my GError $error .= new;
-  gtk_css_provider_load_from_path( $css-provider, $css-file, Any);
+  #my GError $error .= new;
+  $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
 #note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 
-  gtk_style_context_add_provider_for_screen(
-    $default-screen, $css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
+  $!css-provider.gtk_style_context_add_provider_for_screen(
+    $!gdk-screen(), $!css-provider(), GTK_STYLE_PROVIDER_PRIORITY_USER
   );
 
   #my GtkCssProvider $css-provider = gtk_css_provider_get_named(
@@ -145,9 +166,10 @@ method glade-run (
     # copy builder object to test object
     $test-setup.builder = $!builder;
 
-    g_timeout_add(
+    my GTK::V3::Glib::GMain $gmain .= new;
+    $gmain.g_timeout_add(
       300,
-      -> $data {
+      -> $d {
         $test-setup.run-tests($test-setup);
 
         # MoarVM panic: Internal error: Unwound entire stack and missed handler
@@ -158,12 +180,12 @@ method glade-run (
       Any
     );
 
-    gtk_main();
+    $!main.gtk_main();
   }
 
   else {
 #note "Start loop";
-    gtk_main();
+    $!main.gtk_main();
   }
 }
 
@@ -194,7 +216,8 @@ method signal (
   my %object = $parent-path[*-2].attribs;
   my $id = %object<id>;
 
-  my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
+  my GTK::V3::Gtk::GtkWidget $widget .=
+    new(:widget($!builder.gtk_builder_get_object($id)));
 
 #note "Signal Attr of {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
@@ -204,12 +227,12 @@ method signal (
 
   #self!glade-set-object($id);
 
-  g_signal_connect_object(
-    $widget, $signal-name,
-    -> $widget, $data {
+  $widget.g_signal_connect_object-wd(
+    $signal-name,
+    -> $w, $d {
       if $!engine.^can($handler-name) {
 #note "in callback, calling $handler-name";
-        $!engine."$handler-name"( :$widget, :$data, :$object);
+        $!engine."$handler-name"( :$widget, :data($d), :$object);
       }
 
       else {
