@@ -1,7 +1,8 @@
 use v6;
-
 use NativeCall;
+
 use XML::Actions;
+
 #use GTK::Glade::NativeGtk :ALL;
 #use GTK::Glade::Native::Glib::GMain;
 #use GTK::Glade::Native::Glib::GSignal;
@@ -18,6 +19,10 @@ use GTK::V3::Glib::GMain;
 use GTK::V3::Gdk::GdkScreen;
 
 use GTK::V3::Gtk::GtkMain;
+#use GTK::V3::Gtk::Gtk;
+use GTK::V3::Gtk::GtkButton;
+use GTK::V3::Gtk::GtkLabel;
+use GTK::V3::Gtk::GtkGrid;
 use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkBuilder;
 use GTK::V3::Gtk::GtkCssProvider;
@@ -33,11 +38,10 @@ has GTK::V3::Gtk::GtkCssProvider $!css-provider;
 has GTK::Glade::Engine $!engine;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( Bool :$test = False ) {
+submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
 
   # initialize
   $!main .= new;
-  $!engine .= new;
   $!gdk-screen .= new;
   $!css-provider .= new;
 
@@ -155,9 +159,12 @@ note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 
 #-------------------------------------------------------------------------------
 method glade-run (
-  GTK::Glade::Engine :$!engine, GTK::Glade::Engine::Test :$test-setup,
+  GTK::Glade::Engine::Test :$test-setup,
   Str :$toplevel-id
 ) {
+
+#note "Engine methods: ", $!engine.^methods;
+#exit(1);
 
 #  gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
 
@@ -214,19 +221,44 @@ method signal (
 ) {
   #TODO bring following code into XML::Actions
   my %object = $parent-path[*-2].attribs;
-  my $id = %object<id>;
+  my Str $id = %object<id>;
+  my Str $class = %object<class>;
+note "Id and class: $id, $class";
 
-  my GTK::V3::Gtk::GtkWidget $widget .=
-    new(:widget($!builder.gtk_builder_get_object($id)));
+  my N-GtkWidget $widget = $!builder.gtk_builder_get_object($id);
+  my $gtk-widget;
 
-#note "Signal Attr of {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
+  given $class {
+    when 'GtkButton' {
+      $gtk-widget = GTK::V3::Gtk::GtkButton.new(:$widget);
+    }
+
+    when 'GtkLabel' {
+      $gtk-widget = GTK::V3::Gtk::GtkLabel.new(:$widget);
+    }
+
+    when 'GtkGrid' {
+      $gtk-widget = GTK::V3::Gtk::GtkGrid.new(:$widget);
+    }
+
+    default {
+      $gtk-widget = GTK::V3::Gtk::GtkWidget.new(:$widget);
+    }
+  }
+
+note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
   my Int $connect-flags = 0;
   $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
   #self!glade-set-object($id);
+  $gtk-widget.register-signal(
+    $!engine, $handler-name, $connect-flags,
+    :target-widget-name($object), :handler-type<wd>, :signal-name<clicked>
+  );
 
+#`{{
   $widget.g_signal_connect_object-wd(
     $signal-name,
     -> $w, $d {
@@ -241,6 +273,7 @@ method signal (
     },
     OpaquePointer, $connect-flags
   );
+}}
 }
 
 #-------------------------------------------------------------------------------

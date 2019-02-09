@@ -37,7 +37,7 @@ class GTK::Glade:auth<github:MARTIMM> {
 #    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
 
     # Prepare Gtk Glade work for processing the glade XML
-    my GTK::Glade::Engine::Work $work .= new(:test(?$test-setup));
+    my GTK::Glade::Engine::Work $work .= new( :$engine, :test(?$test-setup));
     $work.glade-add-gui(:ui-string($modified-ui));
 #    $work.glade-add-gui(:ui-string("hoeperdepoep")); # test for failure
     # cleanup the glade XML string
@@ -52,7 +52,7 @@ class GTK::Glade:auth<github:MARTIMM> {
 
     # Copy the builder object
     $engine.builder = $work.builder;
-    $work.glade-run( :$engine, :$test-setup, :$toplevel-id);
+    $work.glade-run( :$test-setup, :$toplevel-id);
 
     #note $work.state-engine-data;
   }
