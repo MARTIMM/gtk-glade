@@ -15,7 +15,7 @@ use XML::Actions;
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 
-use GTK::V3::Glib::GMain;
+#use GTK::V3::Glib::GMain;
 use GTK::V3::Gdk::GdkScreen;
 
 use GTK::V3::Gtk::GtkMain;
@@ -40,8 +40,8 @@ has GTK::Glade::Engine $!engine;
 #-------------------------------------------------------------------------------
 submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
 
-  # initialize
-  $!main .= new;
+  # initializing GTK is done in Engine because it lives before Work
+  #$!main .= new;
   $!gdk-screen .= new;
   $!css-provider .= new;
 
@@ -163,35 +163,18 @@ method glade-run (
   Str :$toplevel-id
 ) {
 
-#note "Engine methods: ", $!engine.^methods;
-#exit(1);
-
 #  gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
 
   if $test-setup.defined {
 
     # copy builder object to test object
     $test-setup.builder = $!builder;
-
-    my GTK::V3::Glib::GMain $gmain .= new;
-    $gmain.g_timeout_add(
-      300,
-      -> $d {
-        $test-setup.run-tests($test-setup);
-
-        # MoarVM panic: Internal error: Unwound entire stack and missed handler
-        # if the next statement is left out. Dunno why...
-        note " ";
-        #return False;
-      },
-      Any
-    );
-
-    $!main.gtk_main();
+    $test-setup.prepare-and-run-tests;
   }
 
   else {
-#note "Start loop";
+
+note "Start loop";
     $!main.gtk_main();
   }
 }

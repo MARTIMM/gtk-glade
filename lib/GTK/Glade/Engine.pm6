@@ -20,27 +20,27 @@ has GTK::V3::Gtk::GtkBuilder $.builder is rw;
 submethod BUILD ( ) {
 
   # initialize GTK
-  $!main .= new;
+  $!main .= new(:check);
 
   $!text-buffer .= new;
   $!text-view .= new;
 }
 
 #-------------------------------------------------------------------------------
-method glade-start-iter ( --> CArray[int32] ) {
+method glade-start-iter ( $text-buffer --> CArray[int32] ) {
 
   my $iter_mem = CArray[int32].new;
   $iter_mem[31] = 0; # Just need a blob of memory.
-  $!text-buffer.get-start-iter($iter_mem);
+  $text-buffer.get-start-iter($iter_mem);
   $iter_mem
 }
 
 #-------------------------------------------------------------------------------
-method glade-end-iter ( --> CArray[int32] ) {
+method glade-end-iter ( $text-buffer --> CArray[int32] ) {
 
   my $iter_mem = CArray[int32].new;
   $iter_mem[16] = 0;
-  $!text-buffer.get-end-iter($iter_mem);
+  $text-buffer.get-end-iter($iter_mem);
   $iter_mem
 }
 
@@ -49,7 +49,8 @@ method glade-get-text ( Str:D $id --> Str ) {
 
   $!text-view($!builder.get-object($id));
   $!text-buffer($!text-view.get-buffer);
-  $!text-buffer.get-text( self.glade-start-iter, self.glade-end-iter, 1)
+  $!text-buffer.get-text(
+    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1)
 }
 
 #-------------------------------------------------------------------------------
@@ -67,7 +68,7 @@ method glade-add-text ( Str:D $id, Str:D $text is copy ) {
   $!text-buffer($!text-view.get-buffer);
 
   $text = $!text-buffer.get-text(
-    self.glade-start-iter, self.glade-end-iter, 1
+    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
   ) ~ $text;
 
   $!text-buffer.set-text( $text, $text.chars);
@@ -80,7 +81,7 @@ method glade-clear-text ( Str:D $id --> Str ) {
   $!text-view($!builder.get-object($id));
   $!text-buffer($!text-view.get-buffer);
   my Str $text = $!text-buffer.get-text(
-    self.glade-start-iter, self.glade-end-iter, 1
+    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
   );
 
   $!text-buffer.set-text( "", 0);
@@ -94,7 +95,11 @@ method glade-get-widget ( Str:D $id --> Any ) {
 }
 
 #-------------------------------------------------------------------------------
-method glade-main-quit ( ) {
+method glade-main-level ( ) {
+  $!main.gtk-main-level;
+}
 
+#-------------------------------------------------------------------------------
+method glade-main-quit ( ) {
   $!main.gtk-main-quit;
 }

@@ -1,18 +1,23 @@
 use v6;
 use lib '../gtk-v3/lib';
+use Test;
 
 use GTK::Glade;
 use GTK::Glade::Engine;
-#use GTK::Glade::NativeGtk :ALL;
-use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::Gtk::Main;
-use GTK::Glade::Native::Gtk::Widget;
 
-use Test;
+#use GTK::Glade::Native::Gtk;
+#use GTK::Glade::Native::Gtk::Main;
+#use GTK::Glade::Native::Gtk::Widget;
 
-diag "\n";
+use GTK::V3::Gtk::GtkMain;
+use GTK::V3::Gtk::GtkWidget;
+use GTK::V3::Gtk::GtkTextView;
+use GTK::V3::Gtk::GtkButton;
+use GTK::V3::Gtk::GtkLabel;
 
 #-------------------------------------------------------------------------------
+diag "\n";
+
 my $dir = 'xt/x';
 mkdir $dir unless $dir.IO ~~ :e;
 
@@ -139,7 +144,7 @@ $file.IO.spurt(Q:q:to/EOXML/);
 class E is GTK::Glade::Engine {
 
   #-----------------------------------------------------------------------------
-  method exit-program ( :$widget, :$data, :$object ) {
+  method exit-program ( ) {
 #`{{
     diag "quit-program called";
     diag "Widget: " ~ $widget.perl if ?$widget;
@@ -147,12 +152,12 @@ class E is GTK::Glade::Engine {
     diag "Object: " ~ $object.perl if ?$object;
 }}
 #note "LL 1c: ", gtk_main_level();
-    gtk_main_quit();
+    self.glade-main-quit();
 #note "LL 1d: ", gtk_main_level();
   }
 
   #-----------------------------------------------------------------------------
-  method copy-text ( :$widget, :$data, :$object ) {
+  method copy-text ( ) {
 
 #note "copy text thread: $*THREAD.id()";
     my Str $text = self.glade-clear-text('inputTxt');
@@ -160,7 +165,7 @@ class E is GTK::Glade::Engine {
   }
 
   #-----------------------------------------------------------------------------
-  method clear-text ( :$widget, :$data, :$object ) {
+  method clear-text ( ) {
 
 #note "clear text thread: $*THREAD.id()";
     self.glade-clear-text('outputTxt');
@@ -170,26 +175,24 @@ class E is GTK::Glade::Engine {
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 class T does GTK::Glade::Engine::Test {
 
-  has Array $.steps = [];
-
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
     # Wait for start
     $!steps = [
-#      :wait(1.2),
+      :wait(1.2),
 
       # Test Copy button
-      :set-widget<inputTxt>,
+      :set-widget(:inputTxt<GTK::V3::Gtk::GtkTextView>),
       :do-test( {
 #note $!widget;
-          isa-ok $!widget, GTK::Glade::Native::Gtk::Widget::GtkWidget;
+          isa-ok $!widget, GTK::V3::Gtk::GtkTextView;
         }
       ),
       :set-text("text voor invoer\n"),
-      :set-widget<copyBttn>,
+      :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-#      :wait(1.0),
-      :set-widget<outputTxt>,
+      :wait(1.0),
+      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "text voor invoer\n", 'Text found is same as input';
@@ -197,12 +200,12 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Repeat test of Copy button
-      :set-widget<inputTxt>,
+      :set-widget(:inputTxt<GTK::V3::Gtk::GtkTextView>),
       :set-text("2e text\n"),
-      :set-widget<copyBttn>,
+      :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-#      :wait(1.0),
-      :set-widget<outputTxt>,
+      :wait(1.0),
+      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "text voor invoer\n2e text\n",
@@ -211,10 +214,10 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Test Clear button
-      :set-widget<clearBttn>,
+      :set-widget(:clearBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-#      :wait(1.0),
-      :set-widget<outputTxt>,
+      :wait(1.0),
+      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "", 'Text is cleared';
@@ -222,13 +225,13 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Test Quit button
-#      :set-widget<quitBttn>,
-#      :emit-signal<clicked>,
-#      :wait(1.0),
-#      :do-test( {
-#          is gtk_main_level(), 0, 'quit button exits loop';
-#        }
-#      ),
+      :set-widget(:quitBttn<GTK::V3::Gtk::GtkButton>),
+      :emit-signal<clicked>,
+      :wait(1.0),
+      :do-test( {
+          is self.glade-main-level, 0, 'quit button exits loop';
+        }
+      ),
 
       # Stop tests
 #      :finish
