@@ -1,4 +1,5 @@
 use v6;
+use Test;
 
 use GTK::Glade;
 
@@ -7,11 +8,9 @@ use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkButton;
 use GTK::V3::Gtk::GtkLabel;
 
-use Test;
-
+#-------------------------------------------------------------------------------
 diag "\n";
 
-#-------------------------------------------------------------------------------
 my $dir = 'xt/x';
 mkdir $dir unless $dir.IO ~~ :e;
 
