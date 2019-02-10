@@ -1,5 +1,4 @@
 use v6;
-#use lib '../gtk-v3/lib';
 
 use GTK::Glade;
 
@@ -12,7 +11,6 @@ use Test;
 
 diag "\n";
 
-my GTK::V3::Gtk::GtkMain $main .= new;
 #-------------------------------------------------------------------------------
 my $dir = 'xt/x';
 mkdir $dir unless $dir.IO ~~ :e;
@@ -126,9 +124,9 @@ class E is GTK::Glade::Engine {
     diag "Target name: " ~ $target-widget-name.perl if ?$target-widget-name;
 
     # in the glade design the name is not set and by default the type name
-    my Str $bn = $button.gtk_widget_get_name;
+    my Str $bn = $button.get-name;
     if $bn eq 'GtkButton' {
-      is $button.gtk_button_get_label, "Quit", "Label of quit button ok";
+      is $button.get-label, "Quit", "Label of quit button ok";
     }
 
     else {
@@ -141,22 +139,22 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   method hello-world1 ( :widget($button), :$target-widget-name ) {
 
-    is $button.gtk_button_get_label, "Button 1", "Label of button 1 ok";
+    is $button.get-label, "Button 1", "Label of button 1 ok";
 
-    my Str $bn = $button.gtk_widget_get_name;
+    my Str $bn = $button.get-name;
     is $bn, 'GtkButton', "name of button is class name 'GtkButton'";
 
-    $button.gtk_widget_set_name("HelloWorld1Button");
-    $bn = $button.gtk_widget_get_name;
+    $button.set-name("HelloWorld1Button");
+    $bn = $button.get-name;
     is $bn, 'HelloWorld1Button', "name changed into 'HelloWorld1Button'";
 
     # Change back to keep test ok for next click of the button
-    $button.gtk_widget_set_name("GtkButton");
+    $button.set-name("GtkButton");
   }
 
   #-----------------------------------------------------------------------------
   method hello-world2 ( :widget($button), :$target-widget-name ) {
-    is $button.gtk_button_get_label, "Button 2", "Label of button 2 ok";
+    is $button.get-label, "Button 2", "Label of button 2 ok";
   }
 }
 
