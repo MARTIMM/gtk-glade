@@ -59,7 +59,6 @@ method prepare-and-run-tests ( ) {
     'test done'
   }
 
-note "Start test loop";
   $!main.gtk_main();
 
   await $p;
@@ -86,15 +85,13 @@ method !run-tests ( ) {
         when 'set-widget' {
           my Str $id = $substep.value.key;
           my Str $class = $substep.value.value;
-note "Id: $id, class: $class";
+#note "Id: $id, class: $class";
           $!widget = ::($class).new;
-note "W: ", $!widget;
           $!widget($!builder.get-object($id));
         }
 
         when 'emit-signal' {
           next unless ?$!widget;
-note "emit ", $!widget;
           $!widget.emit-by-name-wd( $substep.value, $!widget(), OpaquePointer);
         }
 
@@ -104,16 +101,13 @@ note "emit ", $!widget;
           $!text = $buffer.get-text(
             self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
           );
-note "get text: $!text";
-
 #            if ?$!widget and $!widget.get-has-window;
         }
 
         when 'set-text' {
           my GTK::V3::Gtk::GtkTextBuffer $buffer .= new;
           $buffer($!widget.get-buffer);
-note "B: ", $buffer;
-          $buffer.set-text( $!text, $!text.chars);
+          $buffer.set-text( $substep.value, $substep.value.chars);
 #            if ?$!widget and $!widget.get-has-window;
         }
 

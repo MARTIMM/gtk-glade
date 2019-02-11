@@ -1,5 +1,4 @@
 use v6;
-use lib '../gtk-v3/lib';
 use Test;
 
 use GTK::Glade;
@@ -179,19 +178,18 @@ class T does GTK::Glade::Engine::Test {
   submethod BUILD ( ) {
     # Wait for start
     $!steps = [
-      :wait(1.2),
+#      :wait(1.2),
 
       # Test Copy button
       :set-widget(:inputTxt<GTK::V3::Gtk::GtkTextView>),
       :do-test( {
-#note $!widget;
           isa-ok $!widget, GTK::V3::Gtk::GtkTextView;
         }
       ),
       :set-text("text voor invoer\n"),
       :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
@@ -204,7 +202,7 @@ class T does GTK::Glade::Engine::Test {
       :set-text("2e text\n"),
       :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
@@ -216,7 +214,7 @@ class T does GTK::Glade::Engine::Test {
       # Test Clear button
       :set-widget(:clearBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
-      :wait(1.0),
+#      :wait(1.0),
       :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
@@ -225,13 +223,17 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Test Quit button
-      :set-widget(:quitBttn<GTK::V3::Gtk::GtkButton>),
-      :emit-signal<clicked>,
-      :wait(1.0),
       :do-test( {
-          is self.glade-main-level, 0, 'quit button exits loop';
+          is self.glade-main-level, 1, 'loop level is 1';
         }
       ),
+      :set-widget(:quitBttn<GTK::V3::Gtk::GtkButton>),
+      :emit-signal<clicked>,
+#      :wait(5.0),
+#      :do-test( {
+#          is self.glade-main-level, 0, 'loop level is 0';
+#        }
+#      ),
 
       # Stop tests
 #      :finish

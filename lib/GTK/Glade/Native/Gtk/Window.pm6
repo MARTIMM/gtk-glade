@@ -20,6 +20,7 @@ enum GtkWindowPosition is export (
     GTK_WIN_POS_CENTER_ON_PARENT   => 4,
 );
 
+sub gtk_window_new(int32 $window_type)
     is native(&gtk-lib)
     is export
     returns GtkWidget

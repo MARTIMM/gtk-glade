@@ -3,19 +3,9 @@ use NativeCall;
 
 use XML::Actions;
 
-#use GTK::Glade::NativeGtk :ALL;
-#use GTK::Glade::Native::Glib::GMain;
-#use GTK::Glade::Native::Glib::GSignal;
-#use GTK::Glade::Native::Gdk;
-#use GTK::Glade::Native::Gtk;
-#use GTK::Glade::Native::Gtk::Main;
-#use GTK::Glade::Native::Gtk::Widget;
-#use GTK::Glade::Native::Gtk::Builder;
-
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 
-#use GTK::V3::Glib::GMain;
 use GTK::V3::Gdk::GdkScreen;
 
 use GTK::V3::Gtk::GtkMain;
@@ -44,35 +34,6 @@ submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
   #$!main .= new;
   $!gdk-screen .= new;
   $!css-provider .= new;
-
-#`{{
-  # Setup gtk using commandline arguments
-  my $arg_arr = CArray[Str].new;
-  $arg_arr[0] = $*PROGRAM.Str;
-  my $argc = CArray[int32].new;
-  $argc[0] = 1;
-  my $argv = CArray[CArray[Str]].new;
-  $argv[0] = $arg_arr;
-
-  if $test {
-    #gtk_test_init( $argc, $argv);
-    gtk_init( $argc, $argv);
-  }
-
-  else {
-    gtk_init( $argc, $argv);
-  }
-}}
-
-#`{{
-  if $ui-file.IO ~~ :r {
-    $!builder = gtk_builder_new_from_file($ui-file);
-  }
-
-  else {
-    $!builder = gtk_builder_new();
-  }
-}}
 }
 
 #-------------------------------------------------------------------------------
@@ -94,7 +55,6 @@ multi method glade-add-gui ( Str:D :$ui-file! ) {
 #-------------------------------------------------------------------------------
 multi method glade-add-gui ( Str:D :$ui-string! ) {
 
-  #my GError $err;
   if ?$!builder {
     my $error-code = $!builder.gtk_builder_add_from_string(
       $ui-string, $ui-string.chars, Any
@@ -111,28 +71,8 @@ multi method glade-add-gui ( Str:D :$ui-string! ) {
 method glade-add-css ( Str :$css-file ) {
 
   return unless ?$css-file and $css-file.IO ~~ :r;
-note $css-file.IO.slurp;
 
-  #my GtkWidget $widget = gtk_builder_get_object(
-  #  $!builder, $!top-level-object-id
-  #);
-
-  #my GdkScreen $default-screen = gdk_screen_get_default();
-  #my GtkCssProvider $css-provider = gtk_css_provider_new();
-#`{{
-  g_signal_connect_object(
-    $css-provider, 'parsing-error',
-    -> GtkCssProvider $p, GtkCssSection $s, GError $e, $ptr {
-note "handler called";
-      self!glade-parsing-error( $p, $s, $e, $ptr);
-    },
-    OpaquePointer, 0
-  );
-}}
-
-  #my GError $error .= new;
   $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
-#note "Error: $error.code(), ", $error.message()//'-' if ?$error;
 
   $!css-provider.gtk_style_context_add_provider_for_screen(
     $!gdk-screen(), $!css-provider(), GTK_STYLE_PROVIDER_PRIORITY_USER
@@ -141,20 +81,6 @@ note "handler called";
   #my GtkCssProvider $css-provider = gtk_css_provider_get_named(
   #  'Kate', Any
   #);
-
-#`{{
-  g_signal_connect_object(
-  $css-provider, 'parsing-error',
-  -> $provider, $section, $error, $pointer {
-    self!glade-parsing-error( $provider, $section, $error, $pointer);
-  },
-  OpaquePointer, 0
-  );
-
-  my GError $error .= new;
-  gtk_css_provider_load_from_path( $css-provider, $css-file, $error);
-note "Error: $error.code(), ", $error.message()//'-' if ?$error;
-}}
 }
 
 #-------------------------------------------------------------------------------
