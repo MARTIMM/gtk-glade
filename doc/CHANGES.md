@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-02-11 0.7.1
+  * Conversions to use GTK::V3
 * 2019-01-24 0.7.0
   * Added a Image module to the native call interface.
 * 2019-01-22 0.6.3

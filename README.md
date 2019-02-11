@@ -6,6 +6,8 @@
 -->
 [![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
 
+###TODO must change docs for use with GTK::V3
+
 # Description
 With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description saved by an external designer program. The program used is glade which saves an XML description of the made design.
 
