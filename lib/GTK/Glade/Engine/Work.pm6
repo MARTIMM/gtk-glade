@@ -137,6 +137,7 @@ note "Id and class: $id, $class";
   my N-GtkWidget $widget = $!builder.gtk_builder_get_object($id);
   my $gtk-widget;
 
+#`{{
   given $class {
     when 'GtkButton' {
       $gtk-widget = GTK::V3::Gtk::GtkButton.new(:$widget);
@@ -154,6 +155,8 @@ note "Id and class: $id, $class";
       $gtk-widget = GTK::V3::Gtk::GtkWidget.new(:$widget);
     }
   }
+}}
+  $gtk-widget = ::('GTK::V3::Gtk::' ~ $class).new(:$widget);
 
 note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
@@ -163,8 +166,8 @@ note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
   #self!glade-set-object($id);
   $gtk-widget.register-signal(
-    $!engine, $handler-name, $connect-flags,
-    :target-widget-name($object), :handler-type<wd>, :signal-name<clicked>
+    $!engine, $handler-name, $signal-name, :$connect-flags,
+    :target-widget-name($object), :handler-type<wd>
   );
 
 #`{{
