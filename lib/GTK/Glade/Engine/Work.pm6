@@ -6,6 +6,7 @@ use XML::Actions;
 use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 
+use GTK::V3::Glib::GObject;
 use GTK::V3::Gdk::GdkScreen;
 
 use GTK::V3::Gtk::GtkMain;
@@ -13,9 +14,11 @@ use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkButton;
 use GTK::V3::Gtk::GtkLabel;
 use GTK::V3::Gtk::GtkGrid;
-use GTK::V3::Gtk::GtkWidget;
+#use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkBuilder;
 use GTK::V3::Gtk::GtkCssProvider;
+use GTK::V3::Gtk::GtkImageMenuItem;
+use GTK::V3::Gtk::GtkMenuItem;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
@@ -134,7 +137,7 @@ method signal (
   my Str $class = %object<class>;
 note "Id and class: $id, $class";
 
-  my N-GtkWidget $widget = $!builder.gtk_builder_get_object($id);
+  my N-GObject $widget = $!builder.get-object($id);
   my $gtk-widget;
 
 #`{{
@@ -157,7 +160,8 @@ note "Id and class: $id, $class";
   }
 }}
   $gtk-widget = ::('GTK::V3::Gtk::' ~ $class).new(:$widget);
-
+note "v3 class: GTK::V3::Gtk::$class";
+note "v3 obj: ", $gtk-widget;
 note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
   my Int $connect-flags = 0;
