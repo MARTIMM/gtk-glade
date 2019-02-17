@@ -35,8 +35,8 @@ submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
 
   # initializing GTK is done in Engine because it lives before Work
   #$!main .= new;
-  $!gdk-screen .= new;
-  $!css-provider .= new;
+  $!gdk-screen .= new(:default);
+  $!css-provider .= new(:empty);
 }
 
 #-------------------------------------------------------------------------------
