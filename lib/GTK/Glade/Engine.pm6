@@ -22,8 +22,8 @@ submethod BUILD ( ) {
   # initialize GTK
   $!main .= new(:check);
 
-  $!text-buffer .= new;
-  $!text-view .= new;
+#  $!text-buffer .= new(:empty);
+#  $!text-view .= new(:empty);
 }
 
 #-------------------------------------------------------------------------------
@@ -47,8 +47,8 @@ method glade-end-iter ( $text-buffer --> CArray[int32] ) {
 #-------------------------------------------------------------------------------
 method glade-get-text ( Str:D $id --> Str ) {
 
-  $!text-view($!builder.get-object($id));
-  $!text-buffer($!text-view.get-buffer);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
   $!text-buffer.get-text(
     self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1)
 }
@@ -56,16 +56,16 @@ method glade-get-text ( Str:D $id --> Str ) {
 #-------------------------------------------------------------------------------
 method glade-set-text ( Str:D $id, Str:D $text ) {
 
-  $!text-view($!builder.get-object($id));
-  $!text-buffer($!text-view.get-buffer);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
   $!text-buffer.set-text( $text, $text.chars);
 }
 
 #-------------------------------------------------------------------------------
 method glade-add-text ( Str:D $id, Str:D $text is copy ) {
 
-  $!text-view($!builder.get-object($id));
-  $!text-buffer($!text-view.get-buffer);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
 
   $text = $!text-buffer.get-text(
     self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
@@ -78,8 +78,8 @@ method glade-add-text ( Str:D $id, Str:D $text is copy ) {
 # Get the text and clear text field. Returns the original text
 method glade-clear-text ( Str:D $id --> Str ) {
 
-  $!text-view($!builder.get-object($id));
-  $!text-buffer($!text-view.get-buffer);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
   my Str $text = $!text-buffer.get-text(
     self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
   );
