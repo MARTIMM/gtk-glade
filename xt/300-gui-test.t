@@ -1,12 +1,9 @@
 use v6;
+#use lib '../gtk-v3/lib';
 use Test;
 
 use GTK::Glade;
 use GTK::Glade::Engine;
-
-#use GTK::Glade::Native::Gtk;
-#use GTK::Glade::Native::Gtk::Main;
-#use GTK::Glade::Native::Gtk::Widget;
 
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkWidget;
@@ -181,16 +178,16 @@ class T does GTK::Glade::Engine::Test {
 #      :wait(1.2),
 
       # Test Copy button
-      :set-widget(:inputTxt<GTK::V3::Gtk::GtkTextView>),
+      :native-gobject(:inputTxt<GTK::V3::Gtk::GtkTextView>),
       :do-test( {
           isa-ok $!widget, GTK::V3::Gtk::GtkTextView;
         }
       ),
       :set-text("text voor invoer\n"),
-      :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
+      :native-gobject(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
 #      :wait(1.0),
-      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
+      :native-gobject(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "text voor invoer\n", 'Text found is same as input';
@@ -198,12 +195,12 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Repeat test of Copy button
-      :set-widget(:inputTxt<GTK::V3::Gtk::GtkTextView>),
+      :native-gobject(:inputTxt<GTK::V3::Gtk::GtkTextView>),
       :set-text("2e text\n"),
-      :set-widget(:copyBttn<GTK::V3::Gtk::GtkButton>),
+      :native-gobject(:copyBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
 #      :wait(1.0),
-      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
+      :native-gobject(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "text voor invoer\n2e text\n",
@@ -212,10 +209,10 @@ class T does GTK::Glade::Engine::Test {
       ),
 
       # Test Clear button
-      :set-widget(:clearBttn<GTK::V3::Gtk::GtkButton>),
+      :native-gobject(:clearBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
 #      :wait(1.0),
-      :set-widget(:outputTxt<GTK::V3::Gtk::GtkTextView>),
+      :native-gobject(:outputTxt<GTK::V3::Gtk::GtkTextView>),
       :get-text,
       :do-test( {
           is $!text, "", 'Text is cleared';
@@ -227,7 +224,7 @@ class T does GTK::Glade::Engine::Test {
           is self.glade-main-level, 1, 'loop level is 1';
         }
       ),
-      :set-widget(:quitBttn<GTK::V3::Gtk::GtkButton>),
+      :native-gobject(:quitBttn<GTK::V3::Gtk::GtkButton>),
       :emit-signal<clicked>,
 #      :wait(5.0),
 #      :do-test( {

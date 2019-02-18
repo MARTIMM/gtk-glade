@@ -1,24 +1,12 @@
 use v6;
 use NativeCall;
 
-#use GTK::Glade::NativeGtk :ALL;
-#use GTK::Glade::Native::Gtk;
-#use GTK::Glade::Native::Glib::GSignal;
-#use GTK::Glade::Native::Gtk::Main;
-#use GTK::Glade::Native::Gtk::Widget;
-#use GTK::Glade::Native::Gtk::Builder;
-#use GTK::Glade::Gdkkeysyms;
-
 use GTK::Glade::Engine;
 
+use GTK::V3::Glib::GObject;
 use GTK::V3::Glib::GMain;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkBuilder;
-use GTK::V3::Gtk::GtkWidget;
-use GTK::V3::Gtk::GtkButton;
-use GTK::V3::Gtk::GtkLabel;
-use GTK::V3::Gtk::GtkTextView;
-use GTK::V3::Gtk::GtkTextBuffer;
 
 #-------------------------------------------------------------------------------
 unit role GTK::Glade::Engine::Test:auth<github:MARTIMM> is GTK::Glade::Engine;
@@ -27,7 +15,7 @@ unit role GTK::Glade::Engine::Test:auth<github:MARTIMM> is GTK::Glade::Engine;
 has GTK::V3::Gtk::GtkBuilder $.builder is rw;
 
 has GTK::V3::Gtk::GtkMain $!main;
-has GTK::V3::Gtk::GtkWidget $!widget;
+has GTK::V3::Glib::GObject $!widget;
 has Str $!text;
 has Array $.steps;
 
@@ -73,7 +61,7 @@ method !run-tests ( ) {
   if $!steps.elems {
 
     # clear data
-    $!widget = GTK::V3::Gtk::GtkWidget;
+    $!widget = GTK::V3::Glib::GObject;
     $!text = Str;
 
     for @$!steps -> Pair $substep {
@@ -85,9 +73,8 @@ method !run-tests ( ) {
         when 'native-gobject' {
           my Str $id = $substep.value.key;
           my Str $class = $substep.value.value;
-#note "Id: $id, class: $class";
-          $!widget = ::($class).new;
-          $!widget($!builder.get-object($id));
+          require ::($class);
+          $!widget = ::($class).new(:build-id($id));
         }
 
         when 'emit-signal' {
@@ -96,8 +83,9 @@ method !run-tests ( ) {
         }
 
         when 'get-text' {
-          my GTK::V3::Gtk::GtkTextBuffer $buffer .= new;
-          $buffer($!widget.get-buffer);
+          my GTK::V3::Gtk::GtkTextBuffer $buffer .= new(
+            :widget($!widget.get-buffer)
+          );
           $!text = $buffer.get-text(
             self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
           );
@@ -105,8 +93,9 @@ method !run-tests ( ) {
         }
 
         when 'set-text' {
-          my GTK::V3::Gtk::GtkTextBuffer $buffer .= new;
-          $buffer($!widget.get-buffer);
+          my GTK::V3::Gtk::GtkTextBuffer $buffer .= new(
+            :widget($!widget.get-buffer)
+          );
           $buffer.set-text( $substep.value, $substep.value.chars);
 #            if ?$!widget and $!widget.get-has-window;
         }

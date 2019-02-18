@@ -50,7 +50,9 @@ method glade-get-text ( Str:D $id --> Str ) {
   $!text-view .= new(:build-id($id));
   $!text-buffer .= new(:widget($!text-view.get-buffer));
   $!text-buffer.get-text(
-    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1)
+    self.glade-start-iter($!text-buffer),
+    self.glade-end-iter($!text-buffer), 1
+  );
 }
 
 #-------------------------------------------------------------------------------

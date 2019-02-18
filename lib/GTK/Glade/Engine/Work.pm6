@@ -10,15 +10,10 @@ use GTK::V3::Glib::GObject;
 use GTK::V3::Gdk::GdkScreen;
 
 use GTK::V3::Gtk::GtkMain;
-#use GTK::V3::Gtk::Gtk;
-use GTK::V3::Gtk::GtkButton;
-use GTK::V3::Gtk::GtkLabel;
-use GTK::V3::Gtk::GtkGrid;
-#use GTK::V3::Gtk::GtkWidget;
+use GTK::V3::Gtk::GtkWindow;
 use GTK::V3::Gtk::GtkBuilder;
 use GTK::V3::Gtk::GtkCssProvider;
-use GTK::V3::Gtk::GtkImageMenuItem;
-use GTK::V3::Gtk::GtkMenuItem;
+use GTK::V3::Gtk::GtkStyleContext;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
@@ -27,6 +22,7 @@ has GTK::V3::Gdk::GdkScreen $!gdk-screen;
 has GTK::V3::Gtk::GtkBuilder $.builder;
 has GTK::V3::Gtk::GtkMain $!main;
 has GTK::V3::Gtk::GtkCssProvider $!css-provider;
+has GTK::V3::Gtk::GtkStyleContext $!style-context;
 
 has GTK::Glade::Engine $!engine;
 
@@ -34,9 +30,10 @@ has GTK::Glade::Engine $!engine;
 submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
 
   # initializing GTK is done in Engine because it lives before Work
-  #$!main .= new;
+  $!main .= new;
   $!gdk-screen .= new(:default);
   $!css-provider .= new(:empty);
+  $!style-context .= new(:empty);
 }
 
 #-------------------------------------------------------------------------------
@@ -77,8 +74,8 @@ method glade-add-css ( Str :$css-file ) {
 
   $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
 
-  $!css-provider.gtk_style_context_add_provider_for_screen(
-    $!gdk-screen(), $!css-provider(), GTK_STYLE_PROVIDER_PRIORITY_USER
+  $!style-context.gtk_style_context_add_provider_for_screen(
+    $!gdk-screen, $!css-provider, GTK_STYLE_PROVIDER_PRIORITY_USER
   );
 
   #my GtkCssProvider $css-provider = gtk_css_provider_get_named(
@@ -135,61 +132,26 @@ method signal (
   my %object = $parent-path[*-2].attribs;
   my Str $id = %object<id>;
   my Str $class = %object<class>;
-note "Id and class: $id, $class";
+#note "Id and class: $id, $class";
 
   my N-GObject $widget = $!builder.get-object($id);
   my $gtk-widget;
 
-#`{{
-  given $class {
-    when 'GtkButton' {
-      $gtk-widget = GTK::V3::Gtk::GtkButton.new(:$widget);
-    }
-
-    when 'GtkLabel' {
-      $gtk-widget = GTK::V3::Gtk::GtkLabel.new(:$widget);
-    }
-
-    when 'GtkGrid' {
-      $gtk-widget = GTK::V3::Gtk::GtkGrid.new(:$widget);
-    }
-
-    default {
-      $gtk-widget = GTK::V3::Gtk::GtkWidget.new(:$widget);
-    }
-  }
-}}
+  my Str $class-name = "GTK::V3::Gtk::$class";
+  require ::($class-name);
   $gtk-widget = ::('GTK::V3::Gtk::' ~ $class).new(:$widget);
-note "v3 class: GTK::V3::Gtk::$class";
-note "v3 obj: ", $gtk-widget;
-note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
+#note "v3 class: GTK::V3::Gtk::$class";
+#note "v3 obj: ", $gtk-widget;
+#note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
 
   my Int $connect-flags = 0;
   $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
-  #self!glade-set-object($id);
   $gtk-widget.register-signal(
     $!engine, $handler-name, $signal-name, :$connect-flags,
     :target-widget-name($object), :handler-type<wd>
   );
-
-#`{{
-  $widget.g_signal_connect_object-wd(
-    $signal-name,
-    -> $w, $d {
-      if $!engine.^can($handler-name) {
-#note "in callback, calling $handler-name";
-        $!engine."$handler-name"( :$widget, :data($d), :$object);
-      }
-
-      else {
-        note "Handler $handler-name on $id object using $signal-name event not defined";
-      }
-    },
-    OpaquePointer, $connect-flags
-  );
-}}
 }
 
 #-------------------------------------------------------------------------------

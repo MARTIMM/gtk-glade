@@ -1,7 +1,10 @@
 use v6;
+#use lib '../gtk-v3/lib';
 use Test;
 
 use GTK::Glade;
+
+use GTK::V3::Glib::GObject;
 
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkWidget;

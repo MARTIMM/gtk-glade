@@ -1,4 +1,5 @@
 use v6;
+#use lib '../gtk-v3/lib';
 use Test;
 
 use GTK::Glade;
