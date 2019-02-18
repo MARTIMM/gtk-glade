@@ -82,7 +82,7 @@ method !run-tests ( ) {
 
       given $substep.key {
 
-        when 'set-widget' {
+        when 'native-gobject' {
           my Str $id = $substep.value.key;
           my Str $class = $substep.value.value;
 #note "Id: $id, class: $class";
