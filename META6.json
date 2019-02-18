@@ -1,7 +1,7 @@
 {
   "description": "Interfacing Glade XML to Perl6",
   "name": "GTK::Glade",
-  "version": "0.7.2",
+  "version": "0.7.2.1",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "XML", "Glade", "Gtk"],
 
@@ -14,7 +14,7 @@
     "GTK::Glade::Engine": "lib/GTK/Glade/Engine.pm6",
     "GTK::Glade::Engine::PreProcess": "lib/GTK/Glade/Engine/PreProcess.pm6",
     "GTK::Glade::Engine::Test": "lib/GTK/Glade/Engine/Test.pm6",
-    "GTK::Glade::Engine::Work": "lib/GTK/Glade/Engine/Work.pm6",
+    "GTK::Glade::Engine::Work": "lib/GTK/Glade/Engine/Work.pm6"
   },
 
   "source-url": "git://github.com/MARTIMM/gtk-glade.git",
