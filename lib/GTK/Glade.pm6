@@ -34,7 +34,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     # cleanup preprocess object
     $pp = GTK::Glade::Engine::PreProcess;
 
-#    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
+    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
 
     # Prepare Gtk Glade work for processing the glade XML
     my GTK::Glade::Engine::Work $work .= new( :$engine, :test(?$test-setup));

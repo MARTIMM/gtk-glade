@@ -8,19 +8,25 @@ use GTK::Glade::Engine::Test;
 
 use GTK::V3::Glib::GObject;
 use GTK::V3::Gdk::GdkScreen;
-
 use GTK::V3::Gtk::GtkMain;
-use GTK::V3::Gtk::GtkWindow;
 use GTK::V3::Gtk::GtkBuilder;
 use GTK::V3::Gtk::GtkCssProvider;
 use GTK::V3::Gtk::GtkStyleContext;
+
+# Pick the extremities of modules to get all depending modules.
+use GTK::V3::Gtk::GtkImageMenuItem;
+use GTK::V3::Gtk::GtkAboutDialog;
+use GTK::V3::Gtk::GtkFileChooserDialog;
+use GTK::V3::Gtk::GtkRadioButton;
+use GTK::V3::Gtk::GtkLabel;
+use GTK::V3::Gtk::GtkEntry;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine::Work:auth<github:MARTIMM> is XML::Actions::Work;
 
 has GTK::V3::Gdk::GdkScreen $!gdk-screen;
-has GTK::V3::Gtk::GtkBuilder $.builder;
 has GTK::V3::Gtk::GtkMain $!main;
+has GTK::V3::Gtk::GtkBuilder $.builder;
 has GTK::V3::Gtk::GtkCssProvider $!css-provider;
 has GTK::V3::Gtk::GtkStyleContext $!style-context;
 
@@ -69,7 +75,7 @@ multi method glade-add-gui ( Str:D :$ui-string! ) {
 
 #-------------------------------------------------------------------------------
 method glade-add-css ( Str :$css-file ) {
-
+return;
   return unless ?$css-file and $css-file.IO ~~ :r;
 
   $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
@@ -108,16 +114,15 @@ note "Start loop";
 #-------------------------------------------------------------------------------
 # Callback methods called from XML::Actions
 #-------------------------------------------------------------------------------
-#`{{
+#`{{}}
 method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
   note "Object $class, id '$id'";
 
-  return unless $class eq "GtkWindow";
-  $!top-level-object-id = $id unless ?$!top-level-object-id;
-
+#  return unless $class eq "GtkWindow";
+#  $!top-level-object-id = $id unless ?$!top-level-object-id;
 }
-}}
+
 
 #-------------------------------------------------------------------------------
 # signal element, e.g.
@@ -132,31 +137,56 @@ method signal (
   my %object = $parent-path[*-2].attribs;
   my Str $id = %object<id>;
   my Str $class = %object<class>;
-#note "Id and class: $id, $class";
-
-  my N-GObject $widget = $!builder.get-object($id);
-  my $gtk-widget;
-
-  my Str $class-name = "GTK::V3::Gtk::$class";
-  require ::($class-name);
-  $gtk-widget = ::('GTK::V3::Gtk::' ~ $class).new(:$widget);
-#note "v3 class: GTK::V3::Gtk::$class";
-#note "v3 obj: ", $gtk-widget;
-#note "Signal {$parent-path[*-2].name}: ", $widget, ", ", %object.perl;
+  my Str $class-name = 'GTK::V3::Gtk::' ~ $class;
+note "\nId and class: $id, $class, $class-name";
+note "P: ", GTK::V3::Gtk::.keys;
 
   my Int $connect-flags = 0;
   $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
-  $gtk-widget.register-signal(
-    $!engine, $handler-name, $signal-name, :$connect-flags,
-    :target-widget-name($object), :handler-type<wd>
-  );
+  try {
+note GTK::V3::Gtk::{$class};
+    if GTK::V3::Gtk::{$class}:exists {
+
+  #note ::("GTK::V3::Gtk::$class").Bool;
+      my $gtk-widget = ::($class-name).new(:build-id($id));
+  note "v3 gtk obj: ", $gtk-widget;
+
+      $gtk-widget.register-signal(
+        $!engine, $handler-name, $signal-name, :$connect-flags,
+        :target-widget-name($object), :handler-type<wd>
+      );
+    }
+
+    else {
+note "require $class-name";
+#      require ::('GTK::V3::Gtk');
+      require ::($class-name);
+note "P2: ", GTK::V3::Gtk::.keys;
+
+  #note ::("GTK::V3::Gtk::$class").Bool;
+      my $gtk-widget = ::($class-name).new(:build-id($id));
+  note "v3 gtk obj: ", $gtk-widget;
+
+      $gtk-widget.register-signal(
+        $!engine, $handler-name, $signal-name, :$connect-flags,
+        :target-widget-name($object), :handler-type<wd>
+      );
+    }
+
+    CATCH {
+#.note;
+      default {
+        note "Not able to load module: ", .message;
+      }
+    }
+  }
 }
 
 #-------------------------------------------------------------------------------
 # Private methods
 #-------------------------------------------------------------------------------
-method !glade-parsing-error( $provider, $section, $error, $pointer ) {
-  note "Error";
-}
+#method !glade-parsing-error( $provider, $section, $error, $pointer ) {
+#  note "Error";
+#}
