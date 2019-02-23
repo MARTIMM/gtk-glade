@@ -50,8 +50,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     # widget needed which is known afterwards.
     $work.glade-add-css(:$css-file);
 
-    # Copy the builder object
-    #$engine.builder = $work.builder;
+    # show user design and run main loop
     $work.glade-run( :$test-setup, :$toplevel-id);
 
     #note $work.state-engine-data;

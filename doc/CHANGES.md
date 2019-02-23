@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-02-23 0.7.3
+  * Removed convenience method `glade-get-widget()` because GTK::V3 has :build-id in the widgets new() method which does the same work.
 * 2019-02-18 0.7.2
   * Bugfixes
 * 2019-02-11 0.7.1

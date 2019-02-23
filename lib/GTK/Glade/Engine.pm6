@@ -2,7 +2,6 @@ use v6;
 use NativeCall;
 
 use GTK::V3::Gtk::GtkMain;
-use GTK::V3::Gtk::GtkBuilder;
 use GTK::V3::Gtk::GtkTextBuffer;
 use GTK::V3::Gtk::GtkTextView;
 
@@ -12,9 +11,6 @@ unit class GTK::Glade::Engine:auth<github:MARTIMM>;
 has GTK::V3::Gtk::GtkMain $!main;
 has GTK::V3::Gtk::GtkTextBuffer $!text-buffer;
 has GTK::V3::Gtk::GtkTextView $!text-view;
-
-# Must be set before by GTK::Glade.
-has GTK::V3::Gtk::GtkBuilder $.builder is rw;
 
 #-------------------------------------------------------------------------------
 submethod BUILD ( ) {
@@ -89,11 +85,6 @@ method glade-clear-text ( Str:D $id --> Str ) {
   $!text-buffer.set-text( "", 0);
 
   $text
-}
-
-#-------------------------------------------------------------------------------
-method glade-get-widget ( Str:D $id --> Any ) {
-  $!builder.get-object($id)
 }
 
 #-------------------------------------------------------------------------------
