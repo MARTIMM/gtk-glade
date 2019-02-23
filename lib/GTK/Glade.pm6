@@ -18,7 +18,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     GTK::Glade::Engine::Test :$test-setup
   ) {
 
-    die X::Glade.new(
+    die X::GTK::Glade.new(
       :message("No suitable glade XML file: '$ui-file'")
     ) unless ?$ui-file and $ui-file.IO ~~ :r;
 
@@ -51,7 +51,7 @@ class GTK::Glade:auth<github:MARTIMM> {
     $work.glade-add-css(:$css-file);
 
     # Copy the builder object
-    $engine.builder = $work.builder;
+    #$engine.builder = $work.builder;
     $work.glade-run( :$test-setup, :$toplevel-id);
 
     #note $work.state-engine-data;
