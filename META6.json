@@ -1,7 +1,7 @@
 {
   "description": "Interfacing Glade XML to Perl6",
   "name": "GTK::Glade",
-  "version": "0.7.2.1",
+  "version": "0.7.3",
   "authors": [ "Marcel Timmerman"],
   "tags": [ "XML", "Glade", "Gtk"],
 
@@ -19,7 +19,7 @@
 
   "source-url": "git://github.com/MARTIMM/gtk-glade.git",
 
-  "depends": [ "XML::Actions"],
+  "depends": [ "XML::Actions", "GTK::V3"],
   "test-depends": [ ],
   "build-depends": [ ],
   "resources": [ ]
