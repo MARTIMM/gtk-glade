@@ -163,8 +163,13 @@ class E is GTK::Glade::Engine {
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 subtest 'Action object', {
   my E $engine .= new();
-  my GTK::Glade $a .= new( :$ui-file, :$css-file, :$engine);
-  isa-ok $a, GTK::Glade, 'type ok';
+
+  my GTK::Glade $gui .= new;
+  isa-ok $gui, GTK::Glade, 'type ok';
+  $gui.add-gui-file($ui-file);
+  $gui.add-css($css-file);
+  $gui.add-engine(E.new);
+  $gui.run;
 }
 
 #-------------------------------------------------------------------------------
