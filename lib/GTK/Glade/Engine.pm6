@@ -13,16 +13,6 @@ has GTK::V3::Gtk::GtkTextBuffer $!text-buffer;
 has GTK::V3::Gtk::GtkTextView $!text-view;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( ) {
-
-  # initialize GTK
-  $!main .= new(:check);
-
-#  $!text-buffer .= new(:empty);
-#  $!text-view .= new(:empty);
-}
-
-#-------------------------------------------------------------------------------
 method glade-start-iter ( $text-buffer --> CArray[int32] ) {
 
   my $iter_mem = CArray[int32].new;
