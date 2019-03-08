@@ -20,11 +20,6 @@ has Str $!text;
 has Array $.steps;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( ) {
-  $!main .= new(:check);
-}
-
-#-------------------------------------------------------------------------------
 # This method runs in a thread. Gui updates can be done using a context
 method prepare-and-run-tests ( ) {
 
