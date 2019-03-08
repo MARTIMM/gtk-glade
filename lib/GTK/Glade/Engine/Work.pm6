@@ -30,16 +30,25 @@ has GTK::V3::Gtk::GtkBuilder $.builder;
 has GTK::V3::Gtk::GtkCssProvider $!css-provider;
 has GTK::V3::Gtk::GtkStyleContext $!style-context;
 
-has GTK::Glade::Engine $!engine;
+has Array $!engines;
 
 #-------------------------------------------------------------------------------
-submethod BUILD ( GTK::Glade::Engine :$!engine, Bool :$test = False ) {
+submethod BUILD ( ) {
 
   # initializing GTK is done in Engine because it lives before Work
   $!main .= new;
   $!gdk-screen .= new(:default);
   $!css-provider .= new(:empty);
   $!style-context .= new(:empty);
+
+  $!engines = [];
+}
+
+#-----------------------------------------------------------------------------
+method glade-add-engine ( GTK::Glade::Engine:D $engine ) {
+
+#TODO init in BUILD first then add etc
+  $!engines.push($engine);
 }
 
 #-------------------------------------------------------------------------------
@@ -58,7 +67,7 @@ multi method glade-add-gui ( Str:D :$ui-file! ) {
   }
 }
 
-#-------------------------------------------------------------------------------
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 multi method glade-add-gui ( Str:D :$ui-string! ) {
 
   if ?$!builder {
@@ -74,8 +83,8 @@ multi method glade-add-gui ( Str:D :$ui-string! ) {
 }
 
 #-------------------------------------------------------------------------------
-method glade-add-css ( Str :$css-file ) {
-return;
+method glade-add-css ( Str:D $css-file ) {
+
   return unless ?$css-file and $css-file.IO ~~ :r;
 
   $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
@@ -92,7 +101,7 @@ return;
 #-------------------------------------------------------------------------------
 method glade-run (
   GTK::Glade::Engine::Test :$test-setup,
-  Str :$toplevel-id
+  #Str :$toplevel-id
 ) {
 
 #  gtk_widget_show_all(gtk_builder_get_object( $!builder, $toplevel-id));
@@ -117,7 +126,7 @@ note "Start loop";
 #`{{}}
 method object ( Array:D $parent-path, Str :$id is copy, Str :$class) {
 
-  note "Object $class, id '$id'";
+#  note "Object $class, id '$id'";
 
 #  return unless $class eq "GtkWindow";
 #  $!top-level-object-id = $id unless ?$!top-level-object-id;
@@ -138,47 +147,49 @@ method signal (
   my Str $id = %object<id>;
   my Str $class = %object<class>;
   my Str $class-name = 'GTK::V3::Gtk::' ~ $class;
-note "\nId and class: $id, $class, $class-name";
-note "P: ", GTK::V3::Gtk::.keys;
+#note "\nId and class: $id, $class, $class-name";
+#note "P: ", GTK::V3::Gtk::.keys;
 
   my Int $connect-flags = 0;
   $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
-  try {
-note GTK::V3::Gtk::{$class};
-    if GTK::V3::Gtk::{$class}:exists {
+  for @$!engines -> $engine {
+    try {
+  #note GTK::V3::Gtk::{$class};
+      if GTK::V3::Gtk::{$class}:exists {
 
-  #note ::("GTK::V3::Gtk::$class").Bool;
-      my $gtk-widget = ::($class-name).new(:build-id($id));
-  note "v3 gtk obj: ", $gtk-widget;
+    #note ::("GTK::V3::Gtk::$class").Bool;
+        my $gtk-widget = ::($class-name).new(:build-id($id));
+  #  note "v3 gtk obj: ", $gtk-widget;
 
-      $gtk-widget.register-signal(
-        $!engine, $handler-name, $signal-name, :$connect-flags,
-        :target-widget-name($object), :handler-type<wd>
-      );
-    }
+        last if $gtk-widget.register-signal(
+          $engine, $handler-name, $signal-name, :$connect-flags,
+          :target-widget-name($object), :handler-type<wd>
+        );
+      }
 
-    else {
-note "require $class-name";
-#      require ::('GTK::V3::Gtk');
-      require ::($class-name);
-note "P2: ", GTK::V3::Gtk::.keys;
+      else {
+  #note "require $class-name";
+  #      require ::('GTK::V3::Gtk');
+        require ::($class-name);
+  #note "P2: ", GTK::V3::Gtk::.keys;
 
-  #note ::("GTK::V3::Gtk::$class").Bool;
-      my $gtk-widget = ::($class-name).new(:build-id($id));
-  note "v3 gtk obj: ", $gtk-widget;
+    #note ::("GTK::V3::Gtk::$class").Bool;
+        my $gtk-widget = ::($class-name).new(:build-id($id));
+  #  note "v3 gtk obj: ", $gtk-widget;
 
-      $gtk-widget.register-signal(
-        $!engine, $handler-name, $signal-name, :$connect-flags,
-        :target-widget-name($object), :handler-type<wd>
-      );
-    }
+        last if $gtk-widget.register-signal(
+          $engine, $handler-name, $signal-name, :$connect-flags,
+          :target-widget-name($object), :handler-type<wd>
+        );
+      }
 
-    CATCH {
-#.note;
-      default {
-        note "Not able to load module: ", .message;
+      CATCH {
+  #.note;
+        default {
+          note "Not able to load module: ", .message;
+        }
       }
     }
   }

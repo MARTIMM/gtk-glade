@@ -1,4 +1,28 @@
 use v6;
+# ==============================================================================
+=begin pod
+
+=TITLE class GTK::Glade
+
+=SUBTITLE
+
+  unit Gtk::Glade;
+
+=head1 Synopsis
+
+  use MyGui::MainEngine;
+  use MyGui::SecondEngine;
+  use GTK::Glade;
+
+  sub MAIN ( Str:D $glade-xml-file ) {
+    my GTK::Glade $gui .= new(:$glade-xml-file);
+    $gui.add-engine(:engine(MyGui::MainEngine.new()));
+    $gui.add-engine(:engine(MyGui::SecondEngine.new()));
+    $gui.run;
+  }
+
+=end pod
+# ==============================================================================
 use NativeCall;
 
 use XML::Actions;
@@ -10,49 +34,88 @@ use GTK::Glade::Engine::Work;
 use GTK::Glade::Engine::PreProcess;
 
 #-------------------------------------------------------------------------------
-class GTK::Glade:auth<github:MARTIMM> {
+unit class GTK::Glade:auth<github:MARTIMM>;
 
-  #-----------------------------------------------------------------------------
-  submethod BUILD (
-    Str :$ui-file, Str :$css-file, GTK::Glade::Engine:D :$engine,
-    GTK::Glade::Engine::Test :$test-setup
-  ) {
+has Str $!modified-ui;
+has GTK::Glade::Engine::Work $!work;
+has XML::Actions $!actions;
 
-    die X::GTK::Glade.new(
-      :message("No suitable glade XML file: '$ui-file'")
-    ) unless ?$ui-file and $ui-file.IO ~~ :r;
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 new
 
-    # Prepare XML document for processing
-    my XML::Actions $actions .= new(:file($ui-file));
+  submethod BUILD ( )
 
-    # Prepare Gtk Glade work for preprocessing. In this phase all missing
-    # ids on objects are generated and written back in the xml elements.
-    my GTK::Glade::Engine::PreProcess $pp .= new;
-    $actions.process(:actions($pp));
-    my Str $modified-ui = $actions.result;
-    my Str $toplevel-id = $pp.toplevel-id;
-    # cleanup preprocess object
-    $pp = GTK::Glade::Engine::PreProcess;
+Initialize Glade interface.
+=end pod
+submethod BUILD ( ) {
 
-    "modified-ui.glade".IO.spurt($modified-ui); # test dump for result
+  $!work .= new;
+}
 
-    # Prepare Gtk Glade work for processing the glade XML
-    my GTK::Glade::Engine::Work $work .= new( :$engine, :test(?$test-setup));
-    $work.glade-add-gui(:ui-string($modified-ui));
-#    $work.glade-add-gui(:ui-string("hoeperdepoep")); # test for failure
-    # cleanup the glade XML string
-    $modified-ui = Str;
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 add-gui-file
 
-    # Process the XML document creating the API to the UI
-    $actions.process(:actions($work));
+  method add-gui-file ( Str $ui-file )
 
-    # Css can be added only after processing is done. There is a toplevel
-    # widget needed which is known afterwards.
-    $work.glade-add-css(:$css-file);
+Add an XML document saved by the glade user interface designer.
+=end pod
+method add-gui-file ( Str:D $ui-file where .IO ~~ :r ) {
 
-    # show user design and run main loop
-    $work.glade-run( :$test-setup, :$toplevel-id);
+  # Prepare XML document for processing
+  $!actions .= new(:file($ui-file));
 
-    #note $work.state-engine-data;
-  }
+  # Prepare Gtk Glade work for preprocessing. In this phase all missing
+  # ids on objects are generated and written back in the xml elements.
+  my GTK::Glade::Engine::PreProcess $pp .= new;
+  $!actions.process(:actions($pp));
+  $!modified-ui = $!actions.result;
+
+  $!work.glade-add-gui(:ui-string($!modified-ui));
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 add-engine
+
+  method add-engine ( GTK::Glade::Engine $engine )
+
+Add the user object where callback methods are defined.
+=end pod
+method add-engine ( GTK::Glade::Engine:D $engine ) {
+
+  $!work.glade-add-engine($engine);
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 add-css
+
+  method add-css ( Str $css-file )
+
+Add a css style file, This is a CSS-like input in order to style widgets. Classes and id's are definable in the glade interface designer. A few are reserved. You need to look up the documents for a particular widget to find that out. E.g. the button knows about the C<circular> and C<flat> classes (See also L<gnome developer docs|https://developer.gnome.org/gtk3/stable/GtkButton.html> section CSS nodes).
+=end pod
+method add-css ( Str:D $css-file where .IO ~~ :r ) {
+
+  # Css can be added only after processing is done. There is a toplevel
+  # widget needed which is known afterwards.
+  $!work.glade-add-css($css-file);
+}
+
+#-------------------------------------------------------------------------------
+=begin pod
+=head2 run
+
+  method run ( )
+
+Run the glade design. It will enter the main loop and when interacting with the interface, events will call the callbacks defined in one of the added engines.
+=end pod
+method run ( GTK::Glade::Engine::Test :$test-setup ) {
+
+  # Process the XML document creating the API to the UI
+  $!actions.process(:actions($!work));
+
+  # show user design and run main loop
+  $!work.glade-run(:$test-setup);
 }
