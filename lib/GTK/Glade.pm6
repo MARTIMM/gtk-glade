@@ -15,7 +15,8 @@ use v6;
   use GTK::Glade;
 
   sub MAIN ( Str:D $glade-xml-file ) {
-    my GTK::Glade $gui .= new(:$glade-xml-file);
+    my GTK::Glade $gui .= new;
+    $gui.add-gui-file($glade-xml-file);
     $gui.add-engine(:engine(MyGui::MainEngine.new()));
     $gui.add-engine(:engine(MyGui::SecondEngine.new()));
     $gui.run;
