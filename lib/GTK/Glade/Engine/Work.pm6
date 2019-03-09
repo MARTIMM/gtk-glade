@@ -7,6 +7,7 @@ use GTK::Glade::Engine;
 use GTK::Glade::Engine::Test;
 
 use GTK::V3::Glib::GObject;
+use GTK::V3::Glib::GSignal;
 use GTK::V3::Gdk::GdkScreen;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkBuilder;
@@ -87,6 +88,7 @@ method glade-add-css ( Str:D $css-file ) {
 
   return unless ?$css-file and $css-file.IO ~~ :r;
 
+#$!css-provider.debug(:on);
   $!css-provider.gtk_css_provider_load_from_path( $css-file, Any);
 
   $!style-context.gtk_style_context_add_provider_for_screen(
@@ -155,40 +157,40 @@ method signal (
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
   for @$!engines -> $engine {
-    try {
   #note GTK::V3::Gtk::{$class};
-      if GTK::V3::Gtk::{$class}:exists {
+    if GTK::V3::Gtk::{$class}:exists {
 
-    #note ::("GTK::V3::Gtk::$class").Bool;
-        my $gtk-widget = ::($class-name).new(:build-id($id));
-  #  note "v3 gtk obj: ", $gtk-widget;
+  #note ::("GTK::V3::Gtk::$class").Bool;
+      my $gtk-widget = ::($class-name).new(:build-id($id));
+#  note "v3 gtk obj: ", $gtk-widget;
 
-        last if $gtk-widget.register-signal(
-          $engine, $handler-name, $signal-name, :$connect-flags,
-          :target-widget-name($object), :handler-type<wd>
-        );
-      }
+      last if $gtk-widget.register-signal(
+        $engine, $handler-name, $signal-name, :$connect-flags,
+        :target-widget-name($object), :handler-type<wd>
+      );
+    }
 
-      else {
-  #note "require $class-name";
-  #      require ::('GTK::V3::Gtk');
+    else {
+      try {
+#note "require $class-name";
+#      require ::('GTK::V3::Gtk');
         require ::($class-name);
-  #note "P2: ", GTK::V3::Gtk::.keys;
+#note "P2: ", GTK::V3::Gtk::.keys;
 
-    #note ::("GTK::V3::Gtk::$class").Bool;
+  #note ::("GTK::V3::Gtk::$class").Bool;
         my $gtk-widget = ::($class-name).new(:build-id($id));
-  #  note "v3 gtk obj: ", $gtk-widget;
+#  note "v3 gtk obj: ", $gtk-widget;
 
         last if $gtk-widget.register-signal(
           $engine, $handler-name, $signal-name, :$connect-flags,
           :target-widget-name($object), :handler-type<wd>
         );
-      }
 
-      CATCH {
-  #.note;
-        default {
-          note "Not able to load module: ", .message;
+        CATCH {
+    #.note;
+          default {
+            note "Not able to load module: ", .message;
+          }
         }
       }
     }
