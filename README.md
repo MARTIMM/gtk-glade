@@ -72,7 +72,7 @@ $gui.run;
 
 # Documentation
 
-* [GTK::Glade](https://modules.perl6.org/dist/GTK::Glade:cpan:MARTIMM/doc/GtkGlade)
+* [GTK::Glade](https://modules.perl6.org/dist/GTK::Glade:cpan:MARTIMM/doc/Glade.pdf)
 * GTK::Glade::Engine
 
 ## Miscellaneous
