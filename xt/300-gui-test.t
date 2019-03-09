@@ -240,11 +240,11 @@ class T does GTK::Glade::Engine::Test {
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 subtest 'Action object', {
-  my E $engine .= new();
-  my GTK::Glade $a .= new(
-    :ui-file($file), :$engine, :test-setup(T.new())
-  );
-  #isa-ok $a, GTK::Glade, 'type ok';
+  my GTK::Glade $gui .= new;
+  isa-ok $gui, GTK::Glade, 'type ok';
+  $gui.add-gui-file($file);
+  $gui.add-engine(E.new);
+  $gui.run(:test-setup(T.new()));
 }
 
 #-------------------------------------------------------------------------------
