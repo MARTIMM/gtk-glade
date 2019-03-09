@@ -1,81 +1,88 @@
 use v6;
-
 use NativeCall;
-use GTK::Glade::NativeGtk :ALL;
-use GTK::Glade::Native::Gtk;
-use GTK::Glade::Native::Gtk::Widget;
-use GTK::Glade::Native::Gtk::Builder;
+
+use GTK::V3::Gtk::GtkMain;
+use GTK::V3::Gtk::GtkTextBuffer;
+use GTK::V3::Gtk::GtkTextView;
 
 #-------------------------------------------------------------------------------
 unit class GTK::Glade::Engine:auth<github:MARTIMM>;
 
-# Must be set before by GTK::Glade.
-has $.builder is rw;
+has GTK::V3::Gtk::GtkMain $!main;
+has GTK::V3::Gtk::GtkTextBuffer $!text-buffer;
+has GTK::V3::Gtk::GtkTextView $!text-view;
 
 #-------------------------------------------------------------------------------
-method glade-start-iter ( $buffer ) {
+method glade-start-iter ( $text-buffer --> CArray[int32] ) {
+
   my $iter_mem = CArray[int32].new;
   $iter_mem[31] = 0; # Just need a blob of memory.
-  gtk_text_buffer_get_start_iter( $buffer, $iter_mem);
+  $text-buffer.get-start-iter($iter_mem);
   $iter_mem
 }
 
 #-------------------------------------------------------------------------------
-method glade-end-iter ( $buffer ) {
+method glade-end-iter ( $text-buffer --> CArray[int32] ) {
+
   my $iter_mem = CArray[int32].new;
   $iter_mem[16] = 0;
-  gtk_text_buffer_get_end_iter( $buffer, $iter_mem);
+  $text-buffer.get-end-iter($iter_mem);
   $iter_mem
-}
-
-#-------------------------------------------------------------------------------
-method glade-get-widget ( Str:D $id --> Any ) {
-  gtk_builder_get_object( $!builder, $id)
 }
 
 #-------------------------------------------------------------------------------
 method glade-get-text ( Str:D $id --> Str ) {
 
-  my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
-  my $buffer = gtk_text_view_get_buffer($widget);
-
-  gtk_text_buffer_get_text(
-    $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
-  )
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
+  $!text-buffer.get-text(
+    self.glade-start-iter($!text-buffer),
+    self.glade-end-iter($!text-buffer), 1
+  );
 }
 
 #-------------------------------------------------------------------------------
 method glade-set-text ( Str:D $id, Str:D $text ) {
 
-  my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
-  my $buffer = gtk_text_view_get_buffer($widget);
-  gtk_text_buffer_set_text( $buffer, $text, -1);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
+  $!text-buffer.set-text( $text, $text.chars);
 }
 
 #-------------------------------------------------------------------------------
 method glade-add-text ( Str:D $id, Str:D $text is copy ) {
 
-  my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
-  my $buffer = gtk_text_view_get_buffer($widget);
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
 
-  $text = gtk_text_buffer_get_text(
-    $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+  $text = $!text-buffer.get-text(
+    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
   ) ~ $text;
 
-  gtk_text_buffer_set_text( $buffer, $text, -1);
+  $!text-buffer.set-text( $text, $text.chars);
 }
 
 #-------------------------------------------------------------------------------
 # Get the text and clear text field. Returns the original text
 method glade-clear-text ( Str:D $id --> Str ) {
 
-  my GtkWidget $widget = gtk_builder_get_object( $!builder, $id);
-  my $buffer = gtk_text_view_get_buffer($widget);
-  my Str $text = gtk_text_buffer_get_text(
-    $buffer, self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+  $!text-view .= new(:build-id($id));
+  $!text-buffer .= new(:widget($!text-view.get-buffer));
+  my Str $text = $!text-buffer.get-text(
+    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
   );
 
-  gtk_text_buffer_set_text( $buffer, "", -1);
+  $!text-buffer.set-text( "", 0);
 
   $text
+}
+
+#-------------------------------------------------------------------------------
+method glade-main-level ( ) {
+  $!main.gtk-main-level;
+}
+
+#-------------------------------------------------------------------------------
+method glade-main-quit ( ) {
+  $!main.gtk-main-quit;
 }
