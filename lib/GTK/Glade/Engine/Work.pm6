@@ -149,6 +149,7 @@ method signal (
   my Str $id = %object<id>;
   my Str $class = %object<class>;
   my Str $class-name = 'GTK::V3::Gtk::' ~ $class;
+  my Bool $handler-found = False;
 #note "\nId and class: $id, $class, $class-name";
 #note "P: ", GTK::V3::Gtk::.keys;
 
@@ -157,17 +158,20 @@ method signal (
   $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
   for @$!engines -> $engine {
-  #note GTK::V3::Gtk::{$class};
+#note GTK::V3::Gtk::{$class};
     if GTK::V3::Gtk::{$class}:exists {
 
-  #note ::("GTK::V3::Gtk::$class").Bool;
+#note ::("GTK::V3::Gtk::$class").Bool;
       my $gtk-widget = ::($class-name).new(:build-id($id));
 #  note "v3 gtk obj: ", $gtk-widget;
 
-      last if $gtk-widget.register-signal(
+      if $gtk-widget.register-signal(
         $engine, $handler-name, $signal-name, :$connect-flags,
         :target-widget-name($object), :handler-type<wd>
-      );
+      ) {
+        $handler-found = True;
+        last;
+      }
     }
 
     else {
@@ -177,17 +181,20 @@ method signal (
         require ::($class-name);
 #note "P2: ", GTK::V3::Gtk::.keys;
 
-  #note ::("GTK::V3::Gtk::$class").Bool;
+#note ::("GTK::V3::Gtk::$class").Bool;
         my $gtk-widget = ::($class-name).new(:build-id($id));
 #  note "v3 gtk obj: ", $gtk-widget;
 
-        last if $gtk-widget.register-signal(
+        if $gtk-widget.register-signal(
           $engine, $handler-name, $signal-name, :$connect-flags,
           :target-widget-name($object), :handler-type<wd>
-        );
+        ) {
+          $handler-found = True;
+          last;
+        }
 
         CATCH {
-    #.note;
+#.note;
           default {
             note "Not able to load module: ", .message;
           }
@@ -195,6 +202,8 @@ method signal (
       }
     }
   }
+
+  note "Handler $handler-name not defined in any engine" unless $handler-found;
 }
 
 #-------------------------------------------------------------------------------
