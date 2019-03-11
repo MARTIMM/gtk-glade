@@ -63,7 +63,6 @@ method glade-clear-text ( Str:D $id --> Str ) {
   $!text-buffer.get-end-iter($end);
 
   my Str $text = $!text-buffer.get-text( $start, $end, 1);
-note "Text: $text";
   $!text-buffer.set-text( "", 0);
 
   $text
