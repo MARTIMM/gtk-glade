@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-03-11 0.8.2
+  * Improve test facility
 * 2019-03-10 0.8.1
   * Modifications from GTK::V3
 * 2019-03-06 0.8.0
