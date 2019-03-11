@@ -2,6 +2,7 @@ use v6;
 use NativeCall;
 
 use GTK::V3::Gtk::GtkMain;
+use GTK::V3::Gtk::GtkTextIter;
 use GTK::V3::Gtk::GtkTextBuffer;
 use GTK::V3::Gtk::GtkTextView;
 
@@ -13,32 +14,17 @@ has GTK::V3::Gtk::GtkTextBuffer $!text-buffer;
 has GTK::V3::Gtk::GtkTextView $!text-view;
 
 #-------------------------------------------------------------------------------
-method glade-start-iter ( $text-buffer --> CArray[int32] ) {
-
-  my $iter_mem = CArray[int32].new;
-  $iter_mem[31] = 0; # Just need a blob of memory.
-  $text-buffer.get-start-iter($iter_mem);
-  $iter_mem
-}
-
-#-------------------------------------------------------------------------------
-method glade-end-iter ( $text-buffer --> CArray[int32] ) {
-
-  my $iter_mem = CArray[int32].new;
-  $iter_mem[16] = 0;
-  $text-buffer.get-end-iter($iter_mem);
-  $iter_mem
-}
-
-#-------------------------------------------------------------------------------
 method glade-get-text ( Str:D $id --> Str ) {
 
   $!text-view .= new(:build-id($id));
   $!text-buffer .= new(:widget($!text-view.get-buffer));
-  $!text-buffer.get-text(
-    self.glade-start-iter($!text-buffer),
-    self.glade-end-iter($!text-buffer), 1
-  );
+
+  my GTK::V3::Gtk::GtkTextIter $start .= new;
+  $!text-buffer.get-start-iter($start);
+  my GTK::V3::Gtk::GtkTextIter $end .= new;
+  $!text-buffer.get-end-iter($end);
+
+  $!text-buffer.get-text( $start, $end)
 }
 
 #-------------------------------------------------------------------------------
@@ -55,10 +41,12 @@ method glade-add-text ( Str:D $id, Str:D $text is copy ) {
   $!text-view .= new(:build-id($id));
   $!text-buffer .= new(:widget($!text-view.get-buffer));
 
-  $text = $!text-buffer.get-text(
-    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
-  ) ~ $text;
+  my GTK::V3::Gtk::GtkTextIter $start .= new;
+  $!text-buffer.get-start-iter($start);
+  my GTK::V3::Gtk::GtkTextIter $end .= new;
+  $!text-buffer.get-end-iter($end);
 
+  $text = $!text-buffer.get-text( $start, $end, 1) ~ $text;
   $!text-buffer.set-text( $text, $text.chars);
 }
 
@@ -68,10 +56,14 @@ method glade-clear-text ( Str:D $id --> Str ) {
 
   $!text-view .= new(:build-id($id));
   $!text-buffer .= new(:widget($!text-view.get-buffer));
-  my Str $text = $!text-buffer.get-text(
-    self.glade-start-iter($!text-buffer), self.glade-end-iter($!text-buffer), 1
-  );
 
+  my GTK::V3::Gtk::GtkTextIter $start .= new;
+  $!text-buffer.get-start-iter($start);
+  my GTK::V3::Gtk::GtkTextIter $end .= new;
+  $!text-buffer.get-end-iter($end);
+
+  my Str $text = $!text-buffer.get-text( $start, $end, 1);
+note "Text: $text";
   $!text-buffer.set-text( "", 0);
 
   $text

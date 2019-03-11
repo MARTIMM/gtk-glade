@@ -145,14 +145,16 @@ class E is GTK::Glade::Engine {
   }
 
   #-----------------------------------------------------------------------------
-  method copy-text ( ) {
+  method copy-text ( :$widget ) {
+#$widget.debug(:on);
 
     my Str $text = self.glade-clear-text('inputTxt');
     self.glade-add-text( 'outputTxt', $text);
   }
 
   #-----------------------------------------------------------------------------
-  method clear-text ( ) {
+  method clear-text ( :$widget ) {
+#$widget.debug(:on);
 
     note self.glade-clear-text('outputTxt');
   }
