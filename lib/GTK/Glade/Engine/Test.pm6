@@ -7,6 +7,7 @@ use GTK::V3::Glib::GObject;
 use GTK::V3::Glib::GMain;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkBuilder;
+use GTK::V3::Gtk::GtkTextIter;
 
 #-------------------------------------------------------------------------------
 unit role GTK::Glade::Engine::Test:auth<github:MARTIMM> is GTK::Glade::Engine;
@@ -81,8 +82,13 @@ method !run-tests ( ) {
           my GTK::V3::Gtk::GtkTextBuffer $buffer .= new(
             :widget($!widget.get-buffer)
           );
-          $!text = $buffer.get-text(
-            self.glade-start-iter($buffer), self.glade-end-iter($buffer), 1
+
+          my GTK::V3::Gtk::GtkTextIter $start .= new;
+          $buffer.get-start-iter($start);
+          my GTK::V3::Gtk::GtkTextIter $end .= new;
+          $buffer.get-end-iter($end);
+
+          $!text = $buffer.get-text( $start, $end, 1
           );
 #            if ?$!widget and $!widget.get-has-window;
         }
