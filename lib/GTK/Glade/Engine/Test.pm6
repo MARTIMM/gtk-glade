@@ -87,7 +87,7 @@ method !run-tests ( ) {
           my Hash $ss = %(|$substep.value);
           my Str $signal-name = $ss<signal-name> // 'clicked';
           my $widget = self!get-widget($ss);
-          $widget.emit-by-name-wd( $signal-name, $widget, OpaquePointer);
+          $widget.emit-by-name( $signal-name, $widget, OpaquePointer);
         }
 
         when 'get-text' {
