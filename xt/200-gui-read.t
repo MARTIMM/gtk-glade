@@ -1,13 +1,18 @@
 use v6;
 #use lib '../gtk-v3/lib';
 use Test;
+use NativeCall;
 
 use GTK::Glade;
 
+use GTK::V3::N::N-GObject;
+use GTK::V3::Gdk::GdkTypes;
+use GTK::V3::Gdk::GdkEventTypes;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkButton;
 use GTK::V3::Gtk::GtkLabel;
+use GTK::V3::Gtk::GtkWindow;
 
 #-------------------------------------------------------------------------------
 diag "\n";
@@ -137,6 +142,60 @@ $file.IO.spurt(Q:q:to/EOXML/);
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 class E is GTK::Glade::Engine {
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( ) {
+    my GTK::V3::Gtk::GtkWindow $w .= new(:build-id<window>);
+
+    # the easy way
+    $w.register-event(
+      self, 'keyboard-event', 'key-press-event', :time(now)
+    );
+
+    # the difficult way
+    my Callable $handler;
+    $handler = -> N-GObject $ignore-w, GdkEvent $e, OpaquePointer $ignore-d {
+      self.mouse-event( :widget($w), :event($e) );
+    }
+
+    $w.connect-object(
+      'button-press-event', $handler, OpaquePointer
+    );
+  }
+
+  #-----------------------------------------------------------------------------
+  method mouse-event ( :widget($window), GdkEvent :$event ) {
+
+#    $window.debug(:on);
+    note "event type: ", GdkEventType($event.event-button.type);
+    my GdkEventButton $event-button := $event.event-button;
+    note "x, y: ", $event-button.x, ', ', $event-button.y;
+    note "Root x, y: ", $event-button.x_root, ', ', $event-button.y_root;
+    for 0,1,2,4,8 ... 2**(32-1) -> $m {
+      if $event-button.state +& $m {
+        note "Found in state: ", GdkModifierType($m);
+      }
+    }
+
+    note "Button: ", $event-button.button;
+  }
+
+  #-----------------------------------------------------------------------------
+  method keyboard-event ( :widget($window), GdkEvent :$event, :$time ) {
+
+#    $window.debug(:on);
+    my GdkEventKey $event-key := $event.event-key;
+    note "event type: ", GdkEventType($event-key.type);
+    note "state: ", $event-key.state.base(2);
+    for 0,1,2,4,8 ... 2**(32-1) -> $m {
+      if $event-key.state +& $m {
+        note "Found in state: ", GdkModifierType($m);
+      }
+    }
+
+    note "key: ", $event-key.keyval.fmt('0x%04x');
+    note "hw key: ", $event-key.hardware_keycode;
+  }
 
   #-----------------------------------------------------------------------------
   method exit-program ( ) {
