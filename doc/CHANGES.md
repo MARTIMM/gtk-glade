@@ -1,5 +1,7 @@
 ## Release notes
 
+* 2019-04-26 0.8.4
+  * Small changes from GTK::V3
 * 2019-04-22 0.8.3
   * Extended test xt/200-gui-read.t to use device events. This can only be tested by hand because I do not know how to create mouse button presses or generate keyboard input.
 * 2019-03-11 0.8.2
