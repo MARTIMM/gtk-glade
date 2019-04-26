@@ -167,7 +167,7 @@ method signal (
 
       if $gtk-widget.register-signal(
         $engine, $handler-name, $signal-name, :$connect-flags,
-        :target-widget-name($object), :handler-type<wd>
+        :target-widget-name($object)
       ) {
         $handler-found = True;
         last;
@@ -187,7 +187,7 @@ method signal (
 
         if $gtk-widget.register-signal(
           $engine, $handler-name, $signal-name, :$connect-flags,
-          :target-widget-name($object), :handler-type<wd>
+          :target-widget-name($object)
         ) {
           $handler-found = True;
           last;
