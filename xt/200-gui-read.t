@@ -8,6 +8,7 @@ use GTK::Glade;
 use GTK::V3::N::N-GObject;
 use GTK::V3::Gdk::GdkTypes;
 use GTK::V3::Gdk::GdkEventTypes;
+use GTK::V3::Gdk::GdkKeysyms;
 use GTK::V3::Gtk::GtkMain;
 use GTK::V3::Gtk::GtkWidget;
 use GTK::V3::Gtk::GtkButton;
@@ -168,7 +169,7 @@ class E is GTK::Glade::Engine {
   method mouse-event ( :widget($window), GdkEvent :$event ) {
 
 #    $window.debug(:on);
-    note "event type: ", GdkEventType($event.event-button.type);
+    note "\nevent type: ", GdkEventType($event.event-button.type);
     my GdkEventButton $event-button := $event.event-button;
     note "x, y: ", $event-button.x, ', ', $event-button.y;
     note "Root x, y: ", $event-button.x_root, ', ', $event-button.y_root;
@@ -186,7 +187,7 @@ class E is GTK::Glade::Engine {
 
 #    $window.debug(:on);
     my GdkEventKey $event-key := $event.event-key;
-    note "event type: ", GdkEventType($event-key.type);
+    note "\nevent type: ", GdkEventType($event-key.type);
     note "state: ", $event-key.state.base(2);
     for 0,1,2,4,8 ... 2**(32-1) -> $m {
       if $event-key.state +& $m {
@@ -195,6 +196,9 @@ class E is GTK::Glade::Engine {
     }
 
     note "key: ", $event-key.keyval.fmt('0x%04x');
+    note "Return pressed" if $event-key.keyval == GDK_KEY_Return;
+    note "KP Enter pressed" if $event-key.keyval == GDK_KEY_KP_Enter;
+
     note "hw key: ", $event-key.hardware_keycode;
   }
 
