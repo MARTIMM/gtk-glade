@@ -146,9 +146,10 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
     my GTK::V3::Gtk::GtkWindow $w .= new(:build-id<window>);
+#$w.debug(:on);
 
     # the easy way
-    $w.register-event(
+    $w.register-signal(
       self, 'keyboard-event', 'key-press-event', :time(now)
     );
 
