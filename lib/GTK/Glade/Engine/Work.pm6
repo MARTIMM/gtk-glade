@@ -150,7 +150,7 @@ method signal (
   my Str $class = %object<class>;
   my Str $class-name = 'GTK::V3::Gtk::' ~ $class;
   my Bool $handler-found = False;
-#note "\nId and class: $id, $class, $class-name";
+#note "\nId, class, handler: $id, $class, $class-name, $handler-name";
 #note "P: ", GTK::V3::Gtk::.keys;
 
   my Int $connect-flags = 0;
