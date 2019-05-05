@@ -159,16 +159,20 @@ method signal (
 
   for @$!engines -> $engine {
 #note GTK::V3::Gtk::{$class};
+    my $args = ? $object
+              ?? \($engine, $handler-name, $signal-name, :$connect-flags,
+                   :target-widget-name($object)
+                  )
+              !! \($engine, $handler-name, $signal-name, :$connect-flags)
+              ;
+
     if GTK::V3::Gtk::{$class}:exists {
 
 #note ::("GTK::V3::Gtk::$class").Bool;
       my $gtk-widget = ::($class-name).new(:build-id($id));
 #  note "v3 gtk obj: ", $gtk-widget;
 
-      if $gtk-widget.register-signal(
-        $engine, $handler-name, $signal-name, :$connect-flags,
-        :target-widget-name($object)
-      ) {
+      if $gtk-widget.register-signal(|$args) {
         $handler-found = True;
         last;
       }
@@ -185,10 +189,7 @@ method signal (
         my $gtk-widget = ::($class-name).new(:build-id($id));
 #  note "v3 gtk obj: ", $gtk-widget;
 
-        if $gtk-widget.register-signal(
-          $engine, $handler-name, $signal-name, :$connect-flags,
-          :target-widget-name($object)
-        ) {
+        if $gtk-widget.register-signal(|$args) {
           $handler-found = True;
           last;
         }
