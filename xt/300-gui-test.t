@@ -175,8 +175,8 @@ class T does GTK::Glade::Engine::Test {
   submethod BUILD ( ) {
     # Wait for start
     $!steps = [
-      :ignore-wait,
-      :step-wait(1.0),
+      :!ignore-wait,
+      :step-wait(1.5),
 
       # Set text of input widget
       :set-text(
