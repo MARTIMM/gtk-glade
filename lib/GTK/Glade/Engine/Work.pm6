@@ -150,27 +150,17 @@ method signal (
   my Str $class = %object<class>;
   my Str $class-name = 'GTK::V3::Gtk::' ~ $class;
   my Bool $handler-found = False;
-#note "\nId, class, handler: $id, $class, $class-name, $handler-name";
-#note "P: ", GTK::V3::Gtk::.keys;
-
-  my Int $connect-flags = 0;
-  $connect-flags +|= G_CONNECT_SWAPPED if ($swapped//'') eq 'yes';
-  $connect-flags +|= G_CONNECT_AFTER if ($after//'') eq 'yes';
 
   for @$!engines -> $engine {
-#note GTK::V3::Gtk::{$class};
     my $args = ? $object
-              ?? \($engine, $handler-name, $signal-name, :$connect-flags,
+              ?? \($engine, $handler-name, $signal-name,
                    :target-widget-name($object)
                   )
-              !! \($engine, $handler-name, $signal-name, :$connect-flags)
+              !! \($engine, $handler-name, $signal-name)
               ;
 
     if GTK::V3::Gtk::{$class}:exists {
-
-#note ::("GTK::V3::Gtk::$class").Bool;
       my $gtk-widget = ::($class-name).new(:build-id($id));
-#  note "v3 gtk obj: ", $gtk-widget;
 
       if $gtk-widget.register-signal(|$args) {
         $handler-found = True;
