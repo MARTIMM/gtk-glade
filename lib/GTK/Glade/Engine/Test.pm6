@@ -27,26 +27,8 @@ has Array $.steps;
 # This method runs in a thread. Gui updates can be done using a context
 method prepare-and-run-tests ( ) {
 
-  # run tests in a thread
-  my Promise $p = start {
-    # wait for loop to start
-    sleep(1.1);
-    my $result;
-
-    my GTK::V3::Glib::GMain $gmain .= new;
-    my $main-context = $gmain.context-get-thread-default;
-
-    $gmain.context-invoke(
-      $main-context,
-      -> $d {
-        $result = self!run-tests;
-        0
-      },
-      OpaquePointer
-    );
-
-    $result
-  }
+#$!builder.debug(:on);
+  my Promise $p = $!builder.start-thread( self, 'run-tests', :new-context);
 
   # the main loop on the main thread
   $!main.gtk_main();
@@ -57,7 +39,7 @@ method prepare-and-run-tests ( ) {
 }
 
 #-------------------------------------------------------------------------------
-method !run-tests ( ) {
+method run-tests ( ) {
 
   my Int $executed-tests = 0;
 
@@ -87,7 +69,7 @@ method !run-tests ( ) {
           my Hash $ss = %(|$substep.value);
           my Str $signal-name = $ss<signal-name> // 'clicked';
           my $widget = self!get-widget($ss);
-          $widget.emit-by-name( $signal-name, $widget, OpaquePointer);
+          $widget.emit-by-name( $signal-name, $widget);
         }
 
         when 'get-text' {
