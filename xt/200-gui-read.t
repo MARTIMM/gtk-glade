@@ -160,9 +160,7 @@ class E is GTK::Glade::Engine {
       self.mouse-event( :widget($w), :event($e) );
     }
 
-    $w.connect-object(
-      'button-press-event', $handler, OpaquePointer
-    );
+    $w.connect-object( 'button-press-event', $handler);
   }
 
   #-----------------------------------------------------------------------------
