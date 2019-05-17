@@ -33,23 +33,23 @@ The first thing to do is designing a ui and save it. A part of the saved result 
 ```
 
 ### Class for signal handlers
-Then write code to handle all signals which are defined by the user interface. These modules are called engines. You do not have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it. Only the method to handle a click event from the quit button is shown below in the example. This example file is saved in **lib/MyEngine.pm6**.
+Then write code to handle all signals which are defined by the user interface. These modules are called engines. You do not have to write every handler at once. You will be notified about a missing handler as soon as an event is fired for it.
+
+Only the method to handle a click event from the quit button is shown below in the example. This example file is saved in **lib/MyEngine.pm6**.
 
 ```
 use v6;
 use GTK::Glade;
 use GTK::Glade::Engine;
 
-
 unit class MyEngine;
 also is GTK::Glade::Engine;
-
 
 # $widget is the activated button after which this method is called. Methods
 # are from GTK::V3::Gtk::GtkButton. See documentation in the GTK::V3 project.
 method quit-program ( :$widget ) {
 
-  note "Button label: ", $widget.get-label($widget);
+  note "Button label: ", $widget.get-label;
   note "Button name is by default button's class name: ", $widget.get-name;
 
   self.glade-main-quit();
