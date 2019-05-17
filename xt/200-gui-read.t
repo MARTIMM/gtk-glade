@@ -1,5 +1,5 @@
 use v6;
-#use lib '../gtk-v3/lib';
+use lib '../gtk-v3/lib';
 use Test;
 use NativeCall;
 
@@ -154,6 +154,14 @@ class E is GTK::Glade::Engine {
       self, 'keyboard-event', 'key-press-event', :time(now)
     );
 
+    $w.register-signal(
+      self, 'enter-leave-event', 'enter-notify-event', :time(now)
+    );
+
+    $w.register-signal(
+      self, 'enter-leave-event', 'leave-notify-event', :time(now)
+    );
+
     # the difficult way
     my Callable $handler;
     $handler = -> N-GObject $ignore-w, GdkEvent $e, OpaquePointer $ignore-d {
@@ -166,8 +174,9 @@ class E is GTK::Glade::Engine {
   #-----------------------------------------------------------------------------
   method mouse-event ( :widget($window), GdkEvent :$event ) {
 
-#    $window.debug(:on);
-    note "\nevent type: ", GdkEventType($event.event-button.type);
+    $window.debug(:on);
+    my GdkEventType $t = GdkEventType($event.event-any.type);
+    note "\nevent type: $t";
     my GdkEventButton $event-button := $event.event-button;
     note "x, y: ", $event-button.x, ', ', $event-button.y;
     note "Root x, y: ", $event-button.x_root, ', ', $event-button.y_root;
@@ -178,6 +187,19 @@ class E is GTK::Glade::Engine {
     }
 
     note "Button: ", $event-button.button;
+  }
+
+  #-----------------------------------------------------------------------------
+  method enter-leave-event ( :widget($window), GdkEvent :$event ) {
+
+#    $window.debug(:on);
+    note "\nevent type: ", GdkEventType($event.event-any.type);
+    my GdkEventCrossing $event-crossing := $event.event-crossing;
+    note "x, y: ", $event-crossing.x, ', ', $event-crossing.y;
+    note "Root x, y: ", $event-crossing.x_root, ', ', $event-crossing.y_root;
+
+    note "Mode: ", GdkCrossingMode($event-crossing.mode);
+    note "Detail: ", GdkNotifyType($event-crossing.detail);
   }
 
   #-----------------------------------------------------------------------------
