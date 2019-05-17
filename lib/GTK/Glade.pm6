@@ -2,11 +2,11 @@ use v6;
 # ==============================================================================
 =begin pod
 
-=TITLE class GTK::Glade
+=TITLE GTK::Glade
 
-=SUBTITLE
+=SUBTITLE Easy way to use GTK with GUI generator
 
-  unit Gtk::Glade;
+  unit class Gtk::Glade;
 
 =head1 Synopsis
 
