@@ -3,6 +3,15 @@
 # GTK::Glade - Accessing Gtk using Glade
 [![License](http://martimm.github.io/label/License-label.svg)](http://www.perlfoundation.org/artistic_license_2_0)
 
+# NOTE
+
+## This project is renamed into  Gnome::Glade3 to have better suiting name for two reasons. First it shows which version it uses of GTK+ and second it shows that it is a Gnome product. This project will stay for a while but will not be extended. Please look at the README.md of Gnome::Glade3 if you like to follow the progress of those packages. The renamed version will also use the following projects;
+* Gnome::Gtk3
+* Gnome::Gdk3
+* Gnome::GObject
+* Gnome::Glib
+* Gnome::N
+
 # Description
 With the modules from package `GTK::Simple` you can build a user interface and interact with it. This package however, is meant to load a user interface description saved by an external designer program. The program used is glade which saves an XML description of the made design.
 
